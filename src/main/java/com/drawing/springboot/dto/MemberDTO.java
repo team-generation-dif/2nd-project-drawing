@@ -1,7 +1,5 @@
 package com.drawing.springboot.dto;
 
-
-
 import java.util.Date;
 
 import lombok.Data;
@@ -19,5 +17,5 @@ public class MemberDTO {
     private String m_role;     // 권한
     private String sub_yn;     // 구독여부 
     private String login_type; // 가입유형 
-    private Date m_date; // 가입일 
+    private Date m_date; 	   // 가입일 
 }

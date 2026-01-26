@@ -1,7 +1,5 @@
 package com.drawing.springboot.dto;
-
 import lombok.Data;
-
 @Data
 public class BoardTagDTO {
     private String t_code;      // 태그 번호 (PK) 

@@ -11,5 +11,5 @@ public class FileUpDTO {
     private String up_name;     // 파일명 
     private String up_path;     // 저장경로 
     private String up_type;     // 파일타입 
-    private Date up_date; // 업로드일 
+    private Date up_date; 		// 업로드일 
 }

@@ -1,7 +1,6 @@
 package com.drawing.springboot.dto;
 
 import lombok.Data;
-
 @Data
 public class ProductsDTO {
     private String p_code;      // 상품고유 번호

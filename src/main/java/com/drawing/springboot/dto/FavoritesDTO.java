@@ -1,7 +1,6 @@
 package com.drawing.springboot.dto;
 
 import lombok.Data;
-
 @Data
 public class FavoritesDTO {
     private String a_code; // 찜 고유 번호 

@@ -1,7 +1,5 @@
 package com.drawing.springboot.dto;
 
-
-
 import java.util.Date;
 
 import lombok.Data;
@@ -13,5 +11,5 @@ public class EmailAuthDTO {
     private String auth_num;    // 6자리 인증번호
     private java.util.Date expire_date; // 만료 시간
     private String e_verified;  // 인증 성공 여부
-    private Date e_date; // 인증시간
+    private Date e_date; 		// 인증시간
 }

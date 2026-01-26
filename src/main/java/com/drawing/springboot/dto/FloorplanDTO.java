@@ -2,7 +2,6 @@ package com.drawing.springboot.dto;
 
 import java.util.Date;
 import lombok.Data;
-
 @Data
 public class FloorplanDTO {
     private String F_CODE;
