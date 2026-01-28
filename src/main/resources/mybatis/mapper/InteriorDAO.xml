@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.drawing.springboot.dao.IInteriorDAO">
+	<insert id="insertDAO" parameterType="com.drawing.springboot.dto.InteriorDTO">
+        <selectKey keyProperty="iCode" resultType="String" order="BEFORE">
+            SELECT 'I' || LPAD(SEQ_INTERIOR.NEXTVAL, 5, '0') FROM DUAL
+        </selectKey>
+        INSERT INTO INTERIOR (I_CODE,M_CODE,I_TITLE,F_CODE,JSON_DATA,I_IMAGE,I_DATE)
+         VALUES (#{iCode},#{mCode, jdbcType=VARCHAR},#{iTitle},#{fCode, jdbcType=VARCHAR},#{jsonData},#{iImage},SYSDATE)
+    </insert>
+    
+    <select id="selectDAOByICode" resultType="com.drawing.springboot.dto.InteriorDTO">
+        SELECT * FROM INTERIOR WHERE I_CODE = #{iCode}
+    </select>
+</mapper>

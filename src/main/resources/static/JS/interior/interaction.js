@@ -1,0 +1,279 @@
+// interaction.js
+import * as THREE from 'three';
+import { state } from './state.js';
+import { scene, currentCamera, renderer } from './core.js'; // [수정] renderer 추가 import
+import { saveState } from './history.js';
+import { COLORS, SNAP_RADIUS, FURNITURE_DATA, ROTATION_STEP } from './constants.js';
+import { 
+    createPreviewWall, updateWallPreview, createPreviewRoom, updateRoomPreview, updatePillarPreview, 
+    finishWallDrawing, handleWallSplit, updateConnectedWalls, refreshWallGeometry, refreshPillarGeometry, 
+    checkAndResizePillar, refreshOpeningGeometry, createOpeningMesh, deleteWall, deletePillar, cleanupOrphanPillars, 
+    updateOpeningPreview, createRoomWalls, createFurniture, updateFurniturePreview,
+    checkCollision 
+} from './objects.js';
+import { selectObject, deselectObject, resetUI, closePanel, switchTabUI } from './ui.js';
+
+const raycaster = new THREE.Raycaster();
+const mouse = new THREE.Vector2();
+const plane = new THREE.Plane(new THREE.Vector3(0, 1, 0), 0);
+
+const inputEl = document.getElementById('lengthInput');
+
+// --- Exported Window Functions ---
+export function setMode(m, furnitureId = null) {
+    state.mode = m; state.activeFurnitureId = furnitureId;
+    console.log("Mode:", m, furnitureId);
+    document.querySelectorAll('button').forEach(b => b.classList.remove('active'));
+    let btnId = 'btn-' + m; if (m === 'furniture' && furnitureId) btnId = 'btn-' + furnitureId;
+    const btn = document.getElementById(btnId); if (btn) btn.classList.add('active');
+    deselectObject(); resetDrawing();
+}
+export function switchTab(tabName) { switchTabUI(tabName); setMode('select'); }
+export function setGlobalHeight(val) {
+    const newHeight = parseFloat(val); if (newHeight < 1000) return;
+    state.wallHeight = newHeight;
+    state.walls.forEach(w => refreshWallGeometry(w)); state.pillars.forEach(p => refreshPillarGeometry(p));
+    saveState();
+}
+export function repositionFurniture() {
+    if (state.selectedObject && state.selectedObject.type === 'furniture') {
+        const furn = state.selectedObject; const id = furn.subType; const rot = furn.mesh.rotation.y; 
+        scene.remove(furn.mesh); state.furnitures.splice(state.furnitures.indexOf(furn), 1);
+        setMode('furniture', id);
+        setTimeout(() => { if(state.previewObject) state.previewObject.rotation.y = rot; }, 50);
+    }
+}
+export function deleteFurniture() {
+    if (state.selectedObject && state.selectedObject.type === 'furniture') {
+        const furn = state.selectedObject; scene.remove(furn.mesh);
+        state.furnitures.splice(state.furnitures.indexOf(furn), 1); deselectObject(); saveState();
+    }
+}
+export function onWallThicknessChange(val) {
+    if (!state.selectedObject || !state.selectedObject.isWall) return;
+    let newThick = parseFloat(val); if (newThick < 10) newThick = 10;
+    state.selectedObject.thickness = newThick; refreshWallGeometry(state.selectedObject);
+    checkAndResizePillar(state.selectedObject.start, newThick); checkAndResizePillar(state.selectedObject.end, newThick); saveState();
+}
+export function onPillarSizeChange(val) {
+    if (!state.selectedObject || !state.selectedObject.isPillar) return;
+    let newSize = parseFloat(val); if (newSize < 10) newSize = 10;
+    state.selectedObject.size = newSize; refreshPillarGeometry(state.selectedObject); saveState();
+}
+export function onOpeningPropChange(key, val) {
+    if (!state.selectedObject || (state.selectedObject.type !== 'door' && state.selectedObject.type !== 'window')) return;
+    let num = parseFloat(val); if (isNaN(num)) return; state.selectedObject[key] = num;
+    refreshOpeningGeometry(state.selectedObject); if (state.selectedObject.hostWall) refreshWallGeometry(state.selectedObject.hostWall); saveState();
+}
+export function resetDrawing() {
+    state.isDrawing = false; state.startPillar = null; state.draggingPillar = null; state.draggingFurniture = null; 
+    resetUI(); 
+    if (state.previewObject) {
+        scene.remove(state.previewObject);
+        if (state.previewObject.geometry) state.previewObject.geometry.dispose();
+        if (state.previewObject.material) state.previewObject.material.dispose();
+        state.previewObject = null;
+    }
+    restoreHighlight();
+}
+export function setupEventListeners() {
+    if(inputEl) { inputEl.addEventListener('input', () => state.isUserTyping = true); inputEl.addEventListener('keydown', onInputKeydown); }
+    window.addEventListener('keydown', onWindowKeydown); window.addEventListener('wheel', (e) => e.preventDefault(), { passive: false });
+    window.addEventListener('contextmenu', (e) => e.preventDefault()); window.addEventListener('mousedown', onMouseDown);
+    window.addEventListener('mousemove', onMouseMove); window.addEventListener('mouseup', onMouseUp);
+}
+
+function onWindowKeydown(e) {
+    if (state.mode === 'furniture') {
+        if (state.previewObject) {
+            if (e.key.toLowerCase() === 'q') state.previewObject.rotation.y += ROTATION_STEP;
+            if (e.key.toLowerCase() === 'e') state.previewObject.rotation.y -= ROTATION_STEP;
+        }
+        if (state.draggingFurniture) {
+            if (e.key.toLowerCase() === 'q') state.draggingFurniture.mesh.rotation.y += ROTATION_STEP;
+            if (e.key.toLowerCase() === 'e') state.draggingFurniture.mesh.rotation.y -= ROTATION_STEP;
+        }
+    }
+}
+function onInputKeydown(e) {
+    if (e.key === 'Enter' && state.isDrawing && state.mode === 'draw') {
+        const val = parseFloat(inputEl.value); if (!val || val <= 0) return;
+        const rawTarget = getGroundPoint(state.lastMouseEvent); if (!rawTarget) return;
+        const startPos = state.startPillar.position;
+        let direction = new THREE.Vector3().subVectors(rawTarget, startPos).normalize();
+        if (state.lastMouseEvent && state.lastMouseEvent.shiftKey) {
+            const angle = Math.round(Math.atan2(rawTarget.z - startPos.z, rawTarget.x - startPos.x) / (Math.PI / 4)) * (Math.PI / 4);
+            direction.set(Math.cos(angle), 0, Math.sin(angle));
+        }
+        const targetPos = startPos.clone().add(direction.multiplyScalar(val));
+        const endPillar = handleWallSplit(getSnappedData(targetPos, false));
+        finishWallDrawing(endPillar); saveState();
+        inputEl.value = '0'; state.isUserTyping = false; setTimeout(() => { inputEl.focus(); inputEl.select(); }, 10);
+        state.previewObject.position.copy(state.startPillar.position); state.previewObject.scale.x = 0;
+    }
+}
+function checkUIBlocking(e) { return e.target.closest('.panel') || e.target.closest('#sidebar') || e.target === inputEl; }
+
+function onMouseDown(e) {
+    if (checkUIBlocking(e)) return; 
+    if (e.button === 2) { state.isPanning = true; state.panStartMouse.set(e.clientX, e.clientY); return; }
+    if (e.button !== 0) return;
+
+    updateMousePosition(e);
+    const rawTarget = getGroundPoint(e);
+    if (!rawTarget) return;
+
+    if (state.mode === 'furniture' && state.activeFurnitureId) {
+        if (state.previewObject) {
+            const isColliding = checkCollision(state.previewObject);
+            if (!isColliding) {
+                createFurniture(state.activeFurnitureId, rawTarget, state.previewObject.rotation.y);
+                saveState();
+            } else {
+                alert("다른 물체와 겹칩니다.");
+            }
+        }
+        return;
+    }
+    if (state.mode === 'select') {
+        const hit = raycaster.intersectObjects(state.furnitures.map(f => f.mesh), true)[0];
+        if (hit) {
+            const furn = state.furnitures.find(f => f.mesh === hit.object);
+            if (furn) { selectObject(furn); state.draggingFurniture = furn; state.dragStartPos = furn.mesh.position.clone(); state.dragStartRotation = furn.mesh.rotation.y; return; }
+        }
+    }
+    if (state.mode === 'door' || state.mode === 'window') {
+        const snap = getSnappedData(rawTarget, false);
+        if (snap.type === 'wall') {
+            createOpeningMesh(state.mode, snap.position, snap.object.mesh.rotation.y, {}, snap.object);
+            refreshWallGeometry(snap.object); saveState();
+        } else alert("문과 창문은 벽 위에만 설치할 수 있습니다.");
+        return;
+    }
+    if (state.mode === 'select') { handleSelection(e); return; }
+    if (state.mode === 'delete') { handleDeletion(e); return; }
+    const snapResult = getSnappedData(rawTarget, e.shiftKey);
+    const clickedPillar = handleWallSplit(snapResult);
+    if (state.mode === 'draw') {
+        if (!state.isDrawing) {
+            state.isDrawing = true; state.isUserTyping = false; state.startPillar = clickedPillar;
+            createPreviewWall(state.startPillar.position); inputEl.style.display = 'block'; inputEl.value = '0';
+            moveInputToMouse(e.clientX, e.clientY); setTimeout(() => { inputEl.focus(); inputEl.select(); }, 10);
+        } else {
+            finishWallDrawing(clickedPillar); saveState(); inputEl.value = '0'; state.isUserTyping = false;
+            setTimeout(() => { inputEl.focus(); inputEl.select(); }, 10); state.previewObject.position.copy(state.startPillar.position); state.previewObject.scale.x = 0;
+        }
+    } else if (state.mode === 'room') {
+        state.isDrawing = true; state.startPillar = clickedPillar; createPreviewRoom(state.startPillar.position);
+        inputEl.style.display = 'block'; inputEl.value = ''; moveInputToMouse(e.clientX, e.clientY);
+    }
+}
+
+function onMouseMove(e) {
+    state.lastMouseEvent = e;
+    if (checkUIBlocking(e)) return; 
+    updateMousePosition(e);
+    const rawTarget = getGroundPoint(e);
+
+    if (state.mode === 'furniture' && rawTarget) {
+        const rotation = state.previewObject ? state.previewObject.rotation.y : 0;
+        if(state.previewObject) state.previewObject.position.set(rawTarget.x, FURNITURE_DATA[state.activeFurnitureId].height/2, rawTarget.z);
+        const isSafe = !checkCollision(state.previewObject, rawTarget); 
+        updateFurniturePreview(state.activeFurnitureId, rawTarget, rotation, isSafe);
+        return;
+    }
+    if (state.mode === 'select' && state.draggingFurniture && rawTarget) {
+        const furn = state.draggingFurniture; furn.mesh.position.set(rawTarget.x, furn.height / 2, rawTarget.z);
+        const isColliding = checkCollision(null, null, furn); furn.mesh.material.color.setHex(isColliding ? COLORS.COLLISION : COLORS.SELECT); return;
+    }
+    if (state.mode === 'select' && state.draggingPillar && rawTarget) {
+        state.draggingPillar.position.copy(rawTarget); state.draggingPillar.mesh.position.set(rawTarget.x, state.wallHeight / 2, rawTarget.z);
+        updateConnectedWalls(state.draggingPillar); return;
+    }
+    if (state.mode === 'delete' || state.mode === 'select') handleHighlighting();
+    else restoreHighlight();
+    if (rawTarget && !['select', 'delete'].includes(state.mode)) {
+        const snapResult = getSnappedData(rawTarget, e.shiftKey);
+        if ((state.mode === 'door' || state.mode === 'window')) {
+            if (snapResult.type === 'wall') updateOpeningPreview(state.mode, snapResult.position, snapResult.object.mesh.rotation.y);
+            else if (state.previewObject) scene.remove(state.previewObject);
+        }
+        if (snapResult.type === 'wall') showSplitDimensions(snapResult.object, snapResult.position, e.clientX, e.clientY);
+        else infoTooltip.style.display = 'none';
+        if (state.mode === 'pillar') updatePillarPreview(snapResult.position);
+        else if (state.mode === 'draw' && state.isDrawing) {
+            moveInputToMouse(e.clientX, e.clientY);
+            const dist = state.startPillar.position.distanceTo(snapResult.position);
+            if (!state.isUserTyping) inputEl.value = Math.round(dist);
+            let len = parseFloat(inputEl.value); if (isNaN(len)) len = dist;
+            updateWallPreview(snapResult.position, len);
+        } else if (state.mode === 'room' && state.isDrawing) {
+            moveInputToMouse(e.clientX, e.clientY);
+            const sizeStr = updateRoomPreview(snapResult.position);
+            inputEl.value = sizeStr;
+        }
+    }
+}
+
+function onMouseUp(e) {
+    if (e.button === 2) {
+        state.isPanning = false; document.body.style.cursor = 'default';
+        const moveDist = state.panStartMouse.distanceTo(new THREE.Vector2(e.clientX, e.clientY));
+        if (moveDist < 15) { 
+            // [수정] 기둥 모드 등도 선택 모드로 취소
+            if (state.mode === 'furniture' || state.mode === 'pillar') { 
+                setMode('select'); 
+            } else if (state.mode === 'draw' && state.isDrawing) {
+                // [수정] 벽 그리기 중 취소 시 고아 기둥 삭제
+                resetDrawing(); 
+                cleanupOrphanPillars(); 
+                deselectObject();
+            } else {
+                resetDrawing(); 
+                deselectObject(); 
+            }
+        }
+        return;
+    }
+    if (state.mode === 'select' && state.draggingFurniture) {
+        const furn = state.draggingFurniture; const isColliding = checkCollision(null, null, furn);
+        if (isColliding) { furn.mesh.position.copy(state.dragStartPos); furn.mesh.rotation.y = state.dragStartRotation; alert("해당 위치에는 놓을 수 없습니다."); } else { saveState(); }
+        furn.mesh.material.color.setHex(COLORS.SELECT); state.draggingFurniture = null; return;
+    }
+    if (state.mode === 'select' && state.draggingPillar) { state.draggingPillar = null; saveState(); }
+    if (state.mode === 'room' && state.isDrawing) {
+        const rawTarget = getGroundPoint(e);
+        if (rawTarget) { const snap = getSnappedData(rawTarget, e.shiftKey); createRoomWalls(state.startPillar.position, handleWallSplit(snap).position); saveState(); }
+        resetDrawing();
+    }
+}
+
+function getGroundPoint(e) {
+    if (!e) return null;
+    raycaster.setFromCamera(mouse, currentCamera);
+    
+    // 1. 기둥(Pillar)과 먼저 교차 검사 (3D 스냅 정확도)
+    const pillarIntersects = raycaster.intersectObjects(state.pillars.map(p => p.mesh));
+    if (pillarIntersects.length > 0) {
+        const p = state.pillars.find(x => x.mesh === pillarIntersects[0].object);
+        if (p) return p.position.clone();
+    }
+
+    return raycaster.ray.intersectPlane(plane, new THREE.Vector3()) || null;
+}
+
+// [수정] Canvas 위치 기준 정밀 좌표 계산 (오차 제거)
+function updateMousePosition(e) {
+    const rect = renderer.domElement.getBoundingClientRect();
+    mouse.x = ((e.clientX - rect.left) / rect.width) * 2 - 1;
+    mouse.y = -((e.clientY - rect.top) / rect.height) * 2 + 1;
+}
+
+function moveInputToMouse(x, y) { /*...*/ inputEl.style.left = (x + 20) + 'px'; inputEl.style.top = (y - 50) + 'px'; }
+function handleSelection(e) { /*...*/ const hit = raycaster.intersectObjects([...state.walls.map(w => w.mesh), ...state.pillars.map(p => p.mesh), ...state.openings.map(o => o.mesh), ...state.furnitures.map(f => f.mesh)], true)[0]; if (hit) { let obj = hit.object; if (obj.parent && obj.parent.type === 'Group') obj = obj.parent; const furn = state.furnitures.find(f => f.mesh === obj); if(furn) { selectObject(furn); return; } const openData = state.openings.find(o => o.mesh === obj); if (openData) { selectObject(openData); return; } const w = state.walls.find(x => x.mesh === obj); if (w) { selectObject(w); return; } const p = state.pillars.find(x => x.mesh === obj); if (p) { selectObject(p); state.draggingPillar = p; return; } } else deselectObject(); }
+function handleDeletion(e) { /*...*/ const hit = raycaster.intersectObjects([...state.walls.map(w => w.mesh), ...state.pillars.map(p => p.mesh), ...state.openings.map(o => o.mesh), ...state.furnitures.map(f => f.mesh)], true)[0]; if (hit) { const furn = state.furnitures.find(f => f.mesh === hit.object); if (furn) { scene.remove(furn.mesh); state.furnitures.splice(state.furnitures.indexOf(furn), 1); saveState(); return; } const openData = state.openings.find(o => o.mesh === hit.object || o.mesh === hit.object.parent); if (openData) { scene.remove(openData.mesh); state.openings.splice(state.openings.indexOf(openData), 1); if (openData.hostWall) refreshWallGeometry(openData.hostWall); saveState(); return; } const w = state.walls.find(x => x.mesh === hit.object); if (w) { deleteWall(w); cleanupOrphanPillars(); saveState(); return; } const p = state.pillars.find(x => x.mesh === hit.object); if (p) { deletePillar(p); cleanupOrphanPillars(); saveState(); return; } } }
+function handleHighlighting() { /*...*/ const hit = raycaster.intersectObjects([...state.walls.map(w => w.mesh), ...state.pillars.map(p => p.mesh), ...state.openings.map(o => o.mesh), ...state.furnitures.map(f => f.mesh)], true)[0]; if (hit) { let obj = hit.object; if (obj.parent && obj.parent.type === 'Group') obj = obj.parent; if (state.selectedObject && state.selectedObject.mesh === obj) return; if (state.hoveredObject !== obj) { restoreHighlight(); state.hoveredObject = obj; if (obj.type !== 'Group') { state.originalHex = obj.material.color.getHex(); obj.material.color.setHex(state.mode === 'delete' ? COLORS.HOVER_DELETE : COLORS.HOVER_SELECT); } document.body.style.cursor = 'pointer'; } } else { restoreHighlight(); document.body.style.cursor = 'default'; } }
+function restoreHighlight() { /*...*/ if (state.hoveredObject && state.hoveredObject.type !== 'Group') { if (!state.selectedObject || state.selectedObject.mesh !== state.hoveredObject) { if (state.originalHex !== null) state.hoveredObject.material.color.setHex(state.originalHex); } } state.hoveredObject = null; state.originalHex = null; }
+function getSnappedData(pos, shift) { /*...*/ for (let p of state.pillars) if (pos.distanceTo(p.position) < SNAP_RADIUS) return { type: 'pillar', object: p, position: p.position.clone() }; for (let w of state.walls) { const pt = getProjectedPointOnLine(pos, w.start.position, w.end.position); if (pt && pos.distanceTo(pt) < SNAP_RADIUS) return { type: 'wall', object: w, position: pt }; } if (shift && state.startPillar) { const sp = state.startPillar.position; const dx = pos.x - sp.x; const dz = pos.z - sp.z; const angle = Math.round(Math.atan2(dz, dx) / (Math.PI / 4)) * (Math.PI / 4); const dist = sp.distanceTo(pos); return { type: 'none', object: null, position: new THREE.Vector3(sp.x + Math.cos(angle) * dist, 0, sp.z + Math.sin(angle) * dist) }; } return { type: 'none', object: null, position: pos }; }
+function getProjectedPointOnLine(p, a, b) { /*...*/ const ab = new THREE.Vector3().subVectors(b, a); const ap = new THREE.Vector3().subVectors(p, a); const t = ap.dot(ab) / ab.lengthSq(); return (t < 0 || t > 1) ? null : new THREE.Vector3().copy(a).add(ab.multiplyScalar(t)); }
+function showSplitDimensions(w, pos, cx, cy) { /*...*/ const d1 = Math.round(pos.distanceTo(w.start.position)); const d2 = Math.round(pos.distanceTo(w.end.position)); infoTooltip.style.display = 'block'; infoTooltip.style.left = (cx + 15) + 'px'; infoTooltip.style.top = (cy + 15) + 'px'; infoTooltip.innerHTML = `<span style='color:#ff8a80'>◀ ${d1}</span> | <span style='color:#80d8ff'>${d2} ▶</span>`; }
