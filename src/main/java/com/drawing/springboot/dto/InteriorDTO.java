@@ -1,7 +1,6 @@
 package com.drawing.springboot.dto;
 
 import lombok.Data;
-
 @Data
 public class InteriorDTO {
 	private String iCode;
