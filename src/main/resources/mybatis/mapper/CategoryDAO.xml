@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.drawing.springboot.dao.ICategoryDAO">
+
+    <!-- 전체 카테고리 조회 -->
+    <select id="getAllCategories" resultType="com.drawing.springboot.dto.CategoryDTO">
+        SELECT category_id AS categoryId,
+               name
+        FROM categories
+        ORDER BY category_id
+    </select>
+
+    <!-- 특정 카테고리 조회 -->
+    <select id="getCategoryById" parameterType="long" resultType="com.drawing.springboot.dto.CategoryDTO">
+        SELECT category_id AS categoryId,
+               name
+        FROM categories
+        WHERE category_id = #{categoryId}
+    </select>
+
+</mapper>

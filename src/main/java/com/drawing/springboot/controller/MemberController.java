@@ -140,4 +140,5 @@ public class MemberController {
         memberMapper.deleteMember(m_id);
         return "redirect:/admin/userManage";
     }
+    
 }
