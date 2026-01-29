@@ -64,9 +64,10 @@
     <thead>
         <tr>
             <th>코드</th>
-            <th>이미지</th> <th>매칭 키워드</th>
+            <th>이미지</th> 
+            <th>매칭 키워드</th>
             <th>자동 응답 메시지</th>
-            <th>사용 횟수</th>
+            <th>연결 링크</th> <th>사용 횟수</th>
             <th>관리</th>
         </tr>
     </thead>
@@ -87,6 +88,22 @@
                 </td>
                 <td><span class="badge-keyword">${item.keyword}</span></td>
                 <td>${item.response_msg}</td>
+                
+                <td>
+                    <c:choose>
+                        <c:when test="${not empty item.link_url}">
+                            <a href="${item.link_url}" target="_blank" 
+                               style="color: #e76f51; text-decoration: none; font-size: 12px; font-weight: bold;" 
+                               title="${item.link_url}">
+                                🔗 링크 확인
+                            </a>
+                        </c:when>
+                        <c:otherwise>
+                            <span class="no-img">없음</span>
+                        </c:otherwise>
+                    </c:choose>
+                </td>
+
                 <td>${item.hit_count}</td>
                 <td>
                     <button class="btn-edit" 

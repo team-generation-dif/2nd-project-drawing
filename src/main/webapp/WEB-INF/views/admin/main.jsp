@@ -139,7 +139,7 @@
                         <p>중요한 소식을 작가님들에게 전달하세요. <br>이벤트, 점검, 가이드라인 변경 내용을 공지할 수 있습니다.</p>
                     </div>
                     <div>
-                        <a href="/admin/noticeWrite" class="btn-notice">새 공지사항 등록하기</a>
+                        <a href="/admin/notice_write" class="btn-notice">새 공지 등록</a>
                     </div>
                 </div>
 

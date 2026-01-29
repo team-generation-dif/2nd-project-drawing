@@ -3,35 +3,33 @@
   PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
   "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
-    <mapper namespace="com.drawing.springboot.dao.IChatbotAdminDAO">
+<mapper namespace="com.drawing.springboot.dao.IChatbotAdminDAO">
 
     <select id="selectAll" resultType="com.drawing.springboot.dto.ChatbotQuestDTO">
-    SELECT 
-        q_code, 
-        keyword, 
-        response_msg, 
-        hit_count,
-        use_yn,
-        img_url
-    FROM chatbot_quest
-    ORDER BY q_code DESC -- 보통 최신순으로 정렬합니다.
-</select>
+        SELECT 
+            q_code, 
+            keyword, 
+            response_msg, 
+            hit_count,
+            use_yn,
+            img_url,
+            link_url  FROM chatbot_quest
+        ORDER BY q_code DESC
+    </select>
 
-  <insert id="insert">
-    INSERT INTO chatbot_quest
-    (q_code, keyword, response_msg, hit_count, use_yn, img_url)
-    VALUES
-    (SEQ_CHATBOT_QUEST.NEXTVAL, #{keyword}, #{response_msg}, 0, 'Y', #{img_url})
-</insert>
+    <insert id="insert">
+        INSERT INTO chatbot_quest
+        (q_code, keyword, response_msg, hit_count, use_yn, img_url, link_url) VALUES
+        (SEQ_CHATBOT_QUEST.NEXTVAL, #{keyword}, #{response_msg}, 0, 'Y', #{img_url}, #{link_url}) </insert>
 
     <update id="update">
-    UPDATE chatbot_quest
-    SET
-        keyword = #{keyword},
-        response_msg = #{response_msg},
-        img_url = NVL(#{img_url, jdbcType=VARCHAR}, img_url) -- 새 이미지가 있으면 변경, 없으면 유지
-    WHERE q_code = #{q_code}
-</update>
+        UPDATE chatbot_quest
+        SET
+            keyword = #{keyword},
+            response_msg = #{response_msg},
+            link_url = #{link_url}, img_url = NVL(#{img_url, jdbcType=VARCHAR}, img_url)
+        WHERE q_code = #{q_code}
+    </update>
 
     <delete id="delete">
         DELETE FROM chatbot_quest

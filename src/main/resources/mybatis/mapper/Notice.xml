@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.drawing.springboot.dao.INoticeDAO">
+
+    <select id="selectAll" resultType="com.drawing.springboot.dto.NoticeDTO">
+        SELECT n_code, n_title, n_content, n_date 
+        FROM notice 
+        ORDER BY n_code DESC
+    </select>
+
+    <select id="selectOne" resultType="com.drawing.springboot.dto.NoticeDTO">
+        SELECT * FROM notice WHERE n_code = #{n_code}
+    </select>
+
+    <insert id="insert">
+        INSERT INTO notice (n_code, n_title, n_content, n_date)
+        VALUES (seq_notice.NEXTVAL, #{n_title}, #{n_content}, SYSDATE)
+    </insert>
+
+    <update id="update">
+        UPDATE notice 
+        SET n_title = #{n_title}, n_content = #{n_content} 
+        WHERE n_code = #{n_code}
+    </update>
+
+    <delete id="delete">
+        DELETE FROM notice WHERE n_code = #{n_code}
+    </delete>
+
+</mapper>

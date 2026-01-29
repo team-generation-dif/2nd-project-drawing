@@ -26,7 +26,7 @@
         <%-- [2] 유저 전용 메뉴 : URL에 /admin/이 포함되지 않은 모든 경우 --%>
         <c:if test="${!fn:contains(pageContext.request.requestURI, '/admin/')}">
             <li><a href="/user/list">게시판</a></li>
-            <li><a href="#">공지사항</a></li>
+            <li><a href="/notice/list">공지사항</a></li>
             <li><a href="/user/interior/myDraw">3D인테리어</a></li>
             <li><a href="#">찜목록</a></li>
             

@@ -20,17 +20,16 @@
 </insert>
 
     <select id="selectAnswer" resultType="com.drawing.springboot.dto.ChatbotQuestDTO">
-        SELECT 
-            q_code, 
-            keyword, 
-            response_msg, 
-            img_url, 
-            link_url 
-        FROM chatbot_quest 
-        WHERE keyword LIKE '%' || #{message} || '%'
-          AND use_yn = 'Y'
-          AND ROWNUM = 1
-    </select>
+    SELECT 
+        q_code, 
+        keyword, 
+        response_msg, 
+        img_url, 
+        link_url 
+    FROM chatbot_quest 
+    WHERE #{message} LIKE '%' || keyword || '%'  AND use_yn = 'Y'
+      AND ROWNUM = 1
+    ORDER BY LENGTH(keyword) DESC </select>
 
     <update id="updateHitCount">
         UPDATE chatbot_quest 
