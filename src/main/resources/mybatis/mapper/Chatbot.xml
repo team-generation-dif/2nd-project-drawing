@@ -3,30 +3,38 @@
   PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
   "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
-<mapper namespace="com.drawing.springboot.chatbot.dao.ChatbotDAO">
+<mapper namespace="com.drawing.springboot.dao.IChatbotDAO">
 
-    <!-- 유저 메시지 저장 -->
-    <insert id="insertChat">
-        INSERT INTO chatbot
-        (chat_code, m_code, chat_message, chat_date)
-        VALUES
-        (chat_seq.NEXTVAL, #{m_code}, #{chat_message}, SYSDATE)
-    </insert>
+  <insert id="insertChat">
+    INSERT INTO CHATBOT (
+        CHAT_CODE, 
+        CHAT_MESSAGE, 
+        CHAT_DATE
+        /* M_CODE를 아예 제외하고 인서트 */
+    )
+    VALUES (
+        'C'||LPAD(SEQ_CHATBOT.NEXTVAL, 6, '0'), 
+        #{chat_message}, 
+        SYSDATE
+    )
+</insert>
 
-    <!-- 키워드 기반 답변 조회 -->
     <select id="selectAnswer" resultType="com.drawing.springboot.dto.ChatbotQuestDTO">
-        SELECT *
-        FROM chatbot_quest
-        WHERE #{message} LIKE '%' || keyword || '%'
-        AND use_yn = 'Y'
-        ORDER BY hit_count DESC
-        FETCH FIRST 1 ROWS ONLY
+        SELECT 
+            q_code, 
+            keyword, 
+            response_msg, 
+            img_url, 
+            link_url 
+        FROM chatbot_quest 
+        WHERE keyword LIKE '%' || #{message} || '%'
+          AND use_yn = 'Y'
+          AND ROWNUM = 1
     </select>
 
-    <!-- 답변 횟수 증가 -->
     <update id="updateHitCount">
-        UPDATE chatbot_quest
-        SET hit_count = hit_count + 1
+        UPDATE chatbot_quest 
+        SET hit_count = hit_count + 1 
         WHERE q_code = #{q_code}
     </update>
 

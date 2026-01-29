@@ -131,7 +131,7 @@
 
 
 <script>
-    let status = { id: false, pw: false, name: false, nick: false, email: false, tel: false };
+    let status = { id: false, pw: false, name: true, nick: false, email: false, tel: false };
 
     $(document).ready(function() {
         // 아이디 중복 체크 (기존 유지)
@@ -194,16 +194,25 @@
 
     // 서버 중복 체크 공통 함수
     function checkDuplicate(type, value, msgId, label) {
-        $.get("/guest/checkDuplicate", { type: type, value: value }, function(res) {
-            if(res === "ok") {
-                $(msgId).text("사용 가능한 " + label + "입니다.").attr("class", "msg success");
-                status[type] = true;
-            } else {
-                $(msgId).text("이미 사용 중인 " + label + "입니다.").attr("class", "msg error");
-                status[type] = false;
-            }
-        });
-    }
+
+    let data = {};
+    data["m_" + type] = value;   // 핵심!
+
+    $.post("/guest/checkDuplicateJoin", data, function(res) {
+
+        if(res === "OK") {
+            $(msgId).text("사용 가능한 " + label + "입니다.")
+                    .attr("class", "msg success");
+            status[type] = true;
+        } else {
+            $(msgId).text("이미 사용 중인 " + label + "입니다.")
+                    .attr("class", "msg error");
+            status[type] = false;
+        }
+
+    });
+}
+
 
     function checkRegex(obj, regex, msgId, errorMsg) {
         if(!regex.test(obj.val().trim())) {

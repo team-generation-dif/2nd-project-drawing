@@ -4,8 +4,12 @@ import lombok.Data;
 
 @Data
 public class ChatbotQuestDTO {
-    private String q_code;       // 챗봇 응답 코드 (PK)
-    private String keyword;      // 유저 입력 키워드
-    private String response_msg; // 챗봇의 답변 (Oracle의 VARCHAR2(4000) 대응)
-    private int hit_count;       // 누적 답변 횟수
+	private String q_code;
+    private String keyword;
+    private String response_msg;
+    private int hit_count;
+    private String use_yn;
+    private String img_url; // 변수명 변경
+    private String link_url;
+
 }

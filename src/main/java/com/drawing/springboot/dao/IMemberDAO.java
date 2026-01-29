@@ -3,6 +3,7 @@ package com.drawing.springboot.dao;
 import java.util.List;
 
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
 
 import com.drawing.springboot.dto.MemberDTO;
 
@@ -16,5 +17,19 @@ public interface IMemberDAO {
     void updateMember(MemberDTO member);
     void deleteMember(String m_id);
     List<MemberDTO> findAllMembers();
-    
+    MemberDTO findByMnickExceptMe(
+    	    @Param("m_nick") String m_nick,
+    	    @Param("m_id") String m_id
+    	);
+
+    	MemberDTO findByMemailExceptMe(
+    	    @Param("m_email") String m_email,
+    	    @Param("m_id") String m_id
+    	);
+
+    	MemberDTO findByMtelExceptMe(
+    	    @Param("m_tel") String m_tel,
+    	    @Param("m_id") String m_id
+    	);
+
 }

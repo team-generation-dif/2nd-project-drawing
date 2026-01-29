@@ -156,13 +156,17 @@
                         <td style="color: #a39485;">${m.m_email}</td>
                         <td>
                             <c:choose>
-                                <c:when test="${m.login_type eq 'LOCAL'}">
-                                    <span class="badge badge-local">일반 계정</span>
-                                </c:when>
-                                <c:otherwise>
-                                    <span class="badge badge-kakao">카카오</span>
-                                </c:otherwise>
-                            </c:choose>
+    <c:when test="${m.login_type eq 'NORMAL'}">
+        <span class="badge badge-local">일반 계정</span>
+    </c:when>
+    <c:when test="${m.login_type eq 'KAKAO'}">
+        <span class="badge badge-kakao">카카오</span>
+    </c:when>
+    <c:otherwise>
+        <span class="badge badge-local">일반 계정</span>
+    </c:otherwise>
+</c:choose>
+
                         </td>
                         <td>
                             <span style="color: ${m.m_role eq 'ROLE_ADMIN' ? '#e76f51' : '#8b7e74'}">

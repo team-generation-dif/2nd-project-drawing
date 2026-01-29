@@ -23,7 +23,28 @@
     <select id="findByMtel" resultType="com.drawing.springboot.dto.MemberDTO">
         SELECT * FROM member WHERE m_tel = #{m_tel}
     </select>
+	<select id="findByMnickExceptMe" resultType="com.drawing.springboot.dto.MemberDTO">
+    SELECT *
+    FROM MEMBER
+    WHERE M_NICK = #{m_nick}
+      AND M_ID != #{m_id}
+</select>
 
+<select id="findByMemailExceptMe" resultType="com.drawing.springboot.dto.MemberDTO">
+    SELECT *
+    FROM MEMBER
+    WHERE M_EMAIL = #{m_email}
+      AND M_ID != #{m_id}
+</select>
+
+<select id="findByMtelExceptMe" resultType="com.drawing.springboot.dto.MemberDTO">
+    SELECT *
+    FROM MEMBER
+    WHERE M_TEL = #{m_tel}
+      AND M_ID != #{m_id}
+</select>
+
+	
     <update id="updateMember">
         UPDATE member 
         SET m_name = #{m_name}, 

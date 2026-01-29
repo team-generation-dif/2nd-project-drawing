@@ -103,6 +103,52 @@
         .chat-input-area { padding: 15px; background: white; border-top: 1px solid #eee1d5; display: flex; gap: 10px; }
         .chat-input-area input { flex: 1; border: 1px solid #eee1d5; padding: 10px 15px; border-radius: 20px; outline: none; }
         .btn-send { background: #e76f51; color: white; border: none; width: 40px; height: 40px; border-radius: 50%; cursor: pointer; }
+         
+  
+/* 챗봇 말풍선 공통 */
+.msg { 
+    max-width: 80%; 
+    padding: 12px 16px; 
+    border-radius: 20px; 
+    font-size: 14px; 
+    line-height: 1.5; 
+    word-break: break-all;
+    margin-bottom: 10px;
+    display: flex;
+    flex-direction: column; /* 텍스트와 이미지를 세로로 정렬 */
+}
+
+/* 봇 메시지: 배경 베이지, 글자는 반드시 짙은 갈색 */
+.bot-msg { 
+    background-color: #eee1d5 !important; 
+    color: #4a3f35 !important; 
+    align-self: flex-start; 
+}
+
+/* 유저 메시지: 배경 주황, 글자는 반드시 흰색 */
+.user-msg { 
+    background-color: #e76f51 !important; 
+    color: #ffffff !important; 
+    align-self: flex-end; 
+}
+
+/* 텍스트가 보이지 않는 현상 방지 */
+.msg span {
+    color: inherit !important;
+    display: block;
+    min-height: 1.2em; /* 최소 높이 확보 */
+}
+
+/* 챗봇 이미지 스타일 */
+.bot-msg img { 
+    width: 100%; 
+    max-width: 200px; /* 너무 크지 않게 조절 */
+    height: auto; 
+    border-radius: 10px; 
+    margin-top: 8px;
+    display: block;
+    border: 1px solid #ddd;
+}
     </style>
 </head>
 <body>
@@ -119,7 +165,7 @@
             <a href="?c=1" class="cat-item">🛋️ 거실</a>
             <a href="?c=2" class="cat-item">🛏️ 침실</a>
             <a href="?c=3" class="cat-item">🍽️ 주방</a>
-            <a href="?c=4" class="cat-item">✨ 3D배치</a>
+            <a href="?c=4" class="cat-item">✨ 3D인테리어</a>
         </nav>
     </section>
 
@@ -164,27 +210,31 @@
         </div>
     </section>
 
-    <div class="bot-btn" id="chatbotOpenBtn">
-        <svg width="28" height="28" viewBox="0 0 24 24" fill="white">
-            <path d="M12 2C6.48 2 2 6.48 2 12c0 3.69 2.01 6.91 5 8.63V22l3.5-2h1.5c5.52 0 10-4.48 10-10S17.52 2 12 2z"/>
-        </svg>
-    </div>
+   <!-- 챗봇 버튼 & 창 -->
+<div class="bot-btn" id="chatbotOpenBtn">
+    <svg width="28" height="28" viewBox="0 0 24 24" fill="white">
+        <path d="M12 2C6.48 2 2 6.48 2 12c0 3.69 2.01 6.91 5 8.63V22l3.5-2h1.5c5.52 0 10-4.48 10-10S17.52 2 12 2z"/>
+    </svg>
+</div>
 
-    <div class="chatbot-window" id="chatbotWindow">
-        <div class="chatbot-header">
-            <span>🎨 그리다 아뜰리에 봇</span>
+<div class="chatbot-window" id="chatbotWindow">
+    <div class="chatbot-header">
+        <span>🎨 그리다 아뜰리에 봇</span>
+        <div style="display:flex; gap:10px; align-items:center;">
+            <span id="exitChat" style="cursor:pointer; font-size: 12px; border: 1px solid white; padding: 2px 5px; border-radius: 5px;">종료</span>
             <span id="closeChat" style="cursor:pointer; font-size: 20px;">&times;</span>
         </div>
-        <div class="chat-content" id="chatContent">
-            <div class="msg bot-msg">안녕하세요! "그리다 아뜰리에"에 오신 것을 환영합니다. 무엇을 도와드릴까요?</div>
-        </div>
-        <div class="chat-input-area">
-            <input type="text" id="chatInput" placeholder="메시지를 입력하세요..." autocomplete="off">
-            <button class="btn-send" id="sendBtn">▲</button>
-        </div>
     </div>
+    <div class="chat-content" id="chatContent">
+        <div class="msg bot-msg">안녕하세요! "그리다 아뜰리에"에 오신 것을 환영합니다. 무엇을 도와드릴까요?</div>
+    </div>
+    <div class="chat-input-area">
+        <input type="text" id="chatInput" placeholder="메시지를 입력하세요..." autocomplete="off">
+        <button class="btn-send" id="sendBtn">▲</button>
+    </div>
+</div>
 
-    <script>
+<script>
 document.addEventListener('DOMContentLoaded', function() {
     const chatBtn = document.getElementById('chatbotOpenBtn');
     const chatWindow = document.getElementById('chatbotWindow');
@@ -194,50 +244,80 @@ document.addEventListener('DOMContentLoaded', function() {
     const chatContent = document.getElementById('chatContent');
 
     chatBtn.addEventListener('click', () => {
-        chatWindow.style.display =
-            chatWindow.style.display === 'flex' ? 'none' : 'flex';
-        chatInput.focus();
+        chatWindow.style.display = (chatWindow.style.display === 'flex') ? 'none' : 'flex';
+        if(chatWindow.style.display === 'flex') chatInput.focus();
     });
 
-    closeChat.addEventListener('click', () => {
-        chatWindow.style.display = 'none';
-    });
+    closeChat.addEventListener('click', () => chatWindow.style.display = 'none');
 
-    function appendMessage(type, text) {
+    function appendMessage(type, text, imgUrl, linkUrl) {
         const div = document.createElement('div');
         div.className = 'msg ' + (type === 'user' ? 'user-msg' : 'bot-msg');
-        div.textContent = text;
+
+        // 텍스트가 있을 경우 span 태그로 감싸서 명확히 삽입
+        if(text) {
+            const span = document.createElement('span');
+            span.innerText = text; // innerHTML 대신 innerText 권장 (보안 및 텍스트 유지)
+            span.style.display = "block";
+            div.appendChild(span);
+        }
+
+        // 이미지 처리
+        if(imgUrl && imgUrl.trim() !== "" && imgUrl !== "null") {
+            const img = document.createElement('img');
+            img.src = imgUrl.startsWith('http') ? imgUrl : '/upload/' + imgUrl;
+            img.style.width = "100%";
+            img.style.borderRadius = "10px";
+            img.style.marginTop = "8px";
+            img.onerror = function() { this.style.display = 'none'; }; // 이미지 로드 실패 시 숨김
+            div.appendChild(img);
+        }
+
+        // 상세 페이지 링크 처리
+        if(linkUrl && linkUrl.trim() !== "" && linkUrl !== "null") {
+            const a = document.createElement('a');
+            a.href = linkUrl;
+            a.target = "_blank";
+            a.innerText = "상세보기 →";
+            a.style.cssText = "display:inline-block; margin-top:8px; padding:5px 12px; background:#e76f51; color:white; border-radius:15px; text-decoration:none; font-size:11px;";
+            div.appendChild(a);
+        }
+
         chatContent.appendChild(div);
         chatContent.scrollTop = chatContent.scrollHeight;
     }
 
     function sendMessage() {
         const text = chatInput.value.trim();
-        if (!text) return;
+        if(!text) return;
 
         appendMessage('user', text);
         chatInput.value = '';
 
-        fetch('/api/chatbot/search?keyword=' + encodeURIComponent(text))
-            .then(res => res.json())
-            .then(data => {
-                if (data && data.response_msg) {
-                    appendMessage('bot', data.response_msg);
-                } else {
-                    appendMessage('bot', '아직 준비되지 않은 질문이에요 😢');
-                }
-            })
-            .catch(() => {
-                appendMessage('bot', '잠시 서버가 불안정해요. 다시 시도해주세요!');
-            });
+        fetch('/chatbot/send', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ chat_message: text })
+        })
+        .then(res => res.json())
+        .then(data => {
+            console.log("서버 응답 데이터:", data); // 반드시 확인!
+            const msg = data?.response_msg || "관련 정보를 찾을 수 없습니다.";
+            const img = data?.img_url;
+            appendMessage('bot', msg, img);
+        })
+        .catch(err => {
+            console.error("서버 에러:", err);
+            appendMessage('bot', '서버와 연결할 수 없습니다.');
+        });
+
     }
 
     sendBtn.addEventListener('click', sendMessage);
-    chatInput.addEventListener('keypress', e => {
-        if (e.key === 'Enter') sendMessage();
-    });
+    chatInput.addEventListener('keypress', e => { if(e.key === 'Enter') sendMessage(); });
 });
 </script>
+
 
 </body>
 </html>
