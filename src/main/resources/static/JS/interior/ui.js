@@ -18,9 +18,7 @@ export function resetUI() {
 
 export function deselectObject() {
     if (state.selectedObject) {
-        // 색상 복구 (가구일 경우 원래 색상, 아니면 기본 색상)
         if (state.selectedObject.type === 'furniture') {
-             // 가구는 개별 색상이 있으므로 FURNITURE_DATA에서 찾아야 함
              const info = FURNITURE_DATA[state.selectedObject.subType];
              if(info) state.selectedObject.mesh.material.color.setHex(info.color);
         } else if (!state.selectedObject.type) {
@@ -32,12 +30,9 @@ export function deselectObject() {
 }
 
 export function selectObject(d) {
-    deselectObject(); // 기존 선택 해제
+    deselectObject();
     state.selectedObject = d;
-    
-    // 선택 하이라이트 (초록색)
-    d.mesh.material.color.setHex(COLORS.SELECT);
-    
+    if (!d.type) d.mesh.material.color.setHex(COLORS.SELECT);
     updatePanelUI(d);
     propertyPanel.classList.add('open');
 }
@@ -45,15 +40,16 @@ export function selectObject(d) {
 export function updatePanelUI(d) {
     propContent.innerHTML = '';
     
-    if (d.type === 'furniture') { // [NEW] 가구 속성 패널
+    if (d.type === 'furniture') { 
         const info = FURNITURE_DATA[d.subType];
         const name = info ? info.name : d.subType;
         propTitle.innerText = `🪑 ${name} 속성`;
+        // [수정] 가구 규격 입력 활성화 (onchange 이벤트 추가)
         propContent.innerHTML = `
             <div class="prop-group"><label class="prop-label">이름</label><input type="text" class="prop-input" value="${name}" readonly></div>
-            <div class="prop-group"><label class="prop-label">너비 (W)</label><input type="text" class="prop-input" value="${d.width} mm" readonly></div>
-            <div class="prop-group"><label class="prop-label">높이 (H)</label><input type="text" class="prop-input" value="${d.height} mm" readonly></div>
-            <div class="prop-group"><label class="prop-label">깊이 (D)</label><input type="text" class="prop-input" value="${d.depth} mm" readonly></div>
+            <div class="prop-group"><label class="prop-label">너비 (W)</label><input type="number" class="prop-input" value="${d.width}" onchange="window.onFurniturePropChange('width', this.value)"></div>
+            <div class="prop-group"><label class="prop-label">높이 (H)</label><input type="number" class="prop-input" value="${d.height}" onchange="window.onFurniturePropChange('height', this.value)"></div>
+            <div class="prop-group"><label class="prop-label">깊이 (D)</label><input type="number" class="prop-input" value="${d.depth}" onchange="window.onFurniturePropChange('depth', this.value)"></div>
             <div style="margin-top: 15px; display: flex; gap: 5px;">
                 <button onclick="window.repositionFurniture()" style="flex:1; background:#2196F3; color:white; border:none;">재배치</button>
                 <button onclick="window.deleteFurniture()" style="flex:1; background:#f44336; color:white; border:none;">삭제</button>

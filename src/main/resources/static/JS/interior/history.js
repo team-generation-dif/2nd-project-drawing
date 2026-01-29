@@ -12,7 +12,6 @@ const MAX_HISTORY = 50;
 export function saveState() {
     if (historyIndex < history.length - 1) history.splice(historyIndex + 1);
     
-    // ... 데이터 저장 로직 (기존과 동일) ...
     const pillarsData = state.pillars.map(p => ({ x: p.position.x, z: p.position.z, size: p.size }));
     const wallsData = state.walls.map(w => ({ startIndex: state.pillars.indexOf(w.start), endIndex: state.pillars.indexOf(w.end), thickness: w.thickness }));
     const floorsData = state.floors.map(f => ({ x: f.mesh.position.x, z: f.mesh.position.z, w: f.width, h: f.depth }));
@@ -47,9 +46,9 @@ export function redo() {
 
 export function restoreState(s) {
     deselectObject();
-    resetUI(); // [수정] ui.js의 함수 호출
+    resetUI(); // ui.js의 함수 호출
 
-    // ... 복구 로직 (기존과 동일) ...
+    // ... 복구 로직 ...
     [...state.pillars, ...state.walls, ...state.floors, ...state.openings, ...state.furnitures].forEach(item => {
         scene.remove(item.mesh);
         if (item.mesh.geometry) item.mesh.geometry.dispose();
@@ -69,7 +68,7 @@ export function restoreState(s) {
     });
     if (s.furnitures) {
         s.furnitures.forEach(f => {
-            createFurniture(f.subType || 'desk', new THREE.Vector3(f.x, 0, f.z), f.rot, true);
+			createFurniture(f.subType, new THREE.Vector3(f.x, 0, f.z), f.rot, true, { width: f.width, height: f.height, depth: f.depth }); // 커스텀 크기 전달
         });
     }
     state.walls.forEach(w => refreshWallGeometry(w));
