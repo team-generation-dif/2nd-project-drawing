@@ -38,13 +38,15 @@ public class ChatbotAdminController {
     // 3. 등록 처리
     @PostMapping("/admin/chatbot_insert")
     public String chatbotInsert(
-        @RequestParam(name = "cb_question") String question, 
-        @RequestParam(name = "cb_answer") String answer,
-        @RequestParam(name = "file") MultipartFile file // 파일 파라미터 추가
+        @RequestParam(name = "keyword") String keyword, // name 수정
+        @RequestParam(name = "response_msg") String response_msg, // name 수정
+        @RequestParam(name = "link_url", required = false) String link_url, // 추가
+        @RequestParam(name = "file") MultipartFile file
     ) {
         ChatbotQuestDTO dto = new ChatbotQuestDTO();
-        dto.setKeyword(question);
-        dto.setResponse_msg(answer);
+        dto.setKeyword(keyword);
+        dto.setResponse_msg(response_msg);
+        dto.setLink_url(link_url); // 반드시 세팅!
         
         // 파일 업로드 로직
         if (file != null && !file.isEmpty()) {
@@ -98,12 +100,14 @@ public class ChatbotAdminController {
         @RequestParam(name = "q_code") String q_code,
         @RequestParam(name = "keyword") String keyword,
         @RequestParam(name = "response_msg") String response_msg,
+        @RequestParam(name = "link_url", required = false) String link_url, // 추가
         @RequestParam(name = "file", required = false) MultipartFile file
     ) {
         ChatbotQuestDTO dto = new ChatbotQuestDTO();
         dto.setQ_code(q_code);
         dto.setKeyword(keyword);
         dto.setResponse_msg(response_msg);
+        dto.setLink_url(link_url); // 반드시 세팅!
 
         if (file != null && !file.isEmpty()) {
             try {

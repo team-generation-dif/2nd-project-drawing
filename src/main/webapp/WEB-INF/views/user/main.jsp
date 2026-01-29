@@ -242,6 +242,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const chatInput = document.getElementById('chatInput');
     const sendBtn = document.getElementById('sendBtn');
     const chatContent = document.getElementById('chatContent');
+    const exitChat = document.getElementById('exitChat');
 
     chatBtn.addEventListener('click', () => {
         chatWindow.style.display = (chatWindow.style.display === 'flex') ? 'none' : 'flex';
@@ -249,7 +250,22 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     closeChat.addEventListener('click', () => chatWindow.style.display = 'none');
+    exitChat.addEventListener('click', () => {
+        if (confirm("대화를 종료하시겠습니까?")) {
+            // 종료 메시지 출력
+            appendMessage('bot', '챗봇이 종료되었습니다. 이용해 주셔서 감사합니다.');
+            
+            // 입력창 비활성화
+            chatInput.disabled = true;
+            chatInput.placeholder = "종료된 대화입니다.";
+            sendBtn.disabled = true;
 
+            // 2초 뒤 창 닫기
+            setTimeout(() => {
+                chatWindow.style.display = 'none';
+            }, 2000);
+        }
+    });
     function appendMessage(type, text, imgUrl, linkUrl) {
         const div = document.createElement('div');
         div.className = 'msg ' + (type === 'user' ? 'user-msg' : 'bot-msg');
@@ -273,13 +289,14 @@ document.addEventListener('DOMContentLoaded', function() {
             div.appendChild(img);
         }
 
-        // 상세 페이지 링크 처리
+     // 상세 페이지 링크 처리 (이 부분 스타일만 살짝 보강하세요)
         if(linkUrl && linkUrl.trim() !== "" && linkUrl !== "null") {
             const a = document.createElement('a');
             a.href = linkUrl;
             a.target = "_blank";
             a.innerText = "상세보기 →";
-            a.style.cssText = "display:inline-block; margin-top:8px; padding:5px 12px; background:#e76f51; color:white; border-radius:15px; text-decoration:none; font-size:11px;";
+            // color: white !important; 추가 (글자가 안 보일 때 대비)
+            a.style.cssText = "display:inline-block; margin-top:8px; padding:5px 12px; background:#e76f51; color:white !important; border-radius:15px; text-decoration:none; font-size:11px; font-weight:bold;";
             div.appendChild(a);
         }
 
@@ -301,16 +318,18 @@ document.addEventListener('DOMContentLoaded', function() {
         })
         .then(res => res.json())
         .then(data => {
-            console.log("서버 응답 데이터:", data); // 반드시 확인!
-            const msg = data?.response_msg || "관련 정보를 찾을 수 없습니다.";
-            const img = data?.img_url;
-            appendMessage('bot', msg, img);
+            // 1. 서버에서 데이터 꺼내기
+            const msg = data.response_msg;
+            const img = data.img_url;
+            const link = data.link_url; // 확인하신 키값으로 매핑!
+
+            // 2. 인자 4개를 순서대로 전달 (타입, 메시지, 이미지, 링크)
+            appendMessage('bot', msg, img, link);
         })
         .catch(err => {
             console.error("서버 에러:", err);
             appendMessage('bot', '서버와 연결할 수 없습니다.');
         });
-
     }
 
     sendBtn.addEventListener('click', sendMessage);
