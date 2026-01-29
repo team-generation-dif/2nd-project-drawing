@@ -83,6 +83,7 @@
     </style>
 </head>
 <body>
+	
     <div id="sidebar">
         <div id="tab-bar">
             <button class="tab-btn active-tab" id="tab-btn-build" onclick="switchTab('build')" title="도면 에디터">🏗️</button>
@@ -91,7 +92,9 @@
 
         <div id="controls" class="panel">
             <h3 style="margin-top:0;">Interior Editor</h3>
-            
+            <input type="hidden" id="server-i-code" value="${loaded.i_code}">
+            <input type="hidden" id="server-i-title" value="${loaded.i_title}">
+			<textarea id="server-json-data" style="display:none;">${loaded.json_data}</textarea>
             <div class="btn-group">
                 <button onclick="undo()" title="Undo">↩️</button>
                 <button onclick="redo()" title="Redo">↪️</button>
@@ -133,6 +136,7 @@
             <button onclick="setMode('delete')" id="btn-delete" style="color:#d32f2f; border-color:#ffcdd2; margin-top:10px;">🗑️ 삭제</button>
             <hr style="margin: 10px 0;">
    			<button onclick="saveInterior()" style="background: #2196F3; color: white;">💾 저장하기</button>
+   			<button onclick="saveAsFloorplan()" style="background: #FF9800; color: white;">📐 평면도 템플릿 저장</button>
         </div>
     </div>
     

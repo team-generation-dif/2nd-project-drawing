@@ -5,14 +5,30 @@
 
 <mapper namespace="com.drawing.springboot.dao.IInteriorDAO">
 	<insert id="insertDAO" parameterType="com.drawing.springboot.dto.InteriorDTO">
-        <selectKey keyProperty="iCode" resultType="String" order="BEFORE">
+        <selectKey keyProperty="i_code" resultType="String" order="BEFORE">
             SELECT 'I' || LPAD(SEQ_INTERIOR.NEXTVAL, 5, '0') FROM DUAL
         </selectKey>
         INSERT INTO INTERIOR (I_CODE,M_CODE,I_TITLE,F_CODE,JSON_DATA,I_IMAGE,I_DATE)
-         VALUES (#{iCode},#{mCode, jdbcType=VARCHAR},#{iTitle},#{fCode, jdbcType=VARCHAR},#{jsonData},#{iImage},SYSDATE)
+         VALUES (#{i_code},#{m_code, jdbcType=VARCHAR},#{i_title},#{f_code, jdbcType=VARCHAR},#{json_data},#{i_image},SYSDATE)
     </insert>
     
+    <update id="updateDAO" parameterType="com.drawing.springboot.dto.InteriorDTO">
+    	UPDATE INTERIOR
+    	 SET I_TITLE = #{i_title}, JSON_DATA = #{json_data}, I_IMAGE = #{i_image}, I_DATE = SYSDATE
+    	 WHERE I_CODE = #{i_code}
+    </update>
+    
+    <delete id="deleteDAO">
+    	DELETE FROM INTERIOR
+    	 WHERE I_CODE = #{i_code}
+    </delete>
+    
     <select id="selectDAOByICode" resultType="com.drawing.springboot.dto.InteriorDTO">
-        SELECT * FROM INTERIOR WHERE I_CODE = #{iCode}
+        SELECT * FROM INTERIOR WHERE I_CODE = #{i_code}
     </select>
+    
+    <select id="selectDAOByMCode" resultType="com.drawing.springboot.dto.InteriorDTO">
+        SELECT * FROM INTERIOR WHERE M_CODE = #{m_code} ORDER BY I_DATE DESC
+    </select>
+    
 </mapper>
