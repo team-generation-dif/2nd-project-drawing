@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.drawing.springboot.chatbot_admin.dao.ChatbotAdminDAO">
+
+    <select id="selectAll" resultType="com.drawing.springboot.dto.ChatbotQuestDTO">
+        SELECT *
+        FROM chatbot_quest
+        ORDER BY hit_count DESC
+    </select>
+
+    <insert id="insert">
+        INSERT INTO chatbot_quest
+        (q_code, keyword, response_msg, hit_count, use_yn)
+        VALUES
+        (quest_seq.NEXTVAL, #{keyword}, #{response_msg}, 0, 'Y')
+    </insert>
+
+    <update id="update">
+        UPDATE chatbot_quest
+        SET
+            keyword = #{keyword},
+            response_msg = #{response_msg},
+            use_yn = #{use_yn}
+        WHERE q_code = #{q_code}
+    </update>
+
+    <delete id="delete">
+        DELETE FROM chatbot_quest
+        WHERE q_code = #{q_code}
+    </delete>
+
+</mapper>
