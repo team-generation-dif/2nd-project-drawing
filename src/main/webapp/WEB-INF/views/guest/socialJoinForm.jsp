@@ -110,36 +110,128 @@
         <h2>거의 다 왔어요!</h2>
         <p>작가님의 멋진 활동을 위해<br>조금 더 자세한 정보가 필요해요.</p>
 
-        <form action="/guest/socialJoin" method="post">
-            <input type="hidden" name="m_id" value="${m_id}">
-            
+       <form action="/guest/socialJoin" method="post">
+   <input type="hidden" id="csrfToken" name="${_csrf.parameterName}" value="${_csrf.token}">
+
+   <input type="hidden" id="m_id_hidden" name="m_id" value="${m_id}">
+   
             <div class="input-group">
                 <label>성함</label>
                 <input type="text" name="m_name" placeholder="실명을 입력해주세요" required>
             </div>
 
             <div class="input-group">
-                <label>활동 닉네임</label>
-                <input type="text" name="m_nick" placeholder="아뜰리에에서 사용할 이름" required>
-            </div>
+    <label>활동 닉네임</label>
+    <input type="text" name="m_nick" id="m_nick"
+           placeholder="아뜰리에에서 사용할 이름" required
+           onblur="checkDuplicate('nick')">
+    <small id="nick-msg"></small>
+</div>
+
 
             <div class="input-group">
-                <label>이메일</label>
-                <input type="email" name="m_email" placeholder="example@drawing.com" required>
-            </div>
+    <label>이메일</label>
+    <input type="email" name="m_email" id="m_email"
+           placeholder="example@drawing.com" required
+           onblur="checkDuplicate('email')">
+    <small id="email-msg"></small>
+</div>
+
 
             <div class="input-group">
-                <label>연락처</label>
-                <input type="text" name="m_tel" placeholder="010-0000-0000">
-            </div>
+    <label>연락처</label>
+    <input type="text" name="m_tel" id="m_tel"
+           placeholder="010-0000-0000"
+           onblur="checkDuplicate('tel')">
+    <small id="tel-msg"></small>
+</div>
 
-            <button type="submit" class="btn-submit">가입 완료하고 시작하기</button>
+            <button type="submit" class="btn-submit" id="submitBtn" disabled>
+    가입 완료하고 시작하기
+</button>
+
+            
         </form>
 
         <div class="footer-info">
             © 그리다 아뜰리에. 모든 정보는 안전하게 보호됩니다.
         </div>
     </div>
+<script>
+const csrfToken = document.getElementById('csrfToken').value;
+const m_id = document.getElementById('m_id_hidden').value;
+
+let checkStatus = {
+    nick: false,
+    email: false,
+    tel: true
+};
+
+function checkDuplicate(type) {
+    let value, msgEl;
+
+    // 1. 타입에 따른 값과 메시지 엘리먼트 설정
+    if (type === 'nick') {
+        value = document.getElementById('m_nick').value;
+        msgEl = document.getElementById('nick-msg');
+    } else if (type === 'email') {
+        value = document.getElementById('m_email').value;
+        msgEl = document.getElementById('email-msg');
+    } else if (type === 'tel') {
+        value = document.getElementById('m_tel').value;
+        msgEl = document.getElementById('tel-msg');
+        if (!value) { 
+            checkStatus.tel = true;
+            updateSubmit();
+            msgEl.innerText = '';
+            return;
+        }
+    }
+
+    // 2. 서버로 요청 보내기
+    fetch('/guest/checkDuplicateSocial', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+            'X-CSRF-TOKEN': csrfToken
+        },
+        body: new URLSearchParams({
+            m_id: m_id,
+            type: type,   // 예: 'nick'
+            value: value  // 예: '홍길동'
+        })
+    })
+    .then(res => res.text())
+    .then(result => {
+        console.log("서버 응답 결과:", result); // 크롬 F12 콘솔에서 확인 가능
+
+        if (result === 'OK') {
+            msgEl.innerText = '✔ 사용 가능한 정보입니다';
+            msgEl.style.color = '#4caf50';
+            checkStatus[type] = true;
+        } else if (result === 'DUPLICATE') {
+            msgEl.innerText = '✖ 이미 사용 중입니다';
+            msgEl.style.color = '#e53935';
+            checkStatus[type] = false;
+        } else {
+            msgEl.innerText = '⚠ 올바른 값을 입력해주세요';
+            msgEl.style.color = '#ffa000';
+            checkStatus[type] = false;
+        }
+        updateSubmit();
+    })
+    .catch(err => {
+        console.error("fetch 오류 발생:", err);
+        msgEl.innerText = '서버 통신 오류';
+    });
+}
+
+function updateSubmit() {
+    const btn = document.getElementById('submitBtn');
+    btn.disabled = !(checkStatus.nick && checkStatus.email && checkStatus.tel);
+}
+</script>
+
 
 </body>
 </html>

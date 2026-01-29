@@ -182,7 +182,8 @@
             <textarea name="b_content" placeholder="이 공간에는 어떤 이야기가 담겨 있나요?" style="height:150px;"></textarea>
         </div>
         
-        <input type="hidden" name="tagJson" id="tagJson">
+        <input type="hidden" name="tagData" id="tagJson">
+
         
         <div class="action-buttons">
             <a href="/user/list" class="btn btn-cancel">취소</a>

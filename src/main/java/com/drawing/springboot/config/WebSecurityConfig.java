@@ -1,5 +1,4 @@
 package com.drawing.springboot.config;
-
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -7,6 +6,7 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 
 import com.drawing.springboot.service.CustomOAuth2UserService;
 import com.drawing.springboot.service.OAuth2SuccessHandler;
@@ -20,54 +20,59 @@ import lombok.RequiredArgsConstructor;
 public class WebSecurityConfig {
 
     private final CustomOAuth2UserService customOAuth2UserService;
-    // 신규 유저를 가입 폼으로 보내버릴 핸들러 주입
     private final OAuth2SuccessHandler successHandler; 
+    // 추가: 리졸버를 위한 레포지토리 주입
+    private final org.springframework.security.oauth2.client.registration.ClientRegistrationRepository clientRegistrationRepository;
 
     @Bean
     public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder(); // 일반 로그인 비밀번호 암호화용
+        return new BCryptPasswordEncoder();
     }
     
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        // 1. 보안 설정 (CSRF, CORS 비활성화 및 경로별 권한 설정)
         http.csrf((csrf) -> csrf.disable())
             .cors((cors) -> cors.disable())
             .authorizeHttpRequests(request -> request
                     .dispatcherTypeMatchers(DispatcherType.FORWARD).permitAll() 
-                    .requestMatchers("/", "/CSS/**", "/JS/**", "/imgsrc/**").permitAll() 
+                    .requestMatchers("/", "/error","/CSS/**", "/JS/**", "/imgsrc/**", "/upload/**").permitAll() 
                     .requestMatchers("/guest/**", "/login/**", "/oauth2/**").permitAll() 
+                    .requestMatchers("/chatbot/**").permitAll()
                     .requestMatchers("/user/**").hasAnyRole("USER", "ADMIN") 
                     .requestMatchers("/admin/**").hasRole("ADMIN") 
                     .anyRequest().authenticated() 
             );
         
-        // 2. 일반 폼 로그인 설정
         http.formLogin((formlogin) -> formlogin
                 .loginPage("/guest/loginForm")
                 .loginProcessingUrl("/j_spring_security_check")
                 .usernameParameter("j_username")
                 .passwordParameter("j_password")
-                .defaultSuccessUrl("/loginSuccess", true)
+                .defaultSuccessUrl("/loginSuccess", false)
                 .failureUrl("/guest/loginForm?error")
                 .permitAll()
         );
 
-        // 3. 카카오(OAuth2) 로그인 설정 (핵심 수정 부분)
         http.oauth2Login((oauth2) -> oauth2
                 .loginPage("/guest/loginForm")
-                // 성공 시 defaultSuccessUrl 대신 커스텀 핸들러를 실행하여 
-                // 가입 여부에 따라 /guest/socialJoinForm 등으로 리다이렉트 시킴
+                // 무조건 로그인창을 띄우는 리졸버 설정
+                .authorizationEndpoint(auth -> auth.authorizationRequestResolver(authorizationRequestResolver())) 
                 .successHandler(successHandler) 
-                .userInfoEndpoint(userInfo -> userInfo
-                        .userService(customOAuth2UserService)
-                )
+                .userInfoEndpoint(userInfo -> userInfo.userService(customOAuth2UserService))
         );
         
-        // 4. 로그아웃 설정
         http.logout((logout) -> logout
                 .logoutUrl("/logout") 
-                .logoutSuccessUrl("/") 
+                .logoutSuccessHandler((request, response, authentication) -> {
+                    String clientId = "cc71d2dce34b07aa23b9fe6d6432ad57"; 
+                    String logoutRedirectUri = "http://localhost:8080/"; 
+                    
+                    String kakaoLogoutUrl = "https://kauth.kakao.com/oauth/logout"
+                            + "?client_id=" + clientId 
+                            + "&logout_redirect_uri=" + logoutRedirectUri;
+                    
+                    response.sendRedirect(kakaoLogoutUrl);
+                })
                 .invalidateHttpSession(true) 
                 .deleteCookies("JSESSIONID") 
                 .permitAll()
@@ -75,4 +80,16 @@ public class WebSecurityConfig {
         
         return http.build();
     }
+
+    // 메서드를 filterChain 밖으로 뺐습니다.
+    private org.springframework.security.oauth2.client.web.OAuth2AuthorizationRequestResolver authorizationRequestResolver() {
+        org.springframework.security.oauth2.client.web.DefaultOAuth2AuthorizationRequestResolver resolver = 
+            new org.springframework.security.oauth2.client.web.DefaultOAuth2AuthorizationRequestResolver(clientRegistrationRepository, "/oauth2/authorization");
+        
+        resolver.setAuthorizationRequestCustomizer(customizer -> 
+            customizer.additionalParameters(params -> params.put("prompt", "login"))
+        );
+        return resolver;
+    }
+ 
 }

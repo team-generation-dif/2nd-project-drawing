@@ -22,6 +22,27 @@
         .badge-keyword { background: #f7ede2; color: #e76f51; padding: 5px 12px; border-radius: 15px; font-size: 13px; font-weight: bold; }
         .btn-add { background: #e76f51; color: white; border: none; padding: 12px 25px; border-radius: 15px; cursor: pointer; font-weight: bold; }
         .btn-del { color: #e76f51; background: none; border: 1px solid #e76f51; padding: 5px 10px; border-radius: 8px; cursor: pointer; }
+    /* 수정 버튼용 (초록계열) */
+.btn-edit { 
+    color: #2a9d8f; 
+    background: none; 
+    border: 1px solid #2a9d8f; 
+    padding: 5px 10px; 
+    border-radius: 8px; 
+    cursor: pointer; 
+    margin-right: 5px;
+}
+.btn-edit:hover { background: #2a9d8f; color: white; }
+.btn-del:hover { background: #e76f51; color: white; }
+.img-thumb { 
+        width: 50px; 
+        height: 50px; 
+        object-fit: cover; 
+        border-radius: 8px; 
+        border: 1px solid #eee;
+        cursor: pointer;
+    }
+    .no-img { color: #ccc; font-size: 11px; }
     </style>
 </head>
 <body>
@@ -30,7 +51,7 @@
     <div class="admin-wrap">
         <div class="admin-header">
             <h2 style="font-family: 'Nanum Myeongjo';">🤖 챗봇 시스템 관리</h2>
-            <button class="btn-add" onclick="location.href='/admin/chatbot/write'">+ 새 시나리오 등록</button>
+            <button class="btn-add" onclick="location.href='/admin/chatbot_write'">+ 새 시나리오 등록</button>
         </div>
 
         <div class="tab-nav">
@@ -40,27 +61,46 @@
 
         <div id="quest" class="tab-content mgmt-card">
             <table class="admin-table">
-                <thead>
-                    <tr>
-                        <th>코드</th>
-                        <th>매칭 키워드</th>
-                        <th>자동 응답 메시지</th>
-                        <th>사용 횟수</th>
-                        <th>관리</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <c:forEach var="q" items="${questList}">
-                        <tr>
-                            <td>${q.q_code}</td>
-                            <td><span class="badge-keyword">${q.keyword}</span></td>
-                            <td>${q.response_msg}</td>
-                            <td>${q.hit_count}회</td>
-                            <td><button class="btn-del" onclick="deleteQuest('${q.q_code}')">삭제</button></td>
-                        </tr>
-                    </c:forEach>
-                </tbody>
-            </table>
+    <thead>
+        <tr>
+            <th>코드</th>
+            <th>이미지</th> <th>매칭 키워드</th>
+            <th>자동 응답 메시지</th>
+            <th>사용 횟수</th>
+            <th>관리</th>
+        </tr>
+    </thead>
+    <tbody>
+        <c:forEach var="item" items="${list}">
+            <tr>
+                <td>${item.q_code}</td>
+                <td>
+                    <c:choose>
+                        <c:when test="${not empty item.img_url}">
+                            <img src="/upload/${item.img_url}" class="img-thumb" 
+                                 onclick="window.open(this.src)" title="클릭하여 크게 보기">
+                        </c:when>
+                        <c:otherwise>
+                            <span class="no-img">없음</span>
+                        </c:otherwise>
+                    </c:choose>
+                </td>
+                <td><span class="badge-keyword">${item.keyword}</span></td>
+                <td>${item.response_msg}</td>
+                <td>${item.hit_count}</td>
+                <td>
+                    <button class="btn-edit" 
+                            onclick="location.href='/admin/chatbot_edit?q_code=${item.q_code}'">
+                        수정
+                    </button>
+                    <button class="btn-del" onclick="deleteQuest('${item.q_code}')">
+                        삭제
+                    </button>
+                </td>
+            </tr>
+        </c:forEach>
+    </tbody>
+</table>
         </div>
 
         <div id="log" class="tab-content mgmt-card" style="display:none;">
@@ -95,7 +135,8 @@
 
         function deleteQuest(code) {
             if(confirm('이 시나리오를 삭제할까요?')) {
-                location.href = '/admin/chatbot/delete?q_code=' + code;
+                // 경로를 컨트롤러와 일치시킴 (_ 사용)
+                location.href = '/admin/chatbot_delete?q_code=' + code;
             }
         }
     </script>
