@@ -114,15 +114,21 @@ export function createFloorMesh(centerX, centerZ, width, depth, save = true) {
     if (save) state.floors.push({ mesh: floor, width: width, depth: depth });
 }
 
-export function createFurniture(id, pos, rotationY, save = true) {
+export function createFurniture(id, pos, rotationY, save = true, customDims = null) {
     const info = FURNITURE_DATA[id];
     if (!info) return null;
 
-    const geometry = new THREE.BoxGeometry(info.width, info.height, info.depth);
+    // 저장된 크기가 있으면 그걸 쓰고, 없으면 기본값 사용
+    const width = customDims ? customDims.width : info.width;
+    const height = customDims ? customDims.height : info.height;
+    const depth = customDims ? customDims.depth : info.depth;
+
+    const geometry = new THREE.BoxGeometry(width, height, depth);
     const material = new THREE.MeshStandardMaterial({ color: info.color });
     const mesh = new THREE.Mesh(geometry, material);
     
-    mesh.position.set(pos.x, info.height / 2, pos.z);
+    // 높이에 따라 위치 조정
+    mesh.position.set(pos.x, height / 2, pos.z);
     mesh.rotation.y = rotationY;
     mesh.castShadow = true; mesh.receiveShadow = true;
     
@@ -130,7 +136,7 @@ export function createFurniture(id, pos, rotationY, save = true) {
 
     const data = { 
         type: 'furniture', subType: id, mesh: mesh,
-        width: info.width, height: info.height, depth: info.depth
+        width: width, height: height, depth: depth // 실제 적용된 크기 저장
     };
 
     if (save) state.furnitures.push(data);
@@ -188,6 +194,13 @@ export function refreshOpeningGeometry(data) {
     }, data.hostWall, false);
     data.mesh = newData.mesh;
     if (state.selectedObject === data) selectObject(data); 
+}
+
+export function refreshFurnitureGeometry(furn) {
+    if (!furn || !furn.mesh) return;
+    if (furn.mesh.geometry) furn.mesh.geometry.dispose();
+    furn.mesh.geometry = new THREE.BoxGeometry(furn.width, furn.height, furn.depth);
+    furn.mesh.position.y = furn.height / 2;
 }
 
 export function checkAndResizePillar(p, min) {
@@ -379,7 +392,6 @@ function checkAndRemoveOpeningsOnPath(p1, p2) {
 }
 
 export function checkCollision(previewObj, targetPos, ignoreObj = null) {
-    // 1. 검사 대상(가구) 특정
     let targetMesh = previewObj;
     if (!targetMesh && ignoreObj) {
         targetMesh = ignoreObj.mesh;
@@ -387,43 +399,33 @@ export function checkCollision(previewObj, targetPos, ignoreObj = null) {
     
     if (!targetMesh) return false;
 
-    // 2. 가구의 AABB 박스 생성 (가구끼리의 충돌 검사용 - 기존 유지)
     const subjectBox = new THREE.Box3().setFromObject(targetMesh);
-    subjectBox.expandByScalar(-1); // 약간의 여유
+    subjectBox.expandByScalar(-1); 
 
-    // 3. 가구의 실제 규격 가져오기 (정밀 검사용)
-    // BoxGeometry의 원본 치수를 가져옵니다.
     const geom = targetMesh.geometry;
     const furnWidth = geom.parameters ? geom.parameters.width : (subjectBox.max.x - subjectBox.min.x);
     const furnDepth = geom.parameters ? geom.parameters.depth : (subjectBox.max.z - subjectBox.min.z);
 
-    // 정밀 검사를 위한 가구 데이터 객체 생성
     const furnData = {
         width: furnWidth,
         depth: furnDepth,
         mesh: targetMesh
     };
 
-    // [수정] 벽 충돌 검사: Box3 대신 '선분 교차(checkObjectOverlap)' 사용
     for (let w of state.walls) {
-        // 벽의 시작점과 끝점을 선분으로 보고, 가구와 겹치는지 검사
         if (checkObjectOverlap(furnData, w.start.position, w.end.position)) {
-            return true; // 겹침!
+            return true; 
         }
     }
 
-    // 기둥 충돌 (Box3 유지 - 기둥은 회전하지 않으므로 AABB로 충분)
     for (let p of state.pillars) {
         const pillarBox = new THREE.Box3().setFromObject(p.mesh);
-        // 기둥은 살짝 여유를 둬서 너무 빡빡하지 않게
         pillarBox.expandByScalar(-1); 
         if (subjectBox.intersectsBox(pillarBox)) return true;
     }
 
-    // 다른 가구 충돌 (Box3 유지 - 가구끼리는 박스로 검사해도 무방하거나 더 빠름)
-    // (더 정밀하게 하려면 여기도 checkObjectOverlap을 응용해야 하지만, 성능상 Box3가 유리)
     for (let f of state.furnitures) {
-        if (ignoreObj && f === ignoreObj) continue; // 자기 자신 제외
+        if (ignoreObj && f === ignoreObj) continue; 
         const furBox = new THREE.Box3().setFromObject(f.mesh);
         if (subjectBox.intersectsBox(furBox)) return true;
     }

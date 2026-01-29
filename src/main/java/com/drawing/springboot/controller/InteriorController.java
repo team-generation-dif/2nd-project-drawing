@@ -45,17 +45,14 @@ public class InteriorController {
     @RequestMapping("/user/interior/myDraw")
     public String myDraw(Authentication authentication, Model model) {
     	String m_code = memberDAO.findByMid(authentication.getName()).getM_code();
-    	
     	List<InteriorDTO> list = interiorDAO.selectDAOByMCode(m_code);
     	
     	if (list == null || list.isEmpty()) {
-            System.out.println("저장된 인테리어가 없습니다! m_code: " + m_code);
+            System.out.println("저장된 인테리어가 없습니다 m_code: " + m_code);
         } else {
             System.out.println("조회 성공! 개수: " + list.size());
         }
-    	
     	model.addAttribute("dto", list);
-    	
     	return "user/interior/myInterior";
     }
     
@@ -89,7 +86,7 @@ public class InteriorController {
                 dto.setI_image("/upload/interior/" + saveName);
             }
     		
-    		//  
+    		//  i_code 없을 경우 처음엔 생성, i_code 있을 경우 수정
     		if (dto.getI_code() == null || dto.getI_code().isEmpty()) {
     			interiorDAO.insertDAO(dto);
     			response.put("status","ok");
@@ -101,7 +98,6 @@ public class InteriorController {
     			response.put("iCode",dto.getI_code());
     			response.put("message", "수정 저장 성공");
     		}
-    		
     		return response;
     		
     	} catch (Exception e) {
@@ -114,9 +110,7 @@ public class InteriorController {
     // 인테리어 목록에서 삭제
     @RequestMapping("/user/interior/delete")
     public String interiordelete(@RequestParam(value="i_code") String i_code) {
-    	
     	interiorDAO.deleteDAO(i_code);
-    	
     	return "redirect:/user/interior/myDraw";
     }
 }
