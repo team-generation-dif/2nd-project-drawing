@@ -26,22 +26,35 @@ repositories {
 }
 
 dependencies {
-	implementation 'org.springframework.boot:spring-boot-starter-jdbc'
-	implementation 'org.springframework.boot:spring-boot-starter-web'
-	implementation 'org.mybatis.spring.boot:mybatis-spring-boot-starter:3.0.5'
-	compileOnly 'org.projectlombok:lombok'
-	developmentOnly 'org.springframework.boot:spring-boot-devtools'
-	runtimeOnly 'com.oracle.database.jdbc:ojdbc11'
-	annotationProcessor 'org.projectlombok:lombok'
-	providedRuntime 'org.springframework.boot:spring-boot-starter-tomcat'
-	testImplementation 'org.springframework.boot:spring-boot-starter-test'
-	testImplementation 'org.mybatis.spring.boot:mybatis-spring-boot-starter-test:3.0.5'
-	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
-	implementation 'jakarta.servlet:jakarta.servlet-api'
-	implementation 'jakarta.servlet.jsp.jstl:jakarta.servlet.jsp.jstl-api'
-	implementation 'org.glassfish.web:jakarta.servlet.jsp.jstl'
-	implementation 'org.glassfish:jakarta.el:4.0.2'
-	implementation 'org.apache.tomcat.embed:tomcat-embed-jasper'
+    // Spring Boot Starter
+    implementation 'org.springframework.boot:spring-boot-starter-jdbc'
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation 'org.springframework.boot:spring-boot-starter-security'
+    
+    // Mybatis & Oracle
+    implementation 'org.mybatis.spring.boot:mybatis-spring-boot-starter:3.0.5'
+    runtimeOnly 'com.oracle.database.jdbc:ojdbc11'
+    
+    // JSP & JSTL (태그 라이브러리 핵심)
+    implementation 'org.apache.tomcat.embed:tomcat-embed-jasper'
+    implementation 'jakarta.servlet.jsp.jstl:jakarta.servlet.jsp.jstl-api'
+    implementation 'org.glassfish.web:jakarta.servlet.jsp.jstl'
+    
+    // Spring Security Taglibs (이게 있어야 sec: 태그 작동)
+    implementation 'org.springframework.security:spring-security-taglibs'
+
+    // Lombok
+    compileOnly 'org.projectlombok:lombok'
+    annotationProcessor 'org.projectlombok:lombok'
+    
+    // DevTools & Test
+    developmentOnly 'org.springframework.boot:spring-boot-devtools'
+    providedRuntime 'org.springframework.boot:spring-boot-starter-tomcat'
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testImplementation 'org.mybatis.spring.boot:mybatis-spring-boot-starter-test:3.0.5'
+    
+    implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
+    
 }
 
 eclipse.wtp.facet {

@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.drawing.springboot.dao.IBoardDAO">
+
+<select id="getBoardList" resultType="com.drawing.springboot.dto.BoardDTO">
+        SELECT 
+            b.*, 
+            m.m_nick 
+        FROM board b
+        LEFT OUTER JOIN member m ON b.m_code = m.m_code
+        ORDER BY b.b_code DESC
+    </select>
+
+   <select id="getDetail" resultType="com.drawing.springboot.dto.BoardDTO">
+    SELECT 
+        b.b_code, b.b_title, b.b_content, b.b_image, b.m_code, b.b_date,
+        m.m_id, m.m_nick  FROM board b
+    JOIN member m ON b.m_code = m.m_code
+    WHERE b.b_code = #{b_code}
+</select>
+
+    <insert id="insertBoard" parameterType="com.drawing.springboot.dto.BoardDTO">
+        <selectKey keyProperty="b_code" resultType="string" order="BEFORE">
+            SELECT 'B' || (NVL(MAX(TO_NUMBER(SUBSTR(b_code, 2))), 0) + 1) FROM board
+        </selectKey>
+        INSERT INTO board (b_code, m_code, b_title, b_content, b_image, b_date)
+        VALUES (#{b_code}, #{m_code}, #{b_title}, #{b_content}, #{b_image}, SYSDATE)
+    </insert>
+
+    <insert id="insertTag" parameterType="com.drawing.springboot.dto.BoardTagDTO">
+        <selectKey keyProperty="t_code" resultType="string" order="BEFORE">
+            SELECT 'T' || (NVL(MAX(TO_NUMBER(SUBSTR(t_code, 2))), 0) + 1) FROM board_tag
+        </selectKey>
+        INSERT INTO board_tag (t_code, b_code, x_coord, y_coord, t_url, t_name, t_price)
+        VALUES (#{t_code}, #{b_code}, #{x_coord}, #{y_coord}, #{t_url}, #{t_name}, #{t_price})
+    </insert>
+
+    <select id="getTagsByBoard" resultType="com.drawing.springboot.dto.BoardTagDTO">
+        SELECT 
+            t_code, 
+            b_code, 
+            TO_CHAR(x_coord) as x_coord, 
+            TO_CHAR(y_coord) as y_coord, 
+            t_url, 
+            t_name, 
+            t_price
+        FROM board_tag 
+        WHERE b_code = #{b_code}
+    </select>
+
+    <delete id="deleteTagsByBoard">
+    DELETE FROM board_tag WHERE b_code = #{b_code}
+</delete>
+
+<delete id="deleteBoard">
+    DELETE FROM board WHERE b_code = #{b_code}
+</delete>
+<update id="updateBoard" parameterType="com.drawing.springboot.dto.BoardDTO">
+        UPDATE board 
+        SET b_title = #{b_title}, 
+            b_content = #{b_content}, 
+            b_image = #{b_image}
+        WHERE b_code = #{b_code}
+    </update>
+
+</mapper>

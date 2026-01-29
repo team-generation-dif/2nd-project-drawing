@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.drawing.springboot.chatbot.dao.ChatbotDAO">
+
+    <!-- 유저 메시지 저장 -->
+    <insert id="insertChat">
+        INSERT INTO chatbot
+        (chat_code, m_code, chat_message, chat_date)
+        VALUES
+        (chat_seq.NEXTVAL, #{m_code}, #{chat_message}, SYSDATE)
+    </insert>
+
+    <!-- 키워드 기반 답변 조회 -->
+    <select id="selectAnswer" resultType="com.drawing.springboot.dto.ChatbotQuestDTO">
+        SELECT *
+        FROM chatbot_quest
+        WHERE #{message} LIKE '%' || keyword || '%'
+        AND use_yn = 'Y'
+        ORDER BY hit_count DESC
+        FETCH FIRST 1 ROWS ONLY
+    </select>
+
+    <!-- 답변 횟수 증가 -->
+    <update id="updateHitCount">
+        UPDATE chatbot_quest
+        SET hit_count = hit_count + 1
+        WHERE q_code = #{q_code}
+    </update>
+
+</mapper>
