@@ -6,12 +6,13 @@ import { COLORS, DEFAULT_PILLAR_SIZE, DEFAULT_WALL_THICKNESS, FURNITURE_DATA } f
 import { selectObject } from './ui.js';
 
 const textureLoader = new THREE.TextureLoader();
-export const floorTexture = textureLoader.load('https://raw.githubusercontent.com/mrdoob/three.js/master/examples/textures/hardwood2_diffuse.jpg');
-floorTexture.wrapS = THREE.RepeatWrapping; floorTexture.wrapT = THREE.RepeatWrapping; floorTexture.repeat.set(4, 4);
+// [수정] URL을 상수로 분리
+const FLOOR_IMG_URL = 'https://raw.githubusercontent.com/mrdoob/three.js/master/examples/textures/hardwood2_diffuse.jpg';
 
 // --- 생성 함수 ---
 export function createPillar(pos, save = true) {
     for (let p of state.pillars) if (p.position.distanceTo(pos) < 1) return p;
+	if (save) { checkAndRemoveOpeningsAtPoint(pos); }
     const data = { position: pos.clone(), mesh: null, size: DEFAULT_PILLAR_SIZE, isPillar: true };
     const mesh = new THREE.Mesh(new THREE.BoxGeometry(data.size, state.wallHeight, data.size), new THREE.MeshStandardMaterial({ color: COLORS.PILLAR }));
     mesh.position.set(pos.x, state.wallHeight / 2, pos.z);
@@ -24,13 +25,10 @@ export function createPillar(pos, save = true) {
 
 export function createWall(p1, p2, thickness = DEFAULT_WALL_THICKNESS, save = true) {
     const dist = p1.position.distanceTo(p2.position); if (dist < 1) return;
-    
-    // [NEW] 벽 생성 시 경로상의 가구 및 문/창문 자동 삭제
     if (save) {
         checkAndRemoveFurnituresOnPath(p1.position, p2.position);
-        checkAndRemoveOpeningsOnPath(p1.position, p2.position); // 추가됨
+        checkAndRemoveOpeningsOnPath(p1.position, p2.position);
     }
-
     const data = { start: p1, end: p2, mesh: null, thickness: thickness, isWall: true };
     refreshWallGeometry(data);
     if (save) state.walls.push(data);
@@ -83,12 +81,35 @@ export function createOpeningMesh(type, pos, rotationY, dims = {}, hostWall = nu
     return data;
 }
 
+// [수정] 텍스처 로딩 방식 변경 (비동기 처리)
 export function createFloorMesh(centerX, centerZ, width, depth, save = true) {
     const geometry = new THREE.PlaneGeometry(width, depth);
-    const material = new THREE.MeshStandardMaterial({ map: floorTexture, side: THREE.DoubleSide, roughness: 0.8 });
+    
+    // 1. 일단 텍스처 없는 재질로 생성
+    const material = new THREE.MeshStandardMaterial({ 
+        side: THREE.DoubleSide, 
+        roughness: 0.8 
+    });
+    
+    // 2. 텍스처 로더를 통해 이미지가 "준비되면" 그때 텍스처 입힘
+    // (캐시가 있으면 즉시 실행되므로 성능 문제 없음)
+    textureLoader.load(FLOOR_IMG_URL, (texture) => {
+        texture.wrapS = THREE.RepeatWrapping;
+        texture.wrapT = THREE.RepeatWrapping;
+        texture.colorSpace = THREE.SRGBColorSpace;
+        
+        // 바닥 크기에 맞춰 텍스처 반복 설정
+        texture.repeat.set(width / 2000, depth / 2000);
+        
+        material.map = texture;
+        material.needsUpdate = true; // 재질 업데이트 알림
+    });
+    
     const floor = new THREE.Mesh(geometry, material);
-    floor.rotation.x = -Math.PI / 2; floor.position.set(centerX, 1, centerZ); floor.receiveShadow = true;
-    floorTexture.repeat.set(width / 2000, depth / 2000);
+    floor.rotation.x = -Math.PI / 2; 
+    floor.position.set(centerX, 1, centerZ); 
+    floor.receiveShadow = true;
+    
     scene.add(floor);
     if (save) state.floors.push({ mesh: floor, width: width, depth: depth });
 }
@@ -116,7 +137,7 @@ export function createFurniture(id, pos, rotationY, save = true) {
     return data;
 }
 
-// --- 업데이트 함수 ---
+// --- 업데이트 함수들 ---
 export function refreshWallGeometry(w) {
     const p1 = w.start.position; const p2 = w.end.position;
     const dist = Math.hypot(p2.x - p1.x, p2.z - p1.z);
@@ -177,7 +198,6 @@ export function updateConnectedWalls(p) {
     state.walls.filter(w => w.start === p || w.end === p).forEach(refreshWallGeometry);
 }
 
-// --- 삭제 함수 ---
 export function deleteWall(w) {
     for (let i = state.openings.length - 1; i >= 0; i--) {
         if (state.openings[i].hostWall === w) {
@@ -210,7 +230,6 @@ export function cleanupOrphanPillars() {
     }
 }
 
-// --- 프리뷰 함수 ---
 export function createPreviewWall(pos) {
     const g = new THREE.BoxGeometry(1, state.wallHeight, DEFAULT_WALL_THICKNESS);
     const m = new THREE.MeshBasicMaterial({ color: 0xff0000, opacity: 0.5, transparent: true });
@@ -316,7 +335,28 @@ export function handleWallSplit(snap) {
     } return createPillar(snap.position);
 }
 
-// [NEW] 가구 자동 삭제 (벽 생성 시)
+// 특정 위치(기둥)에 있는 문/창문 감지 및 삭제 함수
+function checkAndRemoveOpeningsAtPoint(pos) {
+    // 삭제할 목록 찾기
+    const toRemove = [];
+    state.openings.forEach(op => {
+        // 문/창문의 위치와 기둥 위치의 거리가 가까우면 (기둥 크기 고려 100mm 정도)
+        if (op.mesh.position.distanceTo(new THREE.Vector3(pos.x, op.mesh.position.y, pos.z)) < 150) {
+            toRemove.push(op);
+        }
+    });
+
+    // 실제 삭제 수행
+    toRemove.forEach(op => {
+        scene.remove(op.mesh);
+        const idx = state.openings.indexOf(op);
+        if (idx > -1) state.openings.splice(idx, 1);
+        
+        // 문이 있던 벽 갱신 (구멍 메우기)
+        if (op.hostWall) refreshWallGeometry(op.hostWall);
+    });
+}
+
 function checkAndRemoveFurnituresOnPath(p1, p2) {
     for (let i = state.furnitures.length - 1; i >= 0; i--) {
         const furn = state.furnitures[i];
@@ -327,16 +367,10 @@ function checkAndRemoveFurnituresOnPath(p1, p2) {
     }
 }
 
-// [NEW] 문/창문 자동 삭제 (벽 생성 시)
 function checkAndRemoveOpeningsOnPath(p1, p2) {
     for (let i = state.openings.length - 1; i >= 0; i--) {
         const op = state.openings[i];
-        // Opening도 가구와 비슷한 구조체로 만들어서 검사
-        const objMock = {
-            width: op.width,
-            depth: 200, // 여유 있게 설정
-            mesh: op.mesh
-        };
+        const objMock = { width: op.width, depth: 200, mesh: op.mesh };
         if (checkObjectOverlap(objMock, p1, p2)) {
             scene.remove(op.mesh);
             state.openings.splice(i, 1);
@@ -344,35 +378,59 @@ function checkAndRemoveOpeningsOnPath(p1, p2) {
     }
 }
 
-// [Exported] 충돌 감지 로직 (interaction.js에서 사용)
 export function checkCollision(previewObj, targetPos, ignoreObj = null) {
-    const subjectBox = new THREE.Box3();
-    if (previewObj) {
-        subjectBox.setFromObject(previewObj);
-    } else if (ignoreObj) {
-        subjectBox.setFromObject(ignoreObj.mesh); 
-    } else {
-        return false;
+    // 1. 검사 대상(가구) 특정
+    let targetMesh = previewObj;
+    if (!targetMesh && ignoreObj) {
+        targetMesh = ignoreObj.mesh;
     }
-    subjectBox.expandByScalar(-1);
+    
+    if (!targetMesh) return false;
 
+    // 2. 가구의 AABB 박스 생성 (가구끼리의 충돌 검사용 - 기존 유지)
+    const subjectBox = new THREE.Box3().setFromObject(targetMesh);
+    subjectBox.expandByScalar(-1); // 약간의 여유
+
+    // 3. 가구의 실제 규격 가져오기 (정밀 검사용)
+    // BoxGeometry의 원본 치수를 가져옵니다.
+    const geom = targetMesh.geometry;
+    const furnWidth = geom.parameters ? geom.parameters.width : (subjectBox.max.x - subjectBox.min.x);
+    const furnDepth = geom.parameters ? geom.parameters.depth : (subjectBox.max.z - subjectBox.min.z);
+
+    // 정밀 검사를 위한 가구 데이터 객체 생성
+    const furnData = {
+        width: furnWidth,
+        depth: furnDepth,
+        mesh: targetMesh
+    };
+
+    // [수정] 벽 충돌 검사: Box3 대신 '선분 교차(checkObjectOverlap)' 사용
     for (let w of state.walls) {
-        const wallBox = new THREE.Box3().setFromObject(w.mesh);
-        if (subjectBox.intersectsBox(wallBox)) return true;
+        // 벽의 시작점과 끝점을 선분으로 보고, 가구와 겹치는지 검사
+        if (checkObjectOverlap(furnData, w.start.position, w.end.position)) {
+            return true; // 겹침!
+        }
     }
+
+    // 기둥 충돌 (Box3 유지 - 기둥은 회전하지 않으므로 AABB로 충분)
     for (let p of state.pillars) {
         const pillarBox = new THREE.Box3().setFromObject(p.mesh);
+        // 기둥은 살짝 여유를 둬서 너무 빡빡하지 않게
+        pillarBox.expandByScalar(-1); 
         if (subjectBox.intersectsBox(pillarBox)) return true;
     }
+
+    // 다른 가구 충돌 (Box3 유지 - 가구끼리는 박스로 검사해도 무방하거나 더 빠름)
+    // (더 정밀하게 하려면 여기도 checkObjectOverlap을 응용해야 하지만, 성능상 Box3가 유리)
     for (let f of state.furnitures) {
-        if (ignoreObj && f === ignoreObj) continue; 
+        if (ignoreObj && f === ignoreObj) continue; // 자기 자신 제외
         const furBox = new THREE.Box3().setFromObject(f.mesh);
         if (subjectBox.intersectsBox(furBox)) return true;
     }
+
     return false;
 }
 
-// 내부 헬퍼: 선분(p1-p2)과 객체의 충돌 검사
 function checkObjectOverlap(obj, p1, p2) {
     const w = obj.width;
     const d = obj.depth;

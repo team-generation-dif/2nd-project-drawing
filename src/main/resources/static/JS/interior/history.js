@@ -45,7 +45,7 @@ export function redo() {
     }
 }
 
-function restoreState(s) {
+export function restoreState(s) {
     deselectObject();
     resetUI(); // [수정] ui.js의 함수 호출
 

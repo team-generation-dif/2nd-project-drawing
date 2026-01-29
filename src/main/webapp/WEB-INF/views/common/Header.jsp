@@ -27,7 +27,7 @@
         <c:if test="${!fn:contains(pageContext.request.requestURI, '/admin/')}">
             <li><a href="/user/list">게시판</a></li>
             <li><a href="#">공지사항</a></li>
-            <li><a href="#">3D인테리어</a></li>
+            <li><a href="/user/interior/myDraw">3D인테리어</a></li>
             <li><a href="#">찜목록</a></li>
             
         </c:if>

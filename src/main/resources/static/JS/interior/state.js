@@ -30,5 +30,8 @@ export const state = {
     openings: [],
     furnitures: [],
 
-    wallHeight: 2400
+    wallHeight: 2400,
+	
+	iCode: null,
+	iTitle: null
 };
