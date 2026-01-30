@@ -5,20 +5,19 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.*;
 
 import com.drawing.springboot.dao.ICategoryDAO;
 import com.drawing.springboot.dao.IProductsDAO;
 import com.drawing.springboot.dao.ISubcategoryDAO;
 import com.drawing.springboot.dto.CategoryDTO;
 import com.drawing.springboot.dto.ProductsDTO;
+import com.drawing.springboot.dto.SubcategoryDTO;
 
 import jakarta.servlet.http.HttpSession;
 
 @Controller
+@RequestMapping("/products")
 public class ProductsController {
 
     @Autowired
@@ -28,57 +27,56 @@ public class ProductsController {
     @Autowired
     private ISubcategoryDAO subcategoryDAO;
 
+    // ✅ 메인 화면: 상위 카테고리 목록
+    @GetMapping("/categories")
+    public String showCategories(Model model) {
+        List<CategoryDTO> categories = categoryDAO.getAllCategories();
+        model.addAttribute("categories", categories);
+        return "guest/main"; // JSP에서 이미지 + 이름 출력
+    }
 
-    // 상품 목록 (게스트도 볼 수 있음)
+    // ✅ 상위 카테고리 클릭 → 하위 서브카테고리 목록
+    @GetMapping("/categories/{categoryId}")
+    public String showSubcategories(@PathVariable Long categoryId, Model model) {
+        CategoryDTO category = categoryDAO.getCategoryById(categoryId);
+        model.addAttribute("category", category);
+
+        List<SubcategoryDTO> subcategories = subcategoryDAO.getSubcategoriesByCategoryId(categoryId);
+        model.addAttribute("subcategories", subcategories);
+
+        return "guest/subcategories"; // JSP에서 서브카테고리 출력
+    }
+
+    // ✅ 서브카테고리 클릭 → 상품 목록
     @GetMapping("/subcategories/{subcategoryId}")
     public String products(@PathVariable Long subcategoryId, Model model) {
         List<ProductsDTO> products = productsDAO.getProductsBySubcategoryId(subcategoryId);
         model.addAttribute("products", products);
-        return "products"; // products.jsp
+        return "guest/products"; // JSP에서 상품 목록 출력
     }
 
-    // 상품 클릭 → 로그인 여부 확인 후 외부 이케아 URL로 리다이렉트
+    // ✅ 상품 클릭 → 로그인 여부 확인 후 IKEA URL로 리다이렉트
     @GetMapping("/{productId}")
     public String productDetail(@PathVariable Long productId, HttpSession session) {
         if (session.getAttribute("role") == null) {
-            return "redirect:/member/guest/loginForm?redirect=/products/" + productId;
+            return "redirect:/guest/loginForm?redirect=/products/" + productId;
         }
 
         ProductsDTO product = productsDAO.getProductById(productId);
         String ikeaUrl = "https://www.ikea.com/kr/ko/p/" + product.getP_code() + "/";
-        product.setIkeaUrl(ikeaUrl);
-
-        return "redirect:" + product.getIkeaUrl();
+        return "redirect:" + ikeaUrl;
     }
 
-    // 관리자용 상품 등록 폼
+    // ✅ 관리자 상품 등록 폼
     @GetMapping("/admin/new")
     public String newProductForm() {
-        return "admin/newproducts"; // JSP 폼
+        return "admin/newproducts";
     }
 
-    // 관리자용 상품 등록 처리
+    // ✅ 관리자 상품 등록 처리
     @PostMapping("/admin/new")
     public String createProduct(ProductsDTO product) {
         productsDAO.insertProduct(product);
         return "redirect:/products/subcategories/" + product.getSubcategoryId();
     }
-    
-    @GetMapping("/")
-    public String home(Model model) {
-        System.out.println("categoryDAO is null? " + (categoryDAO == null)); // ← 확인용 로그
-
-        List<CategoryDTO> categories = categoryDAO.getAllCategories();
-        model.addAttribute("categories", categories);
-        System.out.println("카테고리 개수: " + categories.size());
-
-        for (CategoryDTO c : categories) {
-            System.out.println("카테고리: " + c.getName() + ", 이미지: " + c.getImage());
-        }
-
-        // 기존: return "common/home";
-        return "user/main"; // /WEB-INF/views/user/main.jsp 로 연결
-    }
-    
 }
-

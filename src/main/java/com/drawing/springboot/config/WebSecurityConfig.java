@@ -34,14 +34,17 @@ public class WebSecurityConfig {
         http.csrf((csrf) -> csrf.disable())
             .cors((cors) -> cors.disable())
             .authorizeHttpRequests(request -> request
-                    .dispatcherTypeMatchers(DispatcherType.FORWARD).permitAll() 
-                    .requestMatchers("/", "/error","/CSS/**", "/JS/**", "/imgsrc/**", "/upload/**").permitAll() 
-                    .requestMatchers("/guest/**", "/login/**", "/oauth2/**").permitAll() 
+                    .dispatcherTypeMatchers(
+                        DispatcherType.FORWARD,
+                        DispatcherType.INCLUDE
+                    ).permitAll()
+                    .requestMatchers("/", "/error","/CSS/**", "/JS/**", "/imgsrc/**", "/upload/**").permitAll()
+                    .requestMatchers("/guest/**", "/login/**", "/oauth2/**").permitAll()
                     .requestMatchers("/chatbot/**").permitAll()
-                    .requestMatchers("/user/**").hasAnyRole("USER", "ADMIN") 
-                    .requestMatchers("/admin/**").hasRole("ADMIN") 
-                    .anyRequest().authenticated() 
-            );
+                    .requestMatchers("/user/**").hasAnyRole("USER", "ADMIN")
+                    .requestMatchers("/admin/**").hasRole("ADMIN")
+                    .anyRequest().authenticated()
+                );
         
         http.formLogin((formlogin) -> formlogin
                 .loginPage("/guest/loginForm")
