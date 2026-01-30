@@ -1,6 +1,5 @@
 package com.drawing.springboot.controller;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.AuthorityUtils;
@@ -28,7 +27,6 @@ public class MemberController {
 
     private final IMemberDAO memberMapper;
     private final PasswordEncoder passwordEncoder;
-    @Autowired
 
     /* =========================
      * 1. Guest (비로그인)
@@ -36,9 +34,9 @@ public class MemberController {
 
     @GetMapping("/")
     public String home() {
-        return "common/home";
+        return "common/guest";
     }
-
+    
     @GetMapping("/guest/loginForm")
     public String loginForm() {
         return "guest/loginForm";

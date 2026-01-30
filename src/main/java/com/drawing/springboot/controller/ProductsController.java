@@ -13,12 +13,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import com.drawing.springboot.dao.ICategoryDAO;
 import com.drawing.springboot.dao.IProductsDAO;
 import com.drawing.springboot.dao.ISubcategoryDAO;
+import com.drawing.springboot.dto.CategoryDTO;
 import com.drawing.springboot.dto.ProductsDTO;
 
 import jakarta.servlet.http.HttpSession;
 
 @Controller
-@RequestMapping("/products")
 public class ProductsController {
 
     @Autowired
@@ -63,5 +63,22 @@ public class ProductsController {
         productsDAO.insertProduct(product);
         return "redirect:/products/subcategories/" + product.getSubcategoryId();
     }
+    
+    @GetMapping("/")
+    public String home(Model model) {
+        System.out.println("categoryDAO is null? " + (categoryDAO == null)); // ← 확인용 로그
+
+        List<CategoryDTO> categories = categoryDAO.getAllCategories();
+        model.addAttribute("categories", categories);
+        System.out.println("카테고리 개수: " + categories.size());
+
+        for (CategoryDTO c : categories) {
+            System.out.println("카테고리: " + c.getName() + ", 이미지: " + c.getImage());
+        }
+
+        // 기존: return "common/home";
+        return "user/main"; // /WEB-INF/views/user/main.jsp 로 연결
+    }
+    
 }
 
