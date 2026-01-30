@@ -37,7 +37,7 @@ public class MemberController {
     	
         return "guest/main";
     }
-
+    
     @GetMapping("/guest/loginForm")
     public String loginForm() {
         return "guest/loginForm";
