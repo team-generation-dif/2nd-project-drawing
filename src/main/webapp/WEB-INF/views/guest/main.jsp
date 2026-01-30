@@ -152,7 +152,7 @@
     </style>
 </head>
 <body>
-    <jsp:include page="../common/Header.jsp" />
+    <jsp:include page="../guest/Header.jsp" />
 
     <section class="hero-section">
         <div class="watercolor-bg"></div>

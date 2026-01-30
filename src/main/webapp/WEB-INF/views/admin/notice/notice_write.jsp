@@ -17,6 +17,7 @@
     </style>
 </head>
 <body>
+
     <div class="write-wrap">
         <h2>📢 새 공지사항 작성</h2>
         <hr>

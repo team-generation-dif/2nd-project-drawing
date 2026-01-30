@@ -22,7 +22,7 @@
     </style>
 </head>
 <body>
-    <jsp:include page="/WEB-INF/views/common/Header.jsp" />
+    <jsp:include page="/WEB-INF/views/guest/Header.jsp" />
 
     <div class="mypage-container">
         <h2>내 정보 확인</h2>

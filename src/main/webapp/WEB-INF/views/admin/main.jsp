@@ -114,7 +114,7 @@
     </style>
 </head>
 <body>
-    <jsp:include page="../common/Header.jsp" />
+    <jsp:include page="../guest/Header.jsp" />
 
     <div class="admin-wrapper">
         <div class="admin-container">
