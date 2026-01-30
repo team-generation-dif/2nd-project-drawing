@@ -108,7 +108,7 @@
     </style>
 </head>
 <body>
-   <jsp:include page="/WEB-INF/views/common/Header.jsp" />
+   <jsp:include page="/WEB-INF/views/guest/Header.jsp" />
 
     <div class="container">
         <div class="page-title-area">

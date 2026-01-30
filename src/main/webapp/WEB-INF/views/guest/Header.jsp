@@ -8,7 +8,7 @@
         <a href="/admin/main" class="logo">Drawing Admin</a>
     </sec:authorize>
     <sec:authorize access="hasRole('USER')">
-        <a href="/user/main" class="logo">Drawing Home</a>
+        <a href="/guest/main" class="logo">Drawing Home</a>
     </sec:authorize>
 
   <nav>

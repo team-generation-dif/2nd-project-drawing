@@ -8,7 +8,7 @@
 <title>그리다 | 내 아뜰리에</title>
 </head>
 <body>
-	<%@ include file="../../common/Header.jsp" %>
+	<%@ include file="../../guest/Header.jsp" %>
 	<div class="container">
 		<h2>내 라이브러리</h2>
 		<div>

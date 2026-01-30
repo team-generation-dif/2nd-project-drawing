@@ -34,7 +34,8 @@ public class MemberController {
 
     @GetMapping("/")
     public String home() {
-        return "common/guest";
+    	
+        return "guest/main";
     }
     
     @GetMapping("/guest/loginForm")
@@ -193,7 +194,7 @@ public class MemberController {
             return "redirect:/admin/main";
         }
 
-        return "redirect:/user/main";
+        return "redirect:/";
     }
 
     /* =========================
