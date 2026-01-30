@@ -148,30 +148,20 @@
         </div>
     </div>
 
-    <h2 class="section-title" id="explore">오늘의 기록, 오늘의 공간</h2>
+    <h2 class="section-title" id="explore">공간별 쇼핑하기</h2>
     <div class="grid-container">
+    <c:forEach var="category" items="${categories}">
         <div class="content-card">
-            <img src="https://images.unsplash.com/photo-1540518614846-7eded433c457?auto=format&fit=crop&w=500&q=60" alt="거실">
-            <div class="card-info">
-                <h4>오후의 햇살이 머무는 거실</h4>
-                <p>#우드인테리어 #내추럴스타일</p>
-            </div>
+            <a href="${pageContext.request.contextPath}/products/categories/${category.id}/subcategories">
+                <img src="${category.image}" alt="${category.name}">
+                <div class="card-info">
+                    <h4>${category.name}</h4>
+                    <p>${category.tags}</p>
+                </div>
+            </a>
         </div>
-        <div class="content-card">
-            <img src="https://images.unsplash.com/photo-1524758631624-e2822e304c36?auto=format&fit=crop&w=500&q=60" alt="서재">
-            <div class="card-info">
-                <h4>집중을 그리는 나만의 서재</h4>
-                <p>#홈오피스 #모던빈티지</p>
-            </div>
-        </div>
-        <div class="content-card">
-            <img src="https://images.unsplash.com/photo-1505691938895-1758d7feb511?auto=format&fit=crop&w=500&q=60" alt="침실">
-            <div class="card-info">
-                <h4>꿈을 그리는 포근한 침실</h4>
-                <p>#화이트인테리어 #미니멀리즘</p>
-            </div>
-        </div>
-    </div>
+    </c:forEach>
+</div>
 
     <div class="start-box">
         <h2 style="font-family: 'Nanum Myeongjo', serif; margin-bottom: 30px;">당신의 공간을 그릴 준비가 되셨나요?</h2>

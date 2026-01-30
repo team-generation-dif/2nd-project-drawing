@@ -1,6 +1,7 @@
 package com.drawing.springboot.dto;
 
 public class CategoryDTO {
-	private String name;
-	private String url;
+	private Long categoryId;  // CATEGORY_ID
+    private String name;      // NAME
+    private String url;       // URL
 }

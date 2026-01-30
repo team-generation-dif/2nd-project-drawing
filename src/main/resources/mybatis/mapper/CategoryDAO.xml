@@ -8,17 +8,20 @@
     <!-- 전체 카테고리 조회 -->
     <select id="getAllCategories" resultType="com.drawing.springboot.dto.CategoryDTO">
         SELECT category_id AS categoryId,
-               name
-        FROM categories
+               name,
+               url
+        FROM CATEGORIES
         ORDER BY category_id
     </select>
 
     <!-- 특정 카테고리 조회 -->
     <select id="getCategoryById" parameterType="long" resultType="com.drawing.springboot.dto.CategoryDTO">
         SELECT category_id AS categoryId,
-               name
-        FROM categories
+               name,
+               url
+        FROM CATEGORIES
         WHERE category_id = #{categoryId}
     </select>
 
 </mapper>
+

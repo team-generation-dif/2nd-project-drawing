@@ -10,7 +10,9 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
+import com.drawing.springboot.dao.ICategoryDAO;
 import com.drawing.springboot.dao.IProductsDAO;
+import com.drawing.springboot.dao.ISubcategoryDAO;
 import com.drawing.springboot.dto.ProductsDTO;
 
 import jakarta.servlet.http.HttpSession;
@@ -21,6 +23,11 @@ public class ProductsController {
 
     @Autowired
     private IProductsDAO productsDAO;
+    @Autowired
+    private ICategoryDAO categoryDAO;
+    @Autowired
+    private ISubcategoryDAO subcategoryDAO;
+
 
     // 상품 목록 (게스트도 볼 수 있음)
     @GetMapping("/subcategories/{subcategoryId}")
@@ -47,7 +54,7 @@ public class ProductsController {
     // 관리자용 상품 등록 폼
     @GetMapping("/admin/new")
     public String newProductForm() {
-        return "admin/newProduct"; // JSP 폼
+        return "admin/newproducts"; // JSP 폼
     }
 
     // 관리자용 상품 등록 처리
