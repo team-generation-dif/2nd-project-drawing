@@ -39,7 +39,7 @@ public class MemberController {
     public String home() {
         return "redirect:/guest/main";
     }
-
+    
     @GetMapping("/guest/loginForm")
     public String loginForm() {
         return "guest/loginForm";
