@@ -37,6 +37,7 @@ dependencies {
     
     // JSP & JSTL (태그 라이브러리 핵심)
     implementation 'org.apache.tomcat.embed:tomcat-embed-jasper'
+    implementation 'org.apache.commons:commons-csv:1.10.0'
     implementation 'jakarta.servlet.jsp.jstl:jakarta.servlet.jsp.jstl-api'
     implementation 'org.glassfish.web:jakarta.servlet.jsp.jstl'
     

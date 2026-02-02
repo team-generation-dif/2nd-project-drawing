@@ -1,8 +1,8 @@
 package com.drawing.springboot.controller;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.List;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.AuthorityUtils;
@@ -16,7 +16,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import com.drawing.springboot.dao.ICategoryDAO;
 import com.drawing.springboot.dao.IMemberDAO;
+import com.drawing.springboot.dto.CategoryDTO;
 import com.drawing.springboot.dto.MemberDTO;
 
 import jakarta.servlet.http.HttpSession;
@@ -31,13 +33,19 @@ public class MemberController {
     private final IMemberDAO memberMapper;
     private final PasswordEncoder passwordEncoder;
 
+    @Autowired
+    private ICategoryDAO categoryDAO;
+
+    
     /* =========================
      * 1. Guest (비로그인)
      * ========================= */
 
     @GetMapping("/")
-    public String home() {
-        return "redirect:/guest/main";
+    public String mainPage(Model model) {
+        List<CategoryDTO> categories = categoryDAO.getAllCategories();
+        model.addAttribute("categories", categories); // ✅ JSP에서 ${categories}로 접근 가능
+        return "guest/main";
     }
     
     @GetMapping("/guest/loginForm")

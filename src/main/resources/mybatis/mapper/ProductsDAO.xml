@@ -5,53 +5,37 @@
 
 <mapper namespace="com.drawing.springboot.dao.IProductsDAO">
 
-    <!-- 특정 서브카테고리 상품 조회 -->
-    <select id="getProductsBySubcategoryId" parameterType="long" resultType="com.drawing.springboot.dto.ProductsDTO">
-        SELECT product_id AS productId,
-               subcategory_id AS subcategoryId,
-               name,
-               price,
-               image_url AS imageUrl,
-               review_count AS reviewCount,
-               rating
-        FROM products
-        WHERE subcategory_id = #{subcategoryId}
-        ORDER BY product_id
-    </select>
-
-    <!-- 특정 카테고리 상품 조회 (JOIN) -->
-    <select id="getProductsByCategoryId" parameterType="long" resultType="com.drawing.springboot.dto.ProductsDTO">
-        SELECT p.product_id AS productId,
+    <!-- 특정 카테고리 상품 조회 -->
+    <select id="getProductsByCategoryId" resultType="com.drawing.springboot.dto.ProductsDTO">
+        SELECT p.p_code AS p_code,
                p.subcategory_id AS subcategoryId,
-               p.name,
-               p.price,
-               p.image_url AS imageUrl,
-               p.review_count AS reviewCount,
-               p.rating
+               p.p_name AS p_name,
+               p.p_price AS p_price,
+               p.p_image AS p_image,
+               p.p_rating AS p_rating
         FROM products p
         JOIN subcategories s ON p.subcategory_id = s.subcategory_id
         WHERE s.category_id = #{categoryId}
-        ORDER BY p.product_id
+        ORDER BY p.p_code
     </select>
 
     <!-- 특정 상품 조회 -->
     <select id="getProductById" parameterType="long" resultType="com.drawing.springboot.dto.ProductsDTO">
         SELECT product_id AS productId,
                subcategory_id AS subcategoryId,
-               name,
-               price,
-               image_url AS imageUrl,
-               review_count AS reviewCount,
-               rating
+               p_name AS p_name,
+               p_price AS p_price,
+               p_image AS p_image,
+               p_rating AS p_rating,
+               review_count AS reviewCount
         FROM products
         WHERE product_id = #{productId}
     </select>
-    
-	<insert id="insertProduct" parameterType="com.drawing.springboot.dto.ProductsDTO">
-    	INSERT INTO products 
-    	(p_code, p_name, p_color, p_width, p_depth, p_height, p_price, p_image, p_rating, subcategory_id)
-    	VALUES 
-    	(#{p_code}, #{p_name}, #{p_color}, #{p_width}, #{p_depth}, #{p_height}, #{p_price}, #{p_image}, #{p_rating}, #{subcategoryId})
-	</insert>
-	
+
+    <!-- 상품 등록 -->
+    <insert id="insertProduct" parameterType="com.drawing.springboot.dto.ProductsDTO">
+        INSERT INTO products (p_code, p_name, p_color, p_width, p_price, p_image, p_rating, subcategory_id)
+        VALUES (#{p_code}, #{p_name}, #{p_color}, #{p_width}, #{p_price}, #{p_image}, #{p_rating}, #{subcategoryId})
+    </insert>
+
 </mapper>

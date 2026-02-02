@@ -8,4 +8,5 @@ public class CategoryDTO {
     private String name;      // NAME
     private String url;       // URL
     private String image; 	  // 이미지 url
+
 }
