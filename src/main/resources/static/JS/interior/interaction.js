@@ -9,7 +9,7 @@ import {
     finishWallDrawing, handleWallSplit, updateConnectedWalls, refreshWallGeometry, refreshPillarGeometry, 
     checkAndResizePillar, refreshOpeningGeometry, createOpeningMesh, deleteWall, deletePillar, cleanupOrphanPillars, 
     updateOpeningPreview, createRoomWalls, createFurniture, updateFurniturePreview,
-    checkCollision, refreshFurnitureGeometry // [NEW] import 추가
+    checkCollision, refreshFurnitureGeometry
 } from './objects.js';
 import { selectObject, deselectObject, resetUI, closePanel, switchTabUI } from './ui.js';
 
@@ -49,8 +49,168 @@ export function setupEventListeners() { if(inputEl) { inputEl.addEventListener('
 function onWindowKeydown(e) { if (state.mode === 'furniture') { if (state.previewObject) { if (e.key.toLowerCase() === 'q') state.previewObject.rotation.y += ROTATION_STEP; if (e.key.toLowerCase() === 'e') state.previewObject.rotation.y -= ROTATION_STEP; } if (state.draggingFurniture) { if (e.key.toLowerCase() === 'q') state.draggingFurniture.mesh.rotation.y += ROTATION_STEP; if (e.key.toLowerCase() === 'e') state.draggingFurniture.mesh.rotation.y -= ROTATION_STEP; } } }
 function onInputKeydown(e) { if (e.key === 'Enter' && state.isDrawing && state.mode === 'draw') { const val = parseFloat(inputEl.value); if (!val || val <= 0) return; const rawTarget = getGroundPoint(state.lastMouseEvent); if (!rawTarget) return; const startPos = state.startPillar.position; let direction = new THREE.Vector3().subVectors(rawTarget, startPos).normalize(); if (state.lastMouseEvent && state.lastMouseEvent.shiftKey) { const angle = Math.round(Math.atan2(rawTarget.z - startPos.z, rawTarget.x - startPos.x) / (Math.PI / 4)) * (Math.PI / 4); direction.set(Math.cos(angle), 0, Math.sin(angle)); } const targetPos = startPos.clone().add(direction.multiplyScalar(val)); const endPillar = handleWallSplit(getSnappedData(targetPos, false)); finishWallDrawing(endPillar); saveState(); inputEl.value = '0'; state.isUserTyping = false; setTimeout(() => { inputEl.focus(); inputEl.select(); }, 10); state.previewObject.position.copy(state.startPillar.position); state.previewObject.scale.x = 0; } }
 function checkUIBlocking(e) { return e.target.closest('.panel') || e.target.closest('#sidebar') || e.target === inputEl; }
-function onMouseDown(e) { if (checkUIBlocking(e)) return; if (e.button === 2) { state.isPanning = true; state.panStartMouse.set(e.clientX, e.clientY); return; } if (e.button !== 0) return; updateMousePosition(e); const rawTarget = getGroundPoint(e); if (!rawTarget) return; if (state.mode === 'furniture' && state.activeFurnitureId) { if (state.previewObject) { const isColliding = checkCollision(state.previewObject); if (!isColliding) { createFurniture(state.activeFurnitureId, rawTarget, state.previewObject.rotation.y); saveState(); } else { alert("다른 물체와 겹칩니다."); } } return; } if (state.mode === 'select') { const hit = raycaster.intersectObjects(state.furnitures.map(f => f.mesh), true)[0]; if (hit) { const furn = state.furnitures.find(f => f.mesh === hit.object); if (furn) { selectObject(furn); state.draggingFurniture = furn; state.dragStartPos = furn.mesh.position.clone(); state.dragStartRotation = furn.mesh.rotation.y; return; } } } if (state.mode === 'door' || state.mode === 'window') { const snap = getSnappedData(rawTarget, false); if (snap.type === 'wall') { createOpeningMesh(state.mode, snap.position, snap.object.mesh.rotation.y, {}, snap.object); refreshWallGeometry(snap.object); saveState(); } else alert("문과 창문은 벽 위에만 설치할 수 있습니다."); return; } if (state.mode === 'select') { handleSelection(e); return; } if (state.mode === 'delete') { handleDeletion(e); return; } const snapResult = getSnappedData(rawTarget, e.shiftKey); const clickedPillar = handleWallSplit(snapResult); if (state.mode === 'draw') { if (!state.isDrawing) { state.isDrawing = true; state.isUserTyping = false; state.startPillar = clickedPillar; createPreviewWall(state.startPillar.position); inputEl.style.display = 'block'; inputEl.value = '0'; moveInputToMouse(e.clientX, e.clientY); setTimeout(() => { inputEl.focus(); inputEl.select(); }, 10); } else { finishWallDrawing(clickedPillar); saveState(); inputEl.value = '0'; state.isUserTyping = false; setTimeout(() => { inputEl.focus(); inputEl.select(); }, 10); state.previewObject.position.copy(state.startPillar.position); state.previewObject.scale.x = 0; } } else if (state.mode === 'room') { state.isDrawing = true; state.startPillar = clickedPillar; createPreviewRoom(state.startPillar.position); inputEl.style.display = 'block'; inputEl.value = ''; moveInputToMouse(e.clientX, e.clientY); } }
-function onMouseMove(e) { state.lastMouseEvent = e; if (checkUIBlocking(e)) return; updateMousePosition(e); const rawTarget = getGroundPoint(e); if (state.mode === 'furniture' && rawTarget) { const rotation = state.previewObject ? state.previewObject.rotation.y : 0; if(state.previewObject) state.previewObject.position.set(rawTarget.x, FURNITURE_DATA[state.activeFurnitureId].height/2, rawTarget.z); const isSafe = !checkCollision(state.previewObject, rawTarget); updateFurniturePreview(state.activeFurnitureId, rawTarget, rotation, isSafe); return; } if (state.mode === 'select' && state.draggingFurniture && rawTarget) { const furn = state.draggingFurniture; furn.mesh.position.set(rawTarget.x, furn.height / 2, rawTarget.z); const isColliding = checkCollision(null, null, furn); furn.mesh.material.color.setHex(isColliding ? COLORS.COLLISION : COLORS.SELECT); return; } if (state.mode === 'select' && state.draggingPillar && rawTarget) { state.draggingPillar.position.copy(rawTarget); state.draggingPillar.mesh.position.set(rawTarget.x, state.wallHeight / 2, rawTarget.z); updateConnectedWalls(state.draggingPillar); return; } if (state.mode === 'delete' || state.mode === 'select') handleHighlighting(); else restoreHighlight(); if (rawTarget && !['select', 'delete'].includes(state.mode)) { const snapResult = getSnappedData(rawTarget, e.shiftKey); if ((state.mode === 'door' || state.mode === 'window')) { if (snapResult.type === 'wall') updateOpeningPreview(state.mode, snapResult.position, snapResult.object.mesh.rotation.y); else if (state.previewObject) scene.remove(state.previewObject); } if (snapResult.type === 'wall') showSplitDimensions(snapResult.object, snapResult.position, e.clientX, e.clientY); else infoTooltip.style.display = 'none'; if (state.mode === 'pillar') updatePillarPreview(snapResult.position); else if (state.mode === 'draw' && state.isDrawing) { moveInputToMouse(e.clientX, e.clientY); const dist = state.startPillar.position.distanceTo(snapResult.position); if (!state.isUserTyping) inputEl.value = Math.round(dist); let len = parseFloat(inputEl.value); if (isNaN(len)) len = dist; updateWallPreview(snapResult.position, len); } else if (state.mode === 'room' && state.isDrawing) { moveInputToMouse(e.clientX, e.clientY); const sizeStr = updateRoomPreview(snapResult.position); inputEl.value = sizeStr; } } }
+function onMouseDown(e) { 
+	if (checkUIBlocking(e)) return; 
+	if (e.button === 2) { 
+		state.isPanning = true; 
+		state.panStartMouse.set(e.clientX, e.clientY); 
+		return; 
+	} 
+	if (e.button !== 0) return; 
+	updateMousePosition(e); 
+	const rawTarget = getGroundPoint(e); 
+	if (!rawTarget) return; 
+	if (state.mode === 'furniture' && state.activeFurnitureId) {
+        if (state.previewObject) {
+            const isColliding = checkCollision(state.previewObject);
+            if (!isColliding) {
+                // createFurniture에 커스텀 스펙 전달
+                // activeFurnitureId가 'custom'일 경우 activeFurnitureSpecs를 넘김
+                const specs = (state.activeFurnitureId === 'custom') ? state.activeFurnitureSpecs : null;
+                
+                createFurniture(state.activeFurnitureId, rawTarget, state.previewObject.rotation.y, true, specs);
+                
+                saveState();
+            } else {
+                alert("다른 물체와 겹칩니다.");
+            }
+        }
+        return;
+    }
+	if (state.mode === 'select') { 
+		const hit = raycaster.intersectObjects(state.furnitures.map(f => f.mesh), true)[0]; 
+		if (hit) { 
+			const furn = state.furnitures.find(f => f.mesh === hit.object); 
+			if (furn) { 
+				selectObject(furn); 
+				state.draggingFurniture = furn; 
+				state.dragStartPos = furn.mesh.position.clone(); 
+				state.dragStartRotation = furn.mesh.rotation.y; 
+				return; 
+			} 
+		} 
+	} 
+	if (state.mode === 'door' || state.mode === 'window') { 
+		const snap = getSnappedData(rawTarget, false); 
+		if (snap.type === 'wall') { 
+			createOpeningMesh(state.mode, snap.position, snap.object.mesh.rotation.y, {}, snap.object); 
+			refreshWallGeometry(snap.object); 
+			saveState(); 
+		} else alert("문과 창문은 벽 위에만 설치할 수 있습니다."); return; 
+	} 
+	if (state.mode === 'select') { 
+		handleSelection(e); 
+		return; 
+	} 
+	if (state.mode === 'delete') { 
+		handleDeletion(e); 
+		return; 
+	} 
+	const snapResult = getSnappedData(rawTarget, e.shiftKey); 
+	const clickedPillar = handleWallSplit(snapResult); 
+	if (state.mode === 'draw') { 
+		if (!state.isDrawing) { 
+			state.isDrawing = true; 
+			state.isUserTyping = false; 
+			state.startPillar = clickedPillar; 
+			createPreviewWall(state.startPillar.position); 
+			inputEl.style.display = 'block'; 
+			inputEl.value = '0'; 
+			moveInputToMouse(e.clientX, e.clientY); 
+			setTimeout(() => { 
+				inputEl.focus(); 
+				inputEl.select(); 
+			}, 10); 
+		} else { 
+			finishWallDrawing(clickedPillar); 
+			saveState(); 
+			inputEl.value = '0'; 
+			state.isUserTyping = false; 
+			setTimeout(() => { 
+				inputEl.focus(); 
+				inputEl.select(); 
+			}, 10); 
+			state.previewObject.position.copy(state.startPillar.position); 
+			state.previewObject.scale.x = 0; 
+		} 
+	} else if (state.mode === 'room') { 
+		state.isDrawing = true; 
+		state.startPillar = clickedPillar; 
+		createPreviewRoom(state.startPillar.position); 
+		inputEl.style.display = 'block'; 
+		inputEl.value = ''; 
+		moveInputToMouse(e.clientX, e.clientY); 
+	} 
+}
+function onMouseMove(e) { 
+	state.lastMouseEvent = e; 
+	if (checkUIBlocking(e)) return; 
+	updateMousePosition(e); 
+	const rawTarget = getGroundPoint(e); 
+	if (state.mode === 'furniture' && rawTarget) {
+        const rotation = state.previewObject ? state.previewObject.rotation.y : 0;
+        
+        // [수정] 높이 계산 로직 변경
+        let height = 0;
+        let width = 0;
+        let depth = 0;
+
+        if (state.activeFurnitureId === 'custom' && state.activeFurnitureSpecs) {
+            // [NEW] DB에서 가져온 스펙 사용
+            height = state.activeFurnitureSpecs.height;
+            width = state.activeFurnitureSpecs.width;
+            depth = state.activeFurnitureSpecs.depth;
+        } else {
+            // 기존 하드코딩 데이터 사용 (예외 처리)
+            const info = FURNITURE_DATA[state.activeFurnitureId];
+            if (info) { height = info.height; width = info.width; depth = info.depth; }
+        }
+
+        if(state.previewObject) {
+            state.previewObject.position.set(rawTarget.x, height / 2, rawTarget.z);
+        }
+        
+        const isSafe = !checkCollision(state.previewObject, rawTarget);
+        
+        // updateFurniturePreview 함수 호출 시 스펙 전달 필요
+        updateFurniturePreview(state.activeFurnitureId, rawTarget, rotation, isSafe, state.activeFurnitureSpecs);
+        return;
+    }
+	if (state.mode === 'select' && state.draggingFurniture && rawTarget) { 
+		const furn = state.draggingFurniture; furn.mesh.position.set(rawTarget.x, furn.height / 2, rawTarget.z); 
+		const isColliding = checkCollision(null, null, furn); 
+		furn.mesh.material.color.setHex(isColliding ? COLORS.COLLISION : COLORS.SELECT); 
+		return; 
+	} 
+	if (state.mode === 'select' && state.draggingPillar && rawTarget) { 
+		state.draggingPillar.position.copy(rawTarget); 
+		state.draggingPillar.mesh.position.set(rawTarget.x, state.wallHeight / 2, rawTarget.z); 
+		updateConnectedWalls(state.draggingPillar); 
+		return; 
+	} 
+	if (state.mode === 'delete' || state.mode === 'select') handleHighlighting(); else restoreHighlight(); 
+	if (rawTarget && !['select', 'delete'].includes(state.mode)) { 
+		const snapResult = getSnappedData(rawTarget, e.shiftKey); 
+		if ((state.mode === 'door' || state.mode === 'window')) { 
+			if (snapResult.type === 'wall') updateOpeningPreview(state.mode, snapResult.position, snapResult.object.mesh.rotation.y); 
+			else if (state.previewObject) scene.remove(state.previewObject); 
+		} 
+		if (snapResult.type === 'wall') showSplitDimensions(snapResult.object, snapResult.position, e.clientX, e.clientY); 
+		else infoTooltip.style.display = 'none'; 
+		if (state.mode === 'pillar') updatePillarPreview(snapResult.position); 
+		else if (state.mode === 'draw' && state.isDrawing) { 
+			moveInputToMouse(e.clientX, e.clientY); 
+			const dist = state.startPillar.position.distanceTo(snapResult.position); 
+			if (!state.isUserTyping) inputEl.value = Math.round(dist); 
+			let len = parseFloat(inputEl.value); 
+			if (isNaN(len)) len = dist; 
+			updateWallPreview(snapResult.position, len); 
+		} else if (state.mode === 'room' && state.isDrawing) { moveInputToMouse(e.clientX, e.clientY); 
+			const sizeStr = updateRoomPreview(snapResult.position); 
+			inputEl.value = sizeStr; 
+		} 
+	} 
+}
 function onMouseUp(e) { if (e.button === 2) { state.isPanning = false; document.body.style.cursor = 'default'; const moveDist = state.panStartMouse.distanceTo(new THREE.Vector2(e.clientX, e.clientY)); if (moveDist < 15) { if (state.mode === 'furniture' || state.mode === 'pillar') { setMode('select'); } else if (state.mode === 'draw' && state.isDrawing) { resetDrawing(); cleanupOrphanPillars(); deselectObject(); } else { resetDrawing(); deselectObject(); } } return; } if (state.mode === 'select' && state.draggingFurniture) { const furn = state.draggingFurniture; const isColliding = checkCollision(null, null, furn); if (isColliding) { furn.mesh.position.copy(state.dragStartPos); furn.mesh.rotation.y = state.dragStartRotation; alert("해당 위치에는 놓을 수 없습니다."); } else { saveState(); } furn.mesh.material.color.setHex(COLORS.SELECT); state.draggingFurniture = null; return; } if (state.mode === 'select' && state.draggingPillar) { state.draggingPillar = null; saveState(); } if (state.mode === 'room' && state.isDrawing) { const rawTarget = getGroundPoint(e); if (rawTarget) { const snap = getSnappedData(rawTarget, e.shiftKey); createRoomWalls(state.startPillar.position, handleWallSplit(snap).position); saveState(); } resetDrawing(); } }
 function getGroundPoint(e) { if (!e) return null; raycaster.setFromCamera(mouse, currentCamera); const pillarIntersects = raycaster.intersectObjects(state.pillars.map(p => p.mesh)); if (pillarIntersects.length > 0) { const p = state.pillars.find(x => x.mesh === pillarIntersects[0].object); if (p) return p.position.clone(); } return raycaster.ray.intersectPlane(plane, new THREE.Vector3()) || null; }
 function updateMousePosition(e) { const rect = renderer.domElement.getBoundingClientRect(); mouse.x = ((e.clientX - rect.left) / rect.width) * 2 - 1; mouse.y = -((e.clientY - rect.top) / rect.height) * 2 + 1; }

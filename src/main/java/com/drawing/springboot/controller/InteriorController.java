@@ -15,10 +15,14 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.drawing.springboot.dao.IFloorplanDAO;
 import com.drawing.springboot.dao.IInteriorDAO;
 import com.drawing.springboot.dao.IMemberDAO;
+import com.drawing.springboot.dao.IProductsDAO;
+import com.drawing.springboot.dto.FloorplanDTO;
 import com.drawing.springboot.dto.InteriorDTO;
 import com.drawing.springboot.dto.MemberDTO;
+import com.drawing.springboot.dto.ProductsDTO;
 
 import jakarta.servlet.http.HttpServletRequest;
 
@@ -29,16 +33,33 @@ public class InteriorController {
 	IInteriorDAO interiorDAO;
 	
 	@Autowired
+	IFloorplanDAO floorplanDAO;
+	
+	@Autowired
 	IMemberDAO memberDAO;
+	
+	@Autowired
+	IProductsDAO productsDAO;
 	
 	private final String uploadDir = "C:/upload/interior/";
 	
     @RequestMapping("/user/interior/draw")
-    public String draw(Model model, @RequestParam(value="i_code", required = false) String i_code) {
+    public String draw(Model model, 
+    		@RequestParam(value="i_code", required = false) String i_code,
+    		@RequestParam(value="f_code", required = false) String f_code) {
     	if (i_code != null && !i_code.isEmpty()) {
     		InteriorDTO dto = interiorDAO.selectDAOByICode(i_code);
     		model.addAttribute("loaded", dto);
+    	} else if (f_code != null && !f_code.isEmpty()) {
+    		FloorplanDTO fp = floorplanDAO.selectDAOByFCode(f_code);
+    		
+    		InteriorDTO floordto = new InteriorDTO();
+    		floordto.setJson_data(fp.getJson_data());
+    		floordto.setF_code(fp.getF_code());
+    		
+    		model.addAttribute("loaded", floordto);
     	}
+    	
     	return "user/interior/interior_drawing";
     }
     
@@ -112,5 +133,16 @@ public class InteriorController {
     public String interiordelete(@RequestParam(value="i_code") String i_code) {
     	interiorDAO.deleteDAO(i_code);
     	return "redirect:/user/interior/myDraw";
+    }
+    
+    @RequestMapping("/user/interior/prodlist")
+    @ResponseBody
+    public List<ProductsDTO> getEditorProducts(@RequestParam(value="subcategoryId", required=false) Long subcategoryId) {
+        if (subcategoryId != null) {
+            // 임시로 특정 서브카테고리만 가져오거나 전체를 가져옴
+             return productsDAO.getProductsBySubcategoryId(subcategoryId); // 임시: categoryId를 subcategoryId로 취급
+        }
+        // 전체 목록 (또는 랜덤 추천)이 필요할수도
+        return null; // 빈 리스트 방지용
     }
 }

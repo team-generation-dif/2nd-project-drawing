@@ -304,12 +304,25 @@ export function updateOpeningPreview(type, pos, rotY) {
     scene.add(state.previewObject);
 }
 
-export function updateFurniturePreview(id, pos, rotationY, isValid) {
-    const info = FURNITURE_DATA[id];
+export function updateFurniturePreview(id, pos, rotationY, isValid, customDims = null) { // customDims 추가
+    // 정보 가져오기 (커스텀 or 상수)
+    let width, height, depth;
+    
+    if (id === 'custom' && customDims) {
+        width = customDims.width;
+        height = customDims.height;
+        depth = customDims.depth;
+    } else {
+        const info = FURNITURE_DATA[id];
+        if (!info) return;
+        width = info.width; height = info.height; depth = info.depth;
+    }
+
+    // 프리뷰 객체가 없거나, ID가 바뀌었거나, 크기가 다르면 재생성
     if (!state.previewObject || state.previewObject.userData.id !== id) {
         if (state.previewObject) scene.remove(state.previewObject);
         
-        const geometry = new THREE.BoxGeometry(info.width, info.height, info.depth);
+        const geometry = new THREE.BoxGeometry(width, height, depth);
         const material = new THREE.MeshBasicMaterial({ 
             color: isValid ? COLORS.VALID : COLORS.COLLISION, 
             opacity: 0.5, 
@@ -318,11 +331,19 @@ export function updateFurniturePreview(id, pos, rotationY, isValid) {
         state.previewObject = new THREE.Mesh(geometry, material);
         state.previewObject.userData.id = id;
         scene.add(state.previewObject);
-    }
+    } 
+    // (선택) 같은 'custom' ID라도 크기가 다른 가구를 연달아 클릭했을 때 프리뷰 갱신 로직이 필요할 수 있음
+    // 간단하게 하려면 클릭 시마다 previewObject를 null로 초기화해주는 것도 방법.
 
-    state.previewObject.position.set(pos.x, info.height / 2, pos.z);
+    state.previewObject.position.set(pos.x, height / 2, pos.z);
     state.previewObject.rotation.y = rotationY;
     state.previewObject.material.color.setHex(isValid ? COLORS.VALID : COLORS.COLLISION);
+    
+    // 만약 기존 프리뷰의 스케일/지오메트리가 안 맞으면 강제 업데이트
+    if (state.previewObject.geometry.parameters.width !== width) {
+         state.previewObject.geometry.dispose();
+         state.previewObject.geometry = new THREE.BoxGeometry(width, height, depth);
+    }
 }
 
 export function createRoomWalls(p1Pos, p2Pos) {
