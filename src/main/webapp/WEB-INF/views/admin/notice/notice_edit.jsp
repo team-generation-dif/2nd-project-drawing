@@ -16,6 +16,7 @@
     </style>
 </head>
 <body>
+<jsp:include page="/WEB-INF/views/guest/Header.jsp" />
     <div class="write-wrap">
         <h2>✏️ 공지사항 수정</h2>
         <hr>

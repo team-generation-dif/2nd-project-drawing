@@ -123,20 +123,24 @@
 
             <div id="menu-furniture" style="display: none;">
                 <label class="input-label">가구 목록</label>
-                <button onclick="setMode('furniture', 'desk')" id="btn-desk">🪑 책상 (1200)</button>
-                <button onclick="setMode('furniture', 'chair')" id="btn-chair">💺 의자</button>
-                
-                <div style="font-size: 11px; color: #666; margin-top: 15px;">
-                    * <b>Q / E</b> : 회전<br>
-                    * <b>클릭</b> : 배치<br>
-                    * <b>우클릭</b> : 취소
-                </div>
+                <select id="furn-category-select" onchange="loadFurnitureList(this.value)" style="width:100%; padding:8px; margin-bottom:10px;">
+			        <option value="1">거실 (소파/테이블)</option>
+			        <option value="7">서재 (책상/의자)</option>
+			        <option value="3">침실 (침대)</option>
+			        <option value="4">수납 (서랍장)</option>
+			        <option value="2">주방 (식탁)</option>
+			    </select>
+			
+			    <div id="furniture-list" style="height: 400px; overflow-y: auto; border: 1px solid #ddd; padding: 5px;">
+			        <div style="text-align:center; padding:20px; color:#999;">카테고리를 선택하세요</div>
+    			</div>
             </div>
 
             <button onclick="setMode('delete')" id="btn-delete" style="color:#d32f2f; border-color:#ffcdd2; margin-top:10px;">🗑️ 삭제</button>
             <hr style="margin: 10px 0;">
    			<button onclick="saveInterior()" style="background: #2196F3; color: white;">💾 저장하기</button>
    			<button onclick="saveAsFloorplan()" style="background: #FF9800; color: white;">📐 평면도 템플릿 저장</button>
+   			<button onclick="history.back()" style="background: #ff9d8a; color: white;">뒤로 가기</button>
         </div>
     </div>
     

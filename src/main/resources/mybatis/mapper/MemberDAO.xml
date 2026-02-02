@@ -43,7 +43,13 @@
     WHERE M_TEL = #{m_tel}
       AND M_ID != #{m_id}
 </select>
+<select id="findIdByEmail" resultType="string">
+    SELECT M_ID FROM MEMBER WHERE M_EMAIL = #{m_email}
+</select>
 
+<update id="updatePassword">
+    UPDATE MEMBER SET M_PASSWD = #{m_passwd} WHERE M_EMAIL = #{m_email}
+</update>
 	
     <update id="updateMember">
         UPDATE member 
@@ -61,5 +67,16 @@
     <select id="findAllMembers" resultType="com.drawing.springboot.dto.MemberDTO">
         SELECT * FROM member ORDER BY m_id DESC
     </select>
-
+<update id="updateMemberInfo" parameterType="com.drawing.springboot.dto.MemberDTO">
+    UPDATE MEMBER
+    SET 
+        M_NAME = #{m_name},
+        M_NICK = #{m_nick},
+        M_EMAIL = #{m_email},
+        M_TEL = #{m_tel}
+        <if test="m_passwd != null and m_passwd != ''">
+            , M_PASSWD = #{m_passwd}
+        </if>
+    WHERE M_ID = #{m_id}
+</update>
 </mapper>

@@ -214,7 +214,7 @@
     <div class="content-text">${board.b_content}</div>
 
     <div class="action-buttons">
-        <a href="/user/list" class="btn btn-list">목록으로</a>
+        <a href="/guest/list" class="btn btn-list">목록으로</a>
         <c:if test="${loginId eq board.m_id}">
             <a href="/user/edit?b_code=${board.b_code}" class="btn btn-edit">게시글 수정</a>
             <button type="button" class="btn btn-delete" onclick="fnDelete('${board.b_code}')">게시글 삭제</button>

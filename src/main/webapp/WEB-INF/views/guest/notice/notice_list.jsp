@@ -1,6 +1,7 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
+<%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags" %>
 <!DOCTYPE html>
 <html>
 <head>
@@ -14,9 +15,12 @@
     </style>
 </head>
 <body>
+<jsp:include page="/WEB-INF/views/guest/Header.jsp" />
     <div class="container">
         <h2>📢 공지사항</h2>
-        <a href="/admin/notice_write" class="btn-write">글쓰기</a>
+       <sec:authorize access="hasRole('ADMIN')">
+            <a href="/admin/notice_write" class="btn-write">글쓰기</a>
+        </sec:authorize>
 
         <table>
             <thead>
