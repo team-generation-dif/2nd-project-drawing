@@ -56,7 +56,7 @@
 
         <div class="tab-nav">
             <button class="tab-link active" onclick="openTab('quest')">응답 시나리오</button>
-            <button class="tab-link" onclick="openTab('log')">대화 로그 분석</button>
+         
         </div>
 
         <div id="quest" class="tab-content mgmt-card">
@@ -119,29 +119,7 @@
     </tbody>
 </table>
         </div>
-
-        <div id="log" class="tab-content mgmt-card" style="display:none;">
-            <table class="admin-table">
-                <thead>
-                    <tr>
-                        <th>대화일시</th>
-                        <th>회원코드</th>
-                        <th>질문 내용</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <c:forEach var="log" items="${logList}">
-                        <tr>
-                            <td>${log.chat_date}</td>
-                            <td>${log.m_code}</td>
-                            <td>${log.chat_message}</td>
-                        </tr>
-                    </c:forEach>
-                </tbody>
-            </table>
         </div>
-    </div>
-
     <script>
         function openTab(tabId) {
             document.querySelectorAll('.tab-content').forEach(t => t.style.display = 'none');

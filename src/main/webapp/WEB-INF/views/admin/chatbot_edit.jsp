@@ -18,6 +18,7 @@
     </style>
 </head>
 <body>
+<jsp:include page="../guest/Header.jsp" />
     <div class="form-wrap">
         <h2>✏️ 시나리오 수정</h2>
         <form action="/admin/chatbot_update" method="post" enctype="multipart/form-data">

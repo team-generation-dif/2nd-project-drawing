@@ -25,7 +25,7 @@ public class WebSecurityConfig {
     private final org.springframework.security.oauth2.client.registration.ClientRegistrationRepository clientRegistrationRepository;
 
     @Bean
-    public PasswordEncoder passwordEncoder() {
+    public BCryptPasswordEncoder passwordEncoder() { // PasswordEncoder -> BCryptPasswordEncoder로 변경
         return new BCryptPasswordEncoder();
     }
     
@@ -34,18 +34,20 @@ public class WebSecurityConfig {
         http.csrf((csrf) -> csrf.disable())
             .cors((cors) -> cors.disable())
             .authorizeHttpRequests(request -> request
-                    .dispatcherTypeMatchers(
-                        DispatcherType.FORWARD,
-                        DispatcherType.INCLUDE
-                    ).permitAll()
-                    .requestMatchers("/", "/error","/CSS/**", "/JS/**", "/imgsrc/**", "/upload/**").permitAll()
-                    .requestMatchers("/guest/**", "/login/**", "/oauth2/**").permitAll()
-                    .requestMatchers("/chatbot/**").permitAll()
-                    .requestMatchers("/user/**").hasAnyRole("USER", "ADMIN")
-                    .requestMatchers("/admin/**").hasRole("ADMIN")
-                    .anyRequest().authenticated()
-                );
-        
+            	    .dispatcherTypeMatchers(
+            	        DispatcherType.FORWARD,
+            	        DispatcherType.INCLUDE
+            	    ).permitAll()
+            	    .requestMatchers("/", "/error","/CSS/**", "/JS/**", "/imgsrc/**", "/upload/**").permitAll()
+            	    .requestMatchers("/login/**", "/oauth2/**","/notice/**").permitAll()
+            	    .requestMatchers("/chatbot/**").permitAll()
+            	    .requestMatchers("/email/**").permitAll()
+            	    .requestMatchers("/guest/**").permitAll()
+            	    .requestMatchers("/user/**").hasAnyRole("USER", "ADMIN")
+            	    .requestMatchers("/admin/**").hasRole("ADMIN")
+            	    .anyRequest().authenticated()
+            	);
+
         http.formLogin((formlogin) -> formlogin
                 .loginPage("/guest/loginForm")
                 .loginProcessingUrl("/j_spring_security_check")

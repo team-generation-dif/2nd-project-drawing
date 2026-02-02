@@ -34,13 +34,15 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
         String role;
 
         if (member == null) {
-            // [수정] DB에 없으면 가입시키지 않고 'GUEST' 권한만 부여
             role = "ROLE_GUEST"; 
             log.info("카카오 신규 방문자 (미가입): {}", kakaoId);
         } else {
-            // 기존 회원이면 DB에 저장된 권한 부여 (ROLE_USER 등)
-            role = member.getM_role();
-            log.info("기존 카카오 회원 로그인: {}", kakaoId);
+            // DB에서 가져온 값이 "USER"라면 "ROLE_USER"로, 
+            // 이미 "ROLE_USER"라면 그대로 유지하도록 처리
+            String dbRole = member.getM_role().toUpperCase(); // 대문자 변환 (안전장치)
+            role = dbRole.startsWith("ROLE_") ? dbRole : "ROLE_" + dbRole;
+            
+            log.info("기존 카카오 회원 로그인: {}, 부여된 권한: {}", kakaoId, role);
         }
         
         return new DefaultOAuth2User(

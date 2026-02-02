@@ -20,15 +20,15 @@ public class NoticeController {
     @GetMapping("/notice/list")
     public String noticeList(Model model) {
         model.addAttribute("list", noticeDAO.selectAll());
-        return "user/notice/notice_list"; // 이미지의 user/notice 폴더 경로
+        return "guest/notice/notice_list";
     }
 
-    // 2. 사용자/관리자 공통 상세 (경로 수정됨)
     @GetMapping("/notice/detail")
     public String noticeDetail(@RequestParam("n_code") String n_code, Model model) {
         model.addAttribute("notice", noticeDAO.selectOne(n_code));
-        return "user/notice/notice_detail"; // 이미지의 user/notice 폴더 경로
+        return "guest/notice/notice_detail";
     }
+
 
     // 3. 관리자 등록 폼 (경로 수정됨)
     @GetMapping("/admin/notice_write")

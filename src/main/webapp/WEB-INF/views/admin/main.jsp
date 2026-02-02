@@ -124,7 +124,7 @@
         <p style="color: #8b7e74; margin-top: 10px;">환영합니다, 마스터님.</p>
     </div>
     <div style="text-align: right;">
-        <a href="/user/main" style="text-decoration: none; display: inline-block; padding: 10px 18px; background-color: #8b7e74; color: white; border-radius: 25px; font-size: 0.9rem; margin-bottom: 10px;">
+        <a href="/guest/main" style="text-decoration: none; display: inline-block; padding: 10px 18px; background-color: #8b7e74; color: white; border-radius: 25px; font-size: 0.9rem; margin-bottom: 10px;">
             유저 페이지로 이동
         </a>
         <br>
@@ -151,7 +151,7 @@
                     <div class="card-footer">총 1,245명 활동 중</div>
                 </a>
 
-                <a href="/user/list" class="admin-card">
+                <a href="/guest/list" class="admin-card">
                     <div>
                         <h3>🖼 작품 모니터링</h3>
                         <p>업로드된 3D 인테리어 및 게시글을 관리합니다.<br>서비스 규정에 어긋나는 콘텐츠를 관리하세요.</p>
