@@ -5,7 +5,12 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.drawing.springboot.dao.ICategoryDAO;
 import com.drawing.springboot.dao.IProductsDAO;
@@ -13,8 +18,7 @@ import com.drawing.springboot.dao.ISubcategoryDAO;
 import com.drawing.springboot.dto.CategoryDTO;
 import com.drawing.springboot.dto.ProductsDTO;
 import com.drawing.springboot.dto.SubcategoryDTO;
-
-import jakarta.servlet.http.HttpSession;
+import com.drawing.springboot.service.ProductsService;
 
 @Controller
 @RequestMapping("/products")
@@ -26,6 +30,10 @@ public class ProductsController {
     private ICategoryDAO categoryDAO;
     @Autowired
     private ISubcategoryDAO subcategoryDAO;
+    @Autowired
+    private ProductsService productsService;
+
+    
 
     // ✅ 메인 화면: 상위 카테고리 목록
     @GetMapping("/categories")
@@ -35,37 +43,31 @@ public class ProductsController {
         return "guest/main"; // JSP에서 이미지 + 이름 출력
     }
 
-    // ✅ 상위 카테고리 클릭 → 하위 서브카테고리 목록
+    // 상위 카테고리 → 하위 카테고리 + 상품 목록
     @GetMapping("/categories/{categoryId}")
-    public String showSubcategories(@PathVariable Long categoryId, Model model) {
+    public String showCategoryDetail(@PathVariable("categoryId") Long categoryId, Model model) {
         CategoryDTO category = categoryDAO.getCategoryById(categoryId);
-        model.addAttribute("category", category);
-
         List<SubcategoryDTO> subcategories = subcategoryDAO.getSubcategoriesByCategoryId(categoryId);
+        List<ProductsDTO> products = productsDAO.getProductsByCategoryId(categoryId); // 카테고리 기준 상품 조회
+
+        model.addAttribute("category", category);
         model.addAttribute("subcategories", subcategories);
-
-        return "guest/subcategories"; // JSP에서 서브카테고리 출력
-    }
-
-    // ✅ 서브카테고리 클릭 → 상품 목록
-    @GetMapping("/subcategories/{subcategoryId}")
-    public String products(@PathVariable Long subcategoryId, Model model) {
-        List<ProductsDTO> products = productsDAO.getProductsBySubcategoryId(subcategoryId);
         model.addAttribute("products", products);
-        return "guest/products"; // JSP에서 상품 목록 출력
+
+        return "guest/products"; // 한 페이지에서 출력
     }
 
-    // ✅ 상품 클릭 → 로그인 여부 확인 후 IKEA URL로 리다이렉트
-    @GetMapping("/{productId}")
-    public String productDetail(@PathVariable Long productId, HttpSession session) {
-        if (session.getAttribute("role") == null) {
-            return "redirect:/guest/loginForm?redirect=/products/" + productId;
-        }
-
-        ProductsDTO product = productsDAO.getProductById(productId);
-        String ikeaUrl = "https://www.ikea.com/kr/ko/p/" + product.getP_code() + "/";
-        return "redirect:" + ikeaUrl;
-    }
+//    // ✅ 상품 클릭 → 로그인 여부 확인 후 IKEA URL로 리다이렉트
+//    @GetMapping("/{productId}")
+//    public String productDetail(@PathVariable Long productId, HttpSession session) {
+//        if (session.getAttribute("role") == null) {
+//            return "redirect:/guest/loginForm?redirect=/products/" + productId;
+//        }
+//
+//        ProductsDTO product = productsDAO.getProductById(productId);
+//        String ikeaUrl = "https://www.ikea.com/kr/ko/p/" + product.getP_code() + "/";
+//        return "redirect:" + ikeaUrl;
+//    }
 
     // ✅ 관리자 상품 등록 폼
     @GetMapping("/admin/new")
@@ -79,4 +81,16 @@ public class ProductsController {
         productsDAO.insertProduct(product);
         return "redirect:/products/subcategories/" + product.getSubcategoryId();
     }
+    
+    @PostMapping("/admin/upload")
+    public String uploadCsv(@RequestParam("file") MultipartFile file, Model model) {
+        try {
+            productsService.importCsv(file);
+            model.addAttribute("message", "CSV 업로드 성공!");
+        } catch (Exception e) {
+            model.addAttribute("message", "CSV 업로드 실패: " + e.getMessage());
+        }
+        return "admin/uploadResult"; // 결과 페이지
+    }
+
 }

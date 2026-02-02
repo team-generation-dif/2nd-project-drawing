@@ -16,5 +16,4 @@ public class ProductsDTO {
     private String ikeaUrl;
     // 🔴 추가: 서브카테고리 ID
     private int subcategoryId;
-
 }

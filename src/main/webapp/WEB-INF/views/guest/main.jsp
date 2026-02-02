@@ -45,7 +45,8 @@
             box-shadow: 0 10px 25px rgba(231, 111, 81, 0.3); transition: 0.3s;
         }
         .btn-draw-start:hover { transform: translateY(-3px); background: #d65d40; }
-
+        
+		/* 카테고리 네비게이션 */
         .category-nav { display: flex; gap: 15px; margin-top: 40px; z-index: 10; }
         .cat-item {
             background: white; padding: 12px 25px; border-radius: 30px;
@@ -154,6 +155,8 @@
 <body>
     <jsp:include page="../guest/Header.jsp" />
 
+
+	<!-- Hero Section -->
     <section class="hero-section">
         <div class="watercolor-bg"></div>
         <div class="hero-canvas">
@@ -161,14 +164,21 @@
             <p>당신의 공간을 더 가치 있게 만드는<br>마스터의 큐레이션을 만나보세요.</p>
             <a href="/user/draw" class="btn-draw-start">지금 공간 그리기 시작 ✨</a>
         </div>
-        <nav class="category-nav">
-            <a href="?c=1" class="cat-item">🛋️ 거실</a>
-            <a href="?c=2" class="cat-item">🛏️ 침실</a>
-            <a href="?c=3" class="cat-item">🍽️ 주방</a>
-            <a href="?c=4" class="cat-item">✨ 3D인테리어</a>
-        </nav>
+        
+     <!-- 카테고리 네비게이션 (DB 연동) -->           
+        <nav class="category-nav" style="display: flex; gap: 30px; justify-content: center; margin-top: 40px;">
+    <c:forEach var="category" items="${categories}">
+        <div style="text-align: center;">
+            <a href="/products/categories/${category.categoryId}">
+                <img src="${category.image}" alt="${category.name}" style="width:100px; height:100px; border-radius:50%; object-fit:cover; box-shadow: 0 5px 15px rgba(0,0,0,0.1);" />
+            	<div style="margin-top: 10px; font-weight: 600; color: #4a3f35;">${category.name}</div>            
+            </a>
+        </div>
+    </c:forEach>
+</nav>
     </section>
 
+	<!-- 커뮤니티 글 -->
     <section class="section-box">
         <div class="section-header">
             <h2>작가님들의 공간 이야기</h2>
@@ -188,7 +198,8 @@
             </c:forEach>
         </div>
     </section>
-
+    
+	<!-- 추천 상품 -->	
     <section class="section-box">
         <div class="section-header">
             <h2>오늘의 추천 오보즈</h2>
