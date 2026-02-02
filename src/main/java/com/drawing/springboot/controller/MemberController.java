@@ -1,5 +1,8 @@
 package com.drawing.springboot.controller;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.AuthorityUtils;
@@ -34,15 +37,35 @@ public class MemberController {
 
     @GetMapping("/")
     public String home() {
-    	
-        return "guest/main";
+        return "redirect:/guest/main";
     }
 
     @GetMapping("/guest/loginForm")
     public String loginForm() {
         return "guest/loginForm";
     }
+    @GetMapping("/member/change-password")
+    public String changePwPage(HttpSession session) {
+        if (session.getAttribute("verifiedEmail") == null) return "redirect:/login"; // 인증 안 됐으면 차단
+        return "member/changePassword"; // changePassword.jsp로 이동
+    }
 
+    @PostMapping("/member/update-password")
+    public String updatePw(@RequestParam("m_pw") String m_pw, HttpSession session) {
+        String email = (String) session.getAttribute("verifiedEmail");
+        
+        if (email != null) {
+            // 1. 비밀번호 암호화 (시큐리티 로그인 호환을 위해 필수)
+            String encodedPw = passwordEncoder.encode(m_pw);
+            
+            // 2. memberMapper를 사용하여 업데이트 (대소문자 및 변수명 수정)
+            memberMapper.updatePassword(email, encodedPw);
+            
+            session.removeAttribute("verifiedEmail"); // 완료 후 세션 삭제
+        }
+        
+        return "redirect:/guest/loginForm"; // 로그인 페이지로 이동
+    }
     /* =========================
      * 일반 회원가입
      * ========================= */
@@ -167,6 +190,7 @@ public class MemberController {
         // 결과 반환: 찾은 데이터가 없으면 OK, 있으면 DUPLICATE
         return (existingUser == null) ? "OK" : "DUPLICATE";
     }
+    
 
 
     /* =========================
@@ -201,30 +225,69 @@ public class MemberController {
      * 3. USER
      * ========================= */
 
-    @GetMapping("/user/main")
-    public String userMain() {
-        return "user/main";
+    @GetMapping("/guest/main")
+    public String guestMain() {
+        return "guest/main";
+    }
+
+    @PostMapping("/user/verify-password")
+    @ResponseBody
+    public Map<String, Object> verifyPassword(
+            @RequestParam("password") String inputPassword,
+            Authentication authentication) {
+
+        Map<String, Object> result = new HashMap<>();
+
+        // ✅ 1️⃣ 인증 먼저 체크 (가장 중요)
+        if (authentication == null) {
+            result.put("isValid", false);
+            return result;
+        }
+
+        // ✅ 2️⃣ 사용자 조회
+        MemberDTO member = memberMapper.findByMid(authentication.getName());
+        if (member == null) {
+            result.put("isValid", false);
+            return result;
+        }
+
+        // ✅ 3️⃣ 카카오 회원 → 바로 통과
+        if ("KAKAO".equals(member.getLogin_type())
+            || "SOCIAL".equals(member.getM_passwd())) {
+            result.put("isValid", true);
+            return result;
+        }
+
+        // ✅ 4️⃣ 일반 회원 → 비밀번호 검증
+        boolean matched =
+                passwordEncoder.matches(inputPassword, member.getM_passwd());
+
+        result.put("isValid", matched);
+        return result;
     }
 
     @GetMapping("/user/mypage")
     public String mypage(Authentication authentication, Model model) {
-        model.addAttribute(
-                "user",
-                memberMapper.findByMid(authentication.getName())
-        );
+        MemberDTO user = memberMapper.findByMid(authentication.getName());
+        model.addAttribute("user", user);
+        model.addAttribute("loginType", user.getLogin_type()); // ⭐ 핵심
         return "user/mypage";
     }
+
     @PostMapping("/user/update")
-    public String updateMember(MemberDTO member, Authentication authentication) {
+    public String updateMember(MemberDTO dto) {
+        // 1. 비밀번호를 새로 입력했다면 암호화
+        if (dto.getM_passwd() != null && !dto.getM_passwd().isEmpty()) {
+            dto.setM_passwd(passwordEncoder.encode(dto.getM_passwd()));
+        } else {
+            dto.setM_passwd(null); // XML의 <if> 조건문에 걸리도록 null 처리
+        }
 
-        // 보안: 로그인한 사용자만 수정 가능
-        member.setM_id(authentication.getName());
-
-        memberMapper.updateMember(member);
-
+        // 2. DB 업데이트 실행 (인스턴스 변수인 memberMapper 사용!)
+        memberMapper.updateMemberInfo(dto); 
+        
         return "redirect:/user/mypage";
     }
-
 
     @GetMapping("/user/delete")
     public String delete(Authentication authentication, HttpSession session) {
@@ -232,6 +295,7 @@ public class MemberController {
         session.invalidate();
         return "redirect:/";
     }
+
 
     /* =========================
      * 4. ADMIN

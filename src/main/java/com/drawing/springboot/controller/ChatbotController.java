@@ -23,15 +23,10 @@ public class ChatbotController {
     @PostMapping(value="/send", produces = "application/json")
     @ResponseBody
     public ChatbotQuestDTO sendMessage(@RequestBody ChatbotDTO dto, HttpSession session) {
-        Object loginUser = session.getAttribute("user"); 
-
-        if (loginUser != null) {
-            try {
-                chatbotDAO.insertChat(dto);
-            } catch (Exception e) {
-                System.err.println("로그 저장 실패 (무시): " + e.getMessage());
-            }
-        }
+        // 1. 모든 질문은 일단 로그로 저장 (나중에 관리자가 답변하기 위함)
+        try {
+            chatbotDAO.insertChat(dto); 
+        } catch (Exception e) { e.printStackTrace(); }
 
         ChatbotQuestDTO answer = chatbotDAO.selectAnswer(dto.getChat_message());
 
@@ -39,9 +34,9 @@ public class ChatbotController {
             chatbotDAO.updateHitCount(answer.getQ_code());
         } else {
             answer = new ChatbotQuestDTO();
-            answer.setResponse_msg("그 단어는 아직 공부 중이에요. '거실'이나 '침실'처럼 입력해보세요! 🎨");
+            // 관리자가 확인할 수 있도록 안내 메시지 변경
+            answer.setResponse_msg("아직 그 질문에 대한 답변을 배우지 못 했어요. 따로 답변이 필요하시다면 고객센터 이메일(drawing@gmail.com)으로 답변 남겨주세요.🎨");
         }
-
         return answer;
     }
 

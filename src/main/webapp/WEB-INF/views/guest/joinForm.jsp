@@ -8,11 +8,10 @@
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     
     <style>
-        /* 폰트 및 배경 설정 */
         @import url('https://fonts.googleapis.com/css2?family=Nanum+Myeongjo&family=Pretendard:wght@400;600&display=swap');
 
         body {
-            background-color: #fffaf5; /* 따뜻한 아이보리 */
+            background-color: #fffaf5;
             font-family: 'Pretendard', sans-serif;
             display: flex;
             justify-content: center;
@@ -27,7 +26,7 @@
             width: 100%;
             max-width: 420px;
             padding: 50px 30px;
-            border-radius: 40px; /* 아주 둥근 모서리 */
+            border-radius: 40px;
             box-shadow: 0 15px 35px rgba(139, 126, 116, 0.1);
             border: 1px solid #f7ede2;
         }
@@ -50,7 +49,6 @@
             margin-top: 10px;
         }
 
-        /* 입력 폼 스타일 */
         .input-box {
             margin-bottom: 22px;
             position: relative;
@@ -83,7 +81,6 @@
             box-shadow: 0 4px 10px rgba(255, 204, 187, 0.2);
         }
 
-        /* 유효성 메시지 */
         .msg {
             display: block;
             font-size: 0.75rem;
@@ -91,10 +88,23 @@
             margin-left: 10px;
             min-height: 15px;
         }
-        .error { color: #e76f51; } /* 따뜻한 느낌의 오렌지 레드 */
-        .success { color: #8ab17d; } /* 따뜻한 느낌의 올리브 그린 */
+        .error { color: #e76f51; }
+        .success { color: #8ab17d; }
 
-        /* 가입 버튼 */
+        /* 버튼 스타일 추가 */
+        .btn-inline {
+            position: absolute;
+            right: 8px;
+            top: 32px;
+            padding: 8px 15px;
+            border-radius: 12px;
+            border: none;
+            background-color: #8b7e74;
+            color: #fff;
+            font-size: 0.8rem;
+            cursor: pointer;
+        }
+
         .join-btn {
             width: 100%;
             padding: 16px;
@@ -112,7 +122,6 @@
         .join-btn:hover {
             background-color: #6d5d6e;
             transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
         }
 
         .back-link {
@@ -120,117 +129,167 @@
             margin-top: 25px;
             font-size: 0.85rem;
         }
-
-        .back-link a {
-            color: #8b7e74;
-            text-decoration: none;
-            border-bottom: 1px solid #8b7e74;
-        }
     </style>
 
+    <script>
+        // 1. 전역 상태 변수
+        let status = { id: false, pw: false, name: false, nick: false, email: false, tel: false };
+        let emailVerified = false;
 
-
-<script>
-    let status = { id: false, pw: false, name: true, nick: false, email: false, tel: false };
-
-    $(document).ready(function() {
-        // 아이디 중복 체크 (기존 유지)
-        $("#m_id").on("blur", function() {
-            const val = $(this).val().trim();
-            if(!/^[a-z0-9]{4,12}$/.test(val)) {
-                $("#idMsg").text("4~12자 소문자/숫자만 가능").attr("class", "msg error");
-                status.id = false;
-                return;
-            }
-            checkDuplicate("id", val, "#idMsg", "아이디");
+        // 🛡️ CSRF 설정 (Spring Security 환경 필수)
+        $(function() {
+            const token = $("input[name='${_csrf.parameterName}']").val();
+            const header = "X-CSRF-TOKEN";
+            
+            $.ajaxSetup({
+                beforeSend: function(xhr) {
+                    if(token) xhr.setRequestHeader(header, token);
+                }
+            });
         });
 
-        // 비밀번호 (정규식 체크만)
-        $("#m_passwd").on("blur", function() {
-            const regex = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,16}$/;
-            status.pw = checkRegex($(this), regex, "#pwMsg", "8~16자 영문/숫자 조합");
+        $(document).ready(function() {
+            // 아이디 체크
+            $("#m_id").on("blur", function() {
+                const val = $(this).val().trim();
+                if(!/^[a-z0-9]{4,12}$/.test(val)) {
+                    $("#idMsg").text("4~12자 소문자/숫자만 가능").attr("class", "msg error");
+                    status.id = false;
+                    return;
+                }
+                checkDuplicate("id", val, "#idMsg", "아이디");
+            });
+
+            // 비밀번호 체크
+            $("#m_passwd").on("blur", function() {
+                const regex = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,16}$/;
+                status.pw = checkRegex($(this), regex, "#pwMsg", "8~16자 영문/숫자 조합");
+            });
+
+            // 이름 체크
+            $("#m_name").on("blur", function() {
+                status.name = checkRegex($(this), /^[가-힣]{2,5}$/, "#nameMsg", "한글 2~5자");
+            });
+
+            // 닉네임 체크
+            $("#m_nick").on("blur", function() {
+                const val = $(this).val().trim();
+                if(val.length < 2) {
+                    $("#nickMsg").text("2자 이상 입력").attr("class", "msg error");
+                    status.nick = false;
+                    return;
+                }
+                checkDuplicate("nick", val, "#nickMsg", "닉네임");
+            });
+
+            // 이메일 체크
+            $("#m_email").on("blur", function() {
+                const val = $(this).val().trim();
+                const regex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+                if(!regex.test(val)) {
+                    $("#emailMsg").text("올바른 형식이 아닙니다.").attr("class", "msg error");
+                    status.email = false;
+                    return;
+                }
+                checkDuplicate("email", val, "#emailMsg", "이메일");
+            });
+
+            // 전화번호 체크
+            $("#m_tel").on("blur", function() {
+                const val = $(this).val().trim();
+                const regex = /^01[016789]-\d{3,4}-\d{4}$/;
+                if(!regex.test(val)) {
+                    $("#telMsg").text("010-0000-0000 형식").attr("class", "msg error");
+                    status.tel = false;
+                    return;
+                }
+                checkDuplicate("tel", val, "#telMsg", "전화번호");
+            });
         });
 
-        // 이름 (정규식 체크만)
-        $("#m_name").on("blur", function() {
-            status.name = checkRegex($(this), /^[가-힣]{2,5}$/, "#nameMsg", "한글 2~5자");
-        });
-
-        // 닉네임 중복 체크 (추가)
-        $("#m_nick").on("blur", function() {
-            const val = $(this).val().trim();
-            if(val.length < 2) {
-                $("#nickMsg").text("2자 이상 입력").attr("class", "msg error");
-                status.nick = false;
-                return;
-            }
-            checkDuplicate("nick", val, "#nickMsg", "닉네임");
-        });
-
-        // 이메일 중복 체크 (추가)
-        $("#m_email").on("blur", function() {
-            const val = $(this).val().trim();
-            const regex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-            if(!regex.test(val)) {
-                $("#emailMsg").text("올바른 형식이 아닙니다.").attr("class", "msg error");
-                status.email = false;
-                return;
-            }
-            checkDuplicate("email", val, "#emailMsg", "이메일");
-        });
-
-        // 전화번호 중복 체크 (추가)
-        $("#m_tel").on("blur", function() {
-            const val = $(this).val().trim();
-            const regex = /^01[016789]-\d{3,4}-\d{4}$/;
-            if(!regex.test(val)) {
-                $("#telMsg").text("010-0000-0000 형식").attr("class", "msg error");
-                status.tel = false;
-                return;
-            }
-            checkDuplicate("tel", val, "#telMsg", "전화번호");
-        });
-    });
-
-    // 서버 중복 체크 공통 함수
-    function checkDuplicate(type, value, msgId, label) {
-
-    let data = {};
-    data["m_" + type] = value;   // 핵심!
-
-    $.post("/guest/checkDuplicateJoin", data, function(res) {
-
-        if(res === "OK") {
-            $(msgId).text("사용 가능한 " + label + "입니다.")
-                    .attr("class", "msg success");
-            status[type] = true;
-        } else {
-            $(msgId).text("이미 사용 중인 " + label + "입니다.")
-                    .attr("class", "msg error");
-            status[type] = false;
+        function checkDuplicate(type, value, msgId, label) {
+            let data = {};
+            data["m_" + type] = value;
+            
+            $.post("/guest/checkDuplicateJoin", data, function(res) {
+                if(res === "OK") {
+                    $(msgId).text("사용 가능한 " + label + "입니다.").attr("class", "msg success");
+                    status[type] = true;
+                } else {
+                    $(msgId).text("이미 사용 중인 " + label + "입니다.").attr("class", "msg error");
+                    status[type] = false;
+                }
+            });
         }
 
-    });
-}
-
-
-    function checkRegex(obj, regex, msgId, errorMsg) {
-        if(!regex.test(obj.val().trim())) {
-            $(msgId).text(errorMsg).attr("class", "msg error");
-            return false;
+        function checkRegex(obj, regex, msgId, errorMsg) {
+            if(!regex.test(obj.val().trim())) {
+                $(msgId).text(errorMsg).attr("class", "msg error");
+                return false;
+            }
+            $(msgId).text("확인되었습니다.").attr("class", "msg success");
+            return true;
         }
-        $(msgId).text("확인되었습니다.").attr("class", "msg success");
-        return true;
-    }
 
-    function validateForm() {
-        if(!Object.values(status).every(v => v === true)) {
-            alert("입력 양식을 확인하거나 중복 체크를 완료해주세요.");
-            return false;
+        // 📩 인증번호 발송
+        function sendEmailAuth() {
+            const email = $("#m_email").val().trim();
+            if (!status.email) {
+                alert("중복되지 않은 올바른 이메일을 입력해주세요.");
+                return;
+            }
+
+            $.post("/email/send-auth", { m_email: email }, function(res) {
+                if (res === "OK") {
+                    $("#emailAuthBox").show();
+                    $("#authMsg").text("인증번호가 발송되었습니다.").attr("class", "msg success");
+                    alert("인증번호를 발송했습니다.");
+                } else {
+                    alert("메일 발송 실패. 서버 로그를 확인하세요.");
+                }
+            });
         }
-        return true;
-    }
-</script>
+
+        // ✅ 인증번호 확인 (404 해결 버전)
+        function verifyEmailAuth() {
+            const email = $("#m_email").val().trim();
+            const authNum = $("#authNum").val().trim();
+
+            if (!authNum) {
+                alert("인증번호를 입력하세요.");
+                return;
+            }
+
+            $.post("/email/verify-auth", {
+                m_email: email,
+                auth_num: authNum
+            }, function(res) {
+                if (res === "OK") {
+                    emailVerified = true;
+                    $("#authMsg").text("인증 완료되었습니다.").attr("class", "msg success");
+                    $("#m_email").attr("readonly", true);
+                    $("#authNum").attr("disabled", true);
+                    alert("인증 성공!");
+                } else {
+                    $("#authMsg").text("인증번호가 틀렸습니다.").attr("class", "msg error");
+                }
+            }).fail(function() {
+                alert("서버 응답 오류 (404 또는 500)");
+            });
+        }
+
+        function validateForm() {
+            if (!status.id || !status.pw || !status.name || !status.nick || !status.email || !status.tel) {
+                alert("입력 정보를 다시 확인해주세요.");
+                return false;
+            }
+            if (!emailVerified) {
+                alert("이메일 인증이 완료되지 않았습니다.");
+                return false;
+            }
+            return true;
+        }
+    </script>
 </head>
 <body>
     <div class="join-wrapper">
@@ -240,7 +299,8 @@
         </div>
 
         <form action="/guest/join" method="post" onsubmit="return validateForm()">
-    <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}"/>
+            <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}"/>
+
             <div class="input-box">
                 <label>아이디</label>
                 <input type="text" id="m_id" name="m_id" placeholder="ID를 입력하세요" required>
@@ -268,7 +328,15 @@
             <div class="input-box">
                 <label>이메일</label>
                 <input type="email" id="m_email" name="m_email" placeholder="example@grida.com" required>
+                <button type="button" class="btn-inline" onclick="sendEmailAuth()">인증요청</button>
                 <span id="emailMsg" class="msg"></span>
+            </div>
+
+            <div class="input-box" id="emailAuthBox" style="display:none;">
+                <label>인증번호</label>
+                <input type="text" id="authNum" placeholder="6자리 입력">
+                <button type="button" class="btn-inline" onclick="verifyEmailAuth()">확인</button>
+                <span id="authMsg" class="msg"></span>
             </div>
 
             <div class="input-box">
@@ -281,10 +349,8 @@
         </form>
 
         <div class="back-link">
-    이미 계정이 있으신가요? <a href="${pageContext.request.contextPath}/guest/loginForm">로그인하기</a>
-    <span style="color:#eee; margin: 0 10px;">|</span>
-    <a href="${pageContext.request.contextPath}/">홈으로</a>
-</div>
+            이미 계정이 있으신가요? <a href="${pageContext.request.contextPath}/guest/loginForm">로그인하기</a>
+        </div>
     </div>
 </body>
 </html>

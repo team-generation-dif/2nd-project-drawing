@@ -133,7 +133,7 @@
     <div class="admin-container">
         <div class="header-flex">
             <h2>전체 회원 목록 관리</h2>
-            <a href="/user/main" class="btn-user-page">🏠 유저 서비스 바로가기</a>
+
         </div>
 
         <table>

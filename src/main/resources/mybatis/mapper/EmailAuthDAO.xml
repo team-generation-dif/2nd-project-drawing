@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.drawing.springboot.dao.IEmailAuthDAO">
+
+    <insert id="insertAuth" parameterType="com.drawing.springboot.dto.EmailAuthDTO">
+        INSERT INTO EMAIL_AUTH (
+            E_CODE,
+            M_EMAIL,
+            AUTH_CODE,    E_EXPIRY,     E_VERIFIED,
+            E_DATE
+        ) VALUES (
+            #{e_code},
+            #{m_email},
+            #{auth_num},   #{expire_date},'N',
+            SYSDATE
+        )
+    </insert>
+
+    <select id="findLatestByEmail"
+            parameterType="String"
+            resultType="com.drawing.springboot.dto.EmailAuthDTO">
+        SELECT 
+            E_CODE, M_EMAIL, AUTH_CODE as auth_num, E_EXPIRY as expire_date, E_VERIFIED, E_DATE
+        FROM EMAIL_AUTH
+        WHERE M_EMAIL = #{m_email}
+        ORDER BY E_DATE DESC
+        FETCH FIRST 1 ROWS ONLY
+    </select>
+
+    <update id="verifyAuth" parameterType="String">
+        UPDATE EMAIL_AUTH
+        SET E_VERIFIED = 'Y'
+        WHERE E_CODE = #{e_code}
+    </update>
+
+    <delete id="deleteExpired">
+        DELETE FROM EMAIL_AUTH
+        WHERE E_EXPIRY <![CDATA[ < ]]> SYSDATE  </delete>
+
+</mapper>

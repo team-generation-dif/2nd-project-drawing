@@ -7,154 +7,136 @@
 <title>그리다 | 취향 기록하기</title>
 <link href="https://fonts.googleapis.com/css2?family=Nanum+Myeongjo&family=Pretendard:wght@400;600;700&display=swap" rel="stylesheet">
 <style>
-    /* 1. 기본 배경 및 폰트 설정 (상세보기와 통일) */
+    /* 1. 전체 배경 및 초기화 */
     body {
-        background-color: #fffaf5;
-        font-family: 'Pretendard', sans-serif;
-        color: #5d5a58;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        padding: 60px 20px;
+        background-color: #fdfbf9; /* 헤더 배경과 어울리는 웜 화이트 */
+        font-family: 'Pretendard', -apple-system, sans-serif;
+        color: #4a3f35;
         margin: 0;
+        padding: 0;
+        display: block; /* 흐름을 위해 block으로 변경 */
     }
 
-    /* 2. 메인 컨테이너 */
+    /* 2. 메인 컨테이너 (헤더 가로폭과 동기화) */
     .write-wrapper {
         background: #ffffff;
-        width: 100%;
-        max-width: 700px;
-        padding: 50px 40px;
-        border-radius: 40px;
-        box-shadow: 0 15px 35px rgba(139, 126, 116, 0.1);
-        border: 1px solid #f7ede2;
+        width: 90%;           /* 모바일 대응 */
+        max-width: 1100px;    /* ★ 헤더의 가로 너비와 똑같이 맞추세요 (예: 1000px, 1100px, 1200px) */
+        margin: 60px auto 120px; /* 좌우 auto로 중앙 정렬 */
+        padding: 80px 60px;   /* 내부 여백을 넓혀서 여유롭게 */
+        border-radius: 20px;  /* 헤더 스타일과 어울리는 곡률 */
+        box-shadow: 0 10px 40px rgba(139, 126, 116, 0.05);
+        border: 1px solid rgba(231, 224, 217, 0.5);
         box-sizing: border-box;
     }
 
     h2 {
-        font-family: 'Nanum+Myeongjo', serif;
-        color: #4a3f35;
+        font-family: 'Nanum Myeongjo', serif;
+        font-weight: 700;
+        color: #3d342c;
         text-align: center;
-        margin-bottom: 40px;
-        font-size: 1.8rem;
+        margin-bottom: 60px;
+        font-size: 2.2rem;
+        letter-spacing: -0.02em;
     }
 
-    /* 3. 사진 업로드 및 미리보기 영역 */
+    /* 3. 사진 업로드 영역 (너비 100% 활용) */
     .file-upload-box {
-        margin-bottom: 30px;
+        margin-bottom: 50px;
         text-align: center;
     }
 
     #image-wrapper { 
         position: relative; 
-        border: 2px dashed #e7e0d9; 
-        border-radius: 24px;
-        display: inline-block; 
+        border: 1px solid #f0e9e2; 
+        border-radius: 16px;
+        display: block;      /* 가로를 꽉 채우기 위해 block으로 변경 */
         cursor: crosshair; 
         background: #fafafa; 
-        min-width: 100%; 
-        min-height: 300px;
+        width: 100%;         /* 부모 너비에 꽉 참 */
+        min-height: 500px;   /* 높이 확보 */
         overflow: hidden;
-        line-height: 0;
-        transition: 0.3s;
+        transition: all 0.4s ease;
     }
 
-    #image-wrapper:hover { border-color: #8b7e74; }
-    #preview-img { width: 100%; display: block; border-radius: 20px; }
+    #preview-img { width: 100%; display: block; }
 
-    /* 4. 감성 태그 포인트 디자인 (상세보기와 통일) */
+    /* 4. 감성 태그 포인트 */
     .tag-dot { 
         position: absolute; 
-        width: 22px; height: 22px; 
-        background: rgba(139, 126, 116, 0.8);
-        border: 2px solid #fff; 
+        width: 16px; height: 16px; 
+        background: #8b7e74;
+        border: 3px solid #fff; 
         border-radius: 50%; 
         transform: translate(-50%, -50%); 
         z-index: 10; 
-        box-shadow: 0 2px 8px rgba(0,0,0,0.2);
-    }
-    
-    .tag-dot::after {
-        content: '';
-        position: absolute;
-        top: 50%; left: 50%;
-        transform: translate(-50%, -50%);
-        width: 6px; height: 6px;
-        background: #fff;
-        border-radius: 50%;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
     }
 
-    /* 5. 입력 폼 스타일 */
-    .input-group { margin-bottom: 20px; }
+    /* 5. 입력 폼 (전체 너비 일치) */
+    .input-group { margin-bottom: 30px; }
     
     input[type="text"], textarea {
         width: 100%;
-        padding: 15px 20px;
-        border: 1px solid #eee;
-        border-radius: 16px;
-        background-color: #fafafa;
-        font-family: 'Pretendard', sans-serif;
-        font-size: 1rem;
+        padding: 22px 28px;
+        border: 1px solid #f0eeec;
+        border-radius: 12px;
+        background-color: #fff;
+        font-size: 1.1rem;
         box-sizing: border-box;
-        transition: 0.3s;
+        transition: all 0.3s;
+        color: #4a3f35;
     }
 
     input:focus, textarea:focus {
         outline: none;
-        border-color: #ffccbb;
-        background-color: #fff;
-        box-shadow: 0 0 0 4px rgba(255, 204, 187, 0.1);
+        border-color: #8b7e74;
+        box-shadow: 0 0 0 4px rgba(139, 126, 116, 0.05);
     }
 
-    .info-text {
-        color: #bcaaa4;
-        font-size: 0.85rem;
-        margin: 10px 0 25px 5px;
-        display: block;
-    }
-
-    /* 6. 버튼 스타일 */
+    /* 6. 하단 버튼 (중앙 정렬) */
     .action-buttons {
         display: flex;
-        gap: 12px;
-        margin-top: 30px;
+        justify-content: center;
+        gap: 20px;
+        margin-top: 60px;
     }
 
     .btn {
-        flex: 1;
-        padding: 16px;
-        border-radius: 18px;
+        width: 200px;      /* 버튼이 너무 넓어지지 않게 고정폭 */
+        padding: 20px;
+        border-radius: 12px;
         font-weight: 700;
         font-size: 1rem;
         cursor: pointer;
-        transition: 0.3s;
+        transition: all 0.3s;
         border: none;
         text-align: center;
         text-decoration: none;
     }
 
     .btn-submit { background-color: #8b7e74; color: white; }
-    .btn-cancel { background-color: #fafafa; color: #8b7e74; border: 1px solid #eee; }
+    .btn-cancel { background-color: #fff; color: #8b7e74; border: 1px solid #8b7e74; }
 
-    .btn:hover { transform: translateY(-2px); opacity: 0.9; }
-
-    /* 파일 인풋 커스텀 */
-    #file-input { display: none; }
+    /* 7. 사진 선택 버튼 (알약 모양) */
     .file-label {
         display: inline-block;
-        padding: 10px 20px;
-        background: #fff;
-        border: 1px solid #8b7e74;
-        color: #8b7e74;
-        border-radius: 12px;
+        padding: 14px 30px;
+        background: #8b7e74;
+        color: #fff;
+        border-radius: 50px;
         cursor: pointer;
-        margin-bottom: 15px;
-        font-weight: 600;
+        margin-bottom: 25px;
+        font-size: 0.95rem;
+        transition: 0.3s;
     }
+    #file-input {
+    display: none; /* 실제 기능은 작동하지만 화면에서는 숨깁니다 */
+}
 </style>
 </head>
 <body>
-
+<jsp:include page="/WEB-INF/views/guest/Header.jsp" />
 <div class="write-wrapper">
     <h2>취향을 그리다</h2>
 
@@ -163,7 +145,7 @@
         
         <div class="file-upload-box">
             <label for="file-input" class="file-label">✦ 사진 선택하기</label>
-            <input type="file" id="file-input" name="file" onchange="loadImage(event)" required>
+<input type="file" id="file-input" name="file" onchange="loadImage(event)" required>
             
             <div id="image-wrapper" onclick="addTag(event)">
                 <img id="preview-img" src="">
@@ -186,7 +168,7 @@
 
         
         <div class="action-buttons">
-            <a href="/user/list" class="btn btn-cancel">취소</a>
+            <a href="/guest/list" class="btn btn-cancel">취소</a>
             <button type="button" class="btn btn-submit" onclick="submitFinal()">기록 완료</button>
         </div>
     </form>

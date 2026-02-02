@@ -152,7 +152,7 @@
     </style>
 </head>
 <body>
-    <jsp:include page="../guest/Header.jsp" />
+<jsp:include page="/WEB-INF/views/guest/Header.jsp" />
 
     <section class="hero-section">
         <div class="watercolor-bg"></div>
@@ -302,6 +302,16 @@ document.addEventListener('DOMContentLoaded', function() {
 
         chatContent.appendChild(div);
         chatContent.scrollTop = chatContent.scrollHeight;
+    }
+ // 챗봇 창이 열릴 때 내 이전 질문에 대한 답변이 있는지 체크
+    function checkManualAnswers() {
+        fetch('/chatbot/my_manual_answers') // 본인의 ID로 답변 완료된 내역 조회 API
+        .then(res => res.json())
+        .then(data => {
+            data.forEach(item => {
+                appendMessage('bot', `[답변 도착] 질문: ${item.chat_message} \n답변: ${item.admin_answer}`);
+            });
+        });
     }
 
     function sendMessage() {
