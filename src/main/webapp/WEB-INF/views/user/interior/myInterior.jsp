@@ -108,8 +108,24 @@
 	        display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px;
 	        max-height: 400px; overflow-y: auto;
 	    }
+	    .btn-delete-fp {
+		    position: absolute;
+		    bottom: 10px;
+		    right: 10px;
+		    background: #ff5252;
+		    color: white;
+		    border: none;
+		    border-radius: 4px;
+		    padding: 4px 8px;
+		    font-size: 12px;
+		    cursor: pointer;
+		    z-index: 10; /* 부모보다 위에 위치 */
+		}
+		.btn-delete-fp:hover {
+		    background: #d32f2f;
+		}
 	    .fp-item {
-	        border: 1px solid #eee; border-radius: 6px; overflow: hidden; cursor: pointer;
+	        position: relative; border: 1px solid #eee; border-radius: 6px; overflow: hidden; cursor: pointer;
 	    }
 	    .fp-item img { width: 100%; height: 150px; object-fit: cover; }
 	    .fp-item p { padding: 10px; margin: 0; font-size: 14px; text-align: center; }
@@ -164,16 +180,48 @@
 	                        // [핵심] f_code를 가지고 에디터로 이동!
 	                        location.href = '/user/interior/draw?f_code=' + fp.f_code;
 	                    };
-	                    div.innerHTML = `
-	                        <img src="${fp.f_img}" onerror="this.src='/img/no-img.png'">
-	                        <p>${fp.fTemplate}</p>
-	                    `;
+	                    if (type == 'my') {
+		                    div.innerHTML = `
+		                        <img src="\${fp.f_img}" onerror="this.src='/images/no-img.png'">
+		                        <p>\${fp.f_template}</p>
+		                        <button class="btn-delete-fp" onclick="deleteFloorplan(event, '\${fp.f_code}')">삭제</button>
+		                    `;
+	                    } else {
+	                    	div.innerHTML = `
+		                        <img src="\${fp.f_img}" onerror="this.src='/images/no-img.png'">
+		                        <p>\${fp.f_template}</p>
+		                    `;
+	                    }
 	                    container.appendChild(div);
 	                });
 	            })
 	            .catch(err => {
 	                console.error(err);
 	                container.innerHTML = '<p>목록을 불러오지 못했습니다.</p>';
+	            });
+	    }
+		// [NEW] 평면도 삭제 함수
+	    function deleteFloorplan(event, f_code) {
+	        // 1. 클릭 이벤트가 부모(div.fp-item)로 전파되는 것을 방지.
+	        event.stopPropagation(); 
+
+	        if (!confirm("정말 이 평면도 템플릿을 삭제하시겠습니까?")) return;
+
+	        // 2. 삭제 요청 (Controller에 해당 엔드포인트 필요)
+	        fetch('/user/floorplan/delete?f_code=' + f_code) // 혹은 GET
+	            .then(res => res.text())
+	            .then(result => {
+	                if (result.trim() === "ok") {
+	                    alert("삭제되었습니다.");
+	                    // 3. 목록 새로고침 (현재 보고 있는 my 타입으로 다시 로드)
+	                    loadFloorplanList('my');
+	                } else {
+	                    alert("삭제 실패");
+	                }
+	            })
+	            .catch(err => {
+	                console.error(err);
+	                alert("서버 통신 오류");
 	            });
 	    }
 	</script>

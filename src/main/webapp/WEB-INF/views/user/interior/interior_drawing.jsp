@@ -124,11 +124,10 @@
             <div id="menu-furniture" style="display: none;">
                 <label class="input-label">가구 목록</label>
                 <select id="furn-category-select" onchange="loadFurnitureList(this.value)" style="width:100%; padding:8px; margin-bottom:10px;">
+                	<option value="favorites">찜 목록</option>
 			        <option value="1">거실 (소파/테이블)</option>
-			        <option value="7">서재 (책상/의자)</option>
-			        <option value="3">침실 (침대)</option>
-			        <option value="4">수납 (서랍장)</option>
-			        <option value="2">주방 (식탁)</option>
+			        <option value="4">침실 (침대)</option>
+			        <option value="2">다이닝 (식탁)</option>
 			    </select>
 			
 			    <div id="furniture-list" style="height: 400px; overflow-y: auto; border: 1px solid #ddd; padding: 5px;">

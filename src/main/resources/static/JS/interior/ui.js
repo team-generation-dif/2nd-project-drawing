@@ -100,13 +100,17 @@ export function switchTabUI(tabName) {
 }
 
 // 가구 목록 로드 함수
-export function loadFurnitureList(subcategoryId) {
+export function loadFurnitureList(categoryId) {
     const listContainer = document.getElementById('furniture-list');
     listContainer.innerHTML = '<p style="text-align:center;">로딩 중...</p>';
-
-    // API 호출 (ProductsController에서 만든 주소)
-    // 주의: 실제 DB의 category_id 구조에 맞춰 파라미터 조정 필요
-    fetch('/user/interior/prodlist?subcategoryId=' + subcategoryId) 
+	let url;
+	if (categoryId === 'favorites') {
+        url = '/user/interior/favlist'; // 찜 목록 API
+    } else {
+        url = '/user/interior/prodlist?categoryId=' + categoryId; // 기존 API
+    }
+	
+    fetch(url) 
         .then(res => res.json())
         .then(data => {
             listContainer.innerHTML = '';
@@ -121,7 +125,7 @@ export function loadFurnitureList(subcategoryId) {
                 const w = prod.p_width || 1000;
                 const h = prod.p_height || 1000;
                 const d = prod.p_depth || 1000;
-                const img = prod.p_image || '/img/no-img.png';
+                const img = prod.p_image || '/images/no-img.png';
 
                 // 카드 생성
                 const card = document.createElement('div');

@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.drawing.springboot.dao.IFavoritesDAO;
 import com.drawing.springboot.dao.IFloorplanDAO;
 import com.drawing.springboot.dao.IInteriorDAO;
 import com.drawing.springboot.dao.IMemberDAO;
@@ -40,6 +41,9 @@ public class InteriorController {
 	
 	@Autowired
 	IProductsDAO productsDAO;
+	
+	@Autowired
+	IFavoritesDAO favoritesDAO;
 	
 	private final String uploadDir = "C:/upload/interior/";
 	
@@ -137,12 +141,28 @@ public class InteriorController {
     
     @RequestMapping("/user/interior/prodlist")
     @ResponseBody
-    public List<ProductsDTO> getEditorProducts(@RequestParam(value="subcategoryId", required=false) Long subcategoryId) {
-        if (subcategoryId != null) {
+    public List<ProductsDTO> getEditorProducts(@RequestParam(value="categoryId", required=false) Long categoryId) {
+        if (categoryId != null) {
             // 임시로 특정 서브카테고리만 가져오거나 전체를 가져옴
-             return productsDAO.getProductsBySubcategoryId(subcategoryId); // 임시: categoryId를 subcategoryId로 취급
+             return productsDAO.getProductsByCategoryId(categoryId); // 임시: categoryId를 subcategoryId로 취급
         }
         // 전체 목록 (또는 랜덤 추천)이 필요할수도
         return null; // 빈 리스트 방지용
     }
+    
+//    @RequestMapping("/user/interior/favlist")
+//    @ResponseBody
+//    public List<ProductsDTO> getFavoriteList(Authentication authentication) {
+//    	String m_code = "";
+//        if (authentication != null) {
+//            try {
+//                String m_id = authentication.getName();
+//                m_code = memberDAO.findByMid(m_id).getM_code();
+//            } catch (Exception e) {
+//                e.printStackTrace();
+//            }
+//        }
+//        
+//        return productsDAO.favoritesByMCode(m_code);
+//    }
 }
