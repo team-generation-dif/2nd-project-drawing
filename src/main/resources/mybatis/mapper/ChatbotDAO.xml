@@ -36,5 +36,9 @@
         SET hit_count = hit_count + 1 
         WHERE q_code = #{q_code}
     </update>
-
+<select id="getTodayChatCount" resultType="int">
+    SELECT COUNT(*) 
+    FROM CHATBOT 
+    WHERE TRUNC(chat_date) = TRUNC(SYSDATE)
+</select>
 </mapper>
