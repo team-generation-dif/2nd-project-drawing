@@ -17,4 +17,5 @@ public interface IChatbotDAO {
 
     // 답변 횟수 증가
     void updateHitCount(@Param("q_code") String q_code);
+    int getTodayChatCount();
 }
