@@ -27,13 +27,23 @@ public class ProductsService {
 
             for (CSVRecord record : parser) {
                 ProductsDTO dto = new ProductsDTO();
+
                 dto.setP_code(Integer.parseInt(record.get("p_code")));
                 dto.setP_name(record.get("p_name"));
                 dto.setP_color(record.get("p_color"));
-                dto.setP_width(Double.parseDouble(record.get("p_width")));
+
+                // p_width는 문자열 그대로 저장 ("-", "50x30x80 cm" 등)
+                dto.setP_width(record.get("p_width"));
+
+                // 가격도 문자열 그대로 저장 (varchar2 컬럼과 매칭)
                 dto.setP_price(record.get("p_price"));
+
                 dto.setP_image(record.get("p_image"));
-                dto.setP_rating(record.get("p_rating").isEmpty() ? 0.0 : Double.parseDouble(record.get("p_rating")));
+
+                // 평점은 숫자로 변환, 빈 값이면 0.0
+                String ratingStr = record.get("p_rating");
+                dto.setP_rating(ratingStr == null || ratingStr.isEmpty() ? 0.0 : Double.parseDouble(ratingStr));
+
                 dto.setSubcategoryId(Integer.parseInt(record.get("subcategory_id")));
 
                 productsDAO.insertProduct(dto);

@@ -16,7 +16,7 @@ public interface IBoardDAO {
     void insertBoard(BoardDTO board);
     void insertTag(BoardTagDTO tag);
     void updateBoard(BoardDTO board);
-    
+    int getTodayWorkCount();
     // @Param을 붙여서 XML의 #{b_code}와 명확하게 연결합니다.
     void deleteBoard(@Param("b_code") String b_code);
     void deleteTagsByBoard(@Param("b_code") String b_code);
