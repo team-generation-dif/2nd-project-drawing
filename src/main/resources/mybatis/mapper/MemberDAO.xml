@@ -29,7 +29,8 @@
     WHERE M_NICK = #{m_nick}
       AND M_ID != #{m_id}
 </select>
-
+<select id="getTotalUserCount" resultType="int">
+    SELECT COUNT(*) FROM MEMBER </select>
 <select id="findByMemailExceptMe" resultType="com.drawing.springboot.dto.MemberDTO">
     SELECT *
     FROM MEMBER
