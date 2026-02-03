@@ -11,7 +11,7 @@
     </sec:authorize>
 
     <sec:authorize access="!hasRole('ADMIN')">
-        <a href="/guest/main" class="logo">Drawing Home</a>
+        <a href="/" class="logo">Drawing Home</a>
     </sec:authorize>
 
 <nav>

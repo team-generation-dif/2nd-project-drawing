@@ -12,12 +12,6 @@
          VALUES (#{f_code},#{m_code, jdbcType=VARCHAR},#{f_template},#{json_data},#{f_img},SYSDATE)
     </insert>
     
-<!--    <update id="updateDAO" parameterType="com.drawing.springboot.dto.FloorplanDTO">
-    	UPDATE FLOORPLAN
-    	 SET I_TITLE = #{i_title}, JSON_DATA = #{json_data}, I_IMAGE = #{i_image}, I_DATE = SYSDATE
-    	 WHERE I_CODE = #{i_code}
-    </update>-->
-    
     <delete id="deleteDAO">
     	DELETE FROM FLOORPLAN
     	 WHERE F_CODE = #{f_code}
@@ -28,7 +22,7 @@
     </select>
     
     <select id="selectDAOByMCode" resultType="com.drawing.springboot.dto.FloorplanDTO">
-        SELECT * FROM FLOORPLAN WHERE M_CODE = #{m_code} ORDER BY I_DATE DESC
+        SELECT * FROM FLOORPLAN WHERE M_CODE = #{m_code} ORDER BY F_DATE DESC
     </select> 
     
 </mapper>

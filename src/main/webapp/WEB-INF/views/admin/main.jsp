@@ -124,7 +124,7 @@
         <p style="color: #8b7e74; margin-top: 10px;">환영합니다, 마스터님.</p>
     </div>
     <div style="text-align: right;">
-        <a href="/" style="text-decoration: none; display: inline-block; padding: 10px 18px; background-color: #8b7e74; color: white; border-radius: 25px; font-size: 0.9rem; margin-bottom: 10px;">
+        <a href="/guest/main" style="text-decoration: none; display: inline-block; padding: 10px 18px; background-color: #8b7e74; color: white; border-radius: 25px; font-size: 0.9rem; margin-bottom: 10px;">
             유저 페이지로 이동
         </a>
         <br>
@@ -148,7 +148,7 @@
                         <h3>👥 회원 관리</h3>
                         <p>가입된 모든 사용자 정보를 조회하고 권한을 설정합니다.<br>블랙리스트 관리 및 활동 내역을 확인하세요.</p>
                     </div>
-                    <div class="card-footer">총 1,245명 활동 중</div>
+                    <div class="card-footer">총 ${totalUsers}명 활동 중</div>
                 </a>
 
                 <a href="/guest/list" class="admin-card">
@@ -156,7 +156,7 @@
                         <h3>🖼 작품 모니터링</h3>
                         <p>업로드된 3D 인테리어 및 게시글을 관리합니다.<br>서비스 규정에 어긋나는 콘텐츠를 관리하세요.</p>
                     </div>
-                    <div class="card-footer">오늘 48건 업로드</div>
+                    <div class="card-footer">오늘 ${todayWorks}건 업로드</div>
                 </a>
 
                 <a href="/admin/chatbot_mgmt" class="admin-card">
@@ -164,14 +164,8 @@
         <h3>🤖 챗봇 관리</h3>
         <p>사용자의 궁금증을 실시간으로 해결합니다.<br>고객의 질문 데이터를 분석하고 학습시킵니다.</p>
     </div>
-    <div class="card-footer" style="color: #e76f51;">
-        <c:choose>
-            <c:when test="${not empty unreadCount && unreadCount > 0}">
-                신규 미응답 질문 ${unreadCount}건
-            </c:when>
-            <c:otherwise>모든 질문 응답 완료</c:otherwise>
-        </c:choose>
-    </div>
+   <div class="card-footer" style="color: #e76f51;">
+    오늘 총 ${todayChatCount}회 사용됨</div>
 </a>
             </div>
         </div>

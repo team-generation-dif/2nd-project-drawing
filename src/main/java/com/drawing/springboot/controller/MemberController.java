@@ -18,7 +18,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import com.drawing.springboot.dao.IBoardDAO;
 import com.drawing.springboot.dao.ICategoryDAO;
+import com.drawing.springboot.dao.IChatbotDAO;
 import com.drawing.springboot.dao.IMemberDAO;
 import com.drawing.springboot.dto.CategoryDTO;
 import com.drawing.springboot.dto.MemberDTO;
@@ -34,7 +36,9 @@ public class MemberController {
 
     private final IMemberDAO memberMapper;
     private final PasswordEncoder passwordEncoder;
-
+    private final IChatbotDAO chatbotDAO;
+    private final IBoardDAO boardDAO;
+  
     @Autowired
     private ICategoryDAO categoryDAO;
 
@@ -311,9 +315,18 @@ public class MemberController {
      * 4. ADMIN
      * ========================= */
 
-    @GetMapping("/admin/main")
-    public String adminMain() {
-        return "admin/main";
+    @GetMapping("/admin/main") // 어드민 메인 진입 경로
+    public String adminMain(Model model) {
+    	// 1. 회원 관리: 총 회원 수
+        model.addAttribute("totalUsers", memberMapper.getTotalUserCount()); 
+        
+        // 2. 작품 모니터링: 오늘 업로드 수
+        model.addAttribute("todayWorks", boardDAO.getTodayWorkCount());
+        
+        // 3. 챗봇 관리: 오늘 총 사용 횟수 (수정된 부분)
+        model.addAttribute("todayChatCount", chatbotDAO.getTodayChatCount());
+
+        return "admin/main"; // 해당 JSP 파일명
     }
 
     @GetMapping("/admin/userManage")
