@@ -20,6 +20,8 @@ import com.drawing.springboot.dto.ProductsDTO;
 import com.drawing.springboot.dto.SubcategoryDTO;
 import com.drawing.springboot.service.ProductsService;
 
+import jakarta.servlet.http.HttpSession;
+
 @Controller
 @RequestMapping("/products")
 public class ProductsController {
@@ -57,17 +59,17 @@ public class ProductsController {
         return "guest/products"; // 한 페이지에서 출력
     }
 
-//    // ✅ 상품 클릭 → 로그인 여부 확인 후 IKEA URL로 리다이렉트
-//    @GetMapping("/{productId}")
-//    public String productDetail(@PathVariable Long productId, HttpSession session) {
-//        if (session.getAttribute("role") == null) {
-//            return "redirect:/guest/loginForm?redirect=/products/" + productId;
-//        }
-//
-//        ProductsDTO product = productsDAO.getProductById(productId);
-//        String ikeaUrl = "https://www.ikea.com/kr/ko/p/" + product.getP_code() + "/";
-//        return "redirect:" + ikeaUrl;
-//    }
+    // ✅ 상품 클릭 → 로그인 여부 확인 후 IKEA URL로 리다이렉트
+    @GetMapping("/{productId}")
+    public String productDetail(@PathVariable Long productId, HttpSession session) {
+        if (session.getAttribute("role") == null) {
+            return "redirect:/guest/loginForm?redirect=/products/" + productId;
+        }
+
+        ProductsDTO product = productsDAO.getProductById(productId);
+        String ikeaUrl = "https://www.ikea.com/kr/ko/p/" + product.getP_code() + "/";
+        return "redirect:" + ikeaUrl;
+    }
 
     // ✅ 관리자 상품 등록 폼
     @GetMapping("/admin/new")
@@ -82,6 +84,7 @@ public class ProductsController {
         return "redirect:/products/subcategories/" + product.getSubcategoryId();
     }
     
+    // □ CSV 업로드 처리
     @PostMapping("/admin/upload")
     public String uploadCsv(@RequestParam("file") MultipartFile file, Model model) {
         try {
@@ -90,7 +93,29 @@ public class ProductsController {
         } catch (Exception e) {
             model.addAttribute("message", "CSV 업로드 실패: " + e.getMessage());
         }
-        return "admin/uploadResult"; // 결과 페이지
+        // 업로드 후 다시 admin/products.jsp로 돌아감
+        List<ProductsDTO> products = productsDAO.getAllProducts();
+        model.addAttribute("products", products);
+        return "admin/products";
     }
+    
+    @GetMapping("/admin/products")
+    public String showAllProducts(Model model) {
+        List<ProductsDTO> products = productsDAO.getAllProducts();
+        model.addAttribute("products", products);
+        return "admin/products"; // JSP 파일명
+    }
+
+    
+    // □ 서브카테고리 상품 조회
+    @GetMapping("/subcategories/{subcategoryId}")
+    public String showProductsBySubcategory(@PathVariable("subcategoryId") Long subcategoryId, Model model) {
+        List<ProductsDTO> products = productsDAO.getProductsBySubcategoryId(subcategoryId);
+        SubcategoryDTO subcategory = subcategoryDAO.getSubcategoryById(subcategoryId);
+        model.addAttribute("products", products);
+        model.addAttribute("subcategory", subcategory);
+        return "guest/products"; // 기존 products.jsp 재사용
+    }
+
 
 }

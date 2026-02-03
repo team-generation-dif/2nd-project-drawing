@@ -20,7 +20,8 @@
     <!-- 관리자 전용 메뉴 -->
     <c:if test="${fn:contains(pageContext.request.requestURI, '/admin/')}">
         <sec:authorize access="hasRole('ADMIN')">
-            <li><a href="#">상품등록</a></li>
+            <li><a href="${pageContext.request.contextPath}/products/admin/new">상품등록</a></li>
+            <li><a href="${pageContext.request.contextPath}/products/admin/products">CSV 업로드</a></li>
             <li><a href="#">평면도등록</a></li>
             <li><a href="#">3D가구등록</a></li>
             <li class="divider">|</li>

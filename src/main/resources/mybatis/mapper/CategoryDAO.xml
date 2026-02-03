@@ -9,8 +9,8 @@
   <select id="getAllCategories" resultType="com.drawing.springboot.dto.CategoryDTO">
     SELECT category_id AS categoryId,
            name,
-           url,
-           image
+           image,
+           url
       FROM CATEGORIES
      ORDER BY category_id
   </select>
@@ -19,8 +19,8 @@
   <select id="getCategoryById" parameterType="long" resultType="com.drawing.springboot.dto.CategoryDTO">
     SELECT category_id AS categoryId,
            name,
-           url,
-           image
+           image,
+           url
       FROM CATEGORIES
      WHERE category_id = #{categoryId}
   </select>
