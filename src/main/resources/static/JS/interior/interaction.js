@@ -64,12 +64,13 @@ function onMouseDown(e) {
         if (state.previewObject) {
             const isColliding = checkCollision(state.previewObject);
             if (!isColliding) {
-                // createFurniture에 커스텀 스펙 전달
-                // activeFurnitureId가 'custom'일 경우 activeFurnitureSpecs를 넘김
-                const specs = (state.activeFurnitureId === 'custom') ? state.activeFurnitureSpecs : null;
-                
-                createFurniture(state.activeFurnitureId, rawTarget, state.previewObject.rotation.y, true, specs);
-                
+				createFurniture(
+                    state.activeFurnitureId,
+                    rawTarget,
+                    state.previewObject.rotation.y,
+                    true,
+                    state.activeFurnitureSpecs
+                );
                 saveState();
             } else {
                 alert("다른 물체와 겹칩니다.");

@@ -70,19 +70,26 @@ public class FloorplanController {
     public List<FloorplanDTO> floorplanlist(Authentication authentication, @RequestParam("type") String type) {
     	String m_id = authentication.getName();
     	String m_code = memberDAO.findByMid(m_id).getM_code();
+    	String admin_code = memberDAO.findByMid("admin").getM_code();
     	
     	if ("my".equals(type)) {
             return floorplanDAO.selectDAOByMCode(m_code);
         } else if ("template".equals(type)) {
-            return floorplanDAO.selectDAOByMId("admin"); 
+            return floorplanDAO.selectDAOByMCode(admin_code); 
         }
         return null;
     }
     
     // 평면도 목록에서 삭제
     @RequestMapping("/user/floorplan/delete")
-    public String floorplandelete(@RequestParam(value="f_code") String f_code) {
-    	floorplanDAO.deleteDAO(f_code);
-    	return "redirect:/user/interior/myDraw";
+    @ResponseBody
+    public String deleteFloorplan(@RequestParam(value="f_code") String f_code) {
+    	try {
+            int result = floorplanDAO.deleteDAO(f_code); // DAO에 deleteDAO 메서드 필요
+            return result > 0 ? "ok" : "fail";
+        } catch (Exception e) {
+            e.printStackTrace();
+            return "fail";
+        }
     }
 }

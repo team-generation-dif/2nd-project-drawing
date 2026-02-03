@@ -115,19 +115,30 @@ export function createFloorMesh(centerX, centerZ, width, depth, save = true) {
 }
 
 export function createFurniture(id, pos, rotationY, save = true, customDims = null) {
-    const info = FURNITURE_DATA[id];
-    if (!info) return null;
+    let width, height, depth, color;
 
-    // 저장된 크기가 있으면 그걸 쓰고, 없으면 기본값 사용
-    const width = customDims ? customDims.width : info.width;
-    const height = customDims ? customDims.height : info.height;
-    const depth = customDims ? customDims.depth : info.depth;
+    // 1. 커스텀 가구(DB에서 불러온 것)인 경우
+    if (id === 'custom' && customDims) {
+        width = customDims.width;
+        height = customDims.height;
+        depth = customDims.depth;
+        color = customDims.color || 0x8d6e63;
+    } 
+    // 2. 고정 가구(의자, 책상 버튼 등)인 경우
+    else {
+        const info = FURNITURE_DATA[id];
+        if (!info) return null; // 여기서 막혔던 것임
+        width = info.width;
+        height = info.height;
+        depth = info.depth;
+        color = info.color;
+    }
 
     const geometry = new THREE.BoxGeometry(width, height, depth);
-    const material = new THREE.MeshStandardMaterial({ color: info.color });
+    const material = new THREE.MeshStandardMaterial({ color: color });
     const mesh = new THREE.Mesh(geometry, material);
     
-    // 높이에 따라 위치 조정
+    // 중심점 보정 (바닥 위로)
     mesh.position.set(pos.x, height / 2, pos.z);
     mesh.rotation.y = rotationY;
     mesh.castShadow = true; mesh.receiveShadow = true;
@@ -135,8 +146,12 @@ export function createFurniture(id, pos, rotationY, save = true, customDims = nu
     scene.add(mesh);
 
     const data = { 
-        type: 'furniture', subType: id, mesh: mesh,
-        width: width, height: height, depth: depth // 실제 적용된 크기 저장
+        type: 'furniture', 
+        subType: id, // 'custom' 또는 'desk' 등
+        mesh: mesh,
+        width: width, height: height, depth: depth,
+        // 나중에 다시 불러올 때를 위해 커스텀 정보도 저장하는 것이 좋음
+        customData: (id === 'custom') ? customDims : null 
     };
 
     if (save) state.furnitures.push(data);
