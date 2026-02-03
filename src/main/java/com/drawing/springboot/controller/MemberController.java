@@ -18,7 +18,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import com.drawing.springboot.dao.IBoardDAO;
 import com.drawing.springboot.dao.ICategoryDAO;
+import com.drawing.springboot.dao.IChatbotDAO;
 import com.drawing.springboot.dao.IMemberDAO;
 import com.drawing.springboot.dto.CategoryDTO;
 import com.drawing.springboot.dto.MemberDTO;
@@ -316,7 +318,7 @@ public class MemberController {
     @GetMapping("/admin/main") // 어드민 메인 진입 경로
     public String adminMain(Model model) {
     	// 1. 회원 관리: 총 회원 수
-        model.addAttribute("totalUsers", memberDAO.getTotalUserCount()); 
+        model.addAttribute("totalUsers", memberMapper.getTotalUserCount()); 
         
         // 2. 작품 모니터링: 오늘 업로드 수
         model.addAttribute("todayWorks", boardDAO.getTodayWorkCount());
