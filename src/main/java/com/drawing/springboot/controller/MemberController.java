@@ -18,9 +18,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import com.drawing.springboot.dao.IBoardDAO;
 import com.drawing.springboot.dao.ICategoryDAO;
-import com.drawing.springboot.dao.IChatbotDAO;
 import com.drawing.springboot.dao.IMemberDAO;
 import com.drawing.springboot.dto.CategoryDTO;
 import com.drawing.springboot.dto.MemberDTO;
@@ -34,11 +32,11 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 public class MemberController {
 
-    private final IMemberDAO memberDAO;
+    private final IMemberDAO memberMapper;
     private final PasswordEncoder passwordEncoder;
-    private final IBoardDAO boardDAO;
     private final IChatbotDAO chatbotDAO;
-
+    private final IBoardDAO boardDAO;
+  
     @Autowired
     private ICategoryDAO categoryDAO;
 
@@ -73,7 +71,7 @@ public class MemberController {
             String encodedPw = passwordEncoder.encode(m_pw);
             
             // 2. memberMapper를 사용하여 업데이트 (대소문자 및 변수명 수정)
-            memberDAO.updatePassword(email, encodedPw);
+            memberMapper.updatePassword(email, encodedPw);
             
             session.removeAttribute("verifiedEmail"); // 완료 후 세션 삭제
         }
@@ -105,7 +103,7 @@ public class MemberController {
         
         member.setK_id(null);
 
-        memberDAO.insertMember(member);
+        memberMapper.insertMember(member);
 
         return "redirect:/guest/joinSuccess";
     }
@@ -133,7 +131,7 @@ public class MemberController {
         member.setM_role("ROLE_USER");
         member.setM_passwd("SOCIAL");
 
-        memberDAO.insertMember(member);
+        memberMapper.insertMember(member);
 
         // 🔥 인증 강제 갱신
         Authentication newAuth =
@@ -161,19 +159,19 @@ public class MemberController {
     ) {
 
     	if (m_id != null) {
-            return memberDAO.findByMid(m_id) == null ? "OK" : "DUPLICATE";
+            return memberMapper.findByMid(m_id) == null ? "OK" : "DUPLICATE";
         }
     	
         if (m_nick != null) {
-            return memberDAO.findByMnick(m_nick) == null ? "OK" : "DUPLICATE";
+            return memberMapper.findByMnick(m_nick) == null ? "OK" : "DUPLICATE";
         }
 
         if (m_email != null) {
-            return memberDAO.findByMemail(m_email) == null ? "OK" : "DUPLICATE";
+            return memberMapper.findByMemail(m_email) == null ? "OK" : "DUPLICATE";
         }
 
         if (m_tel != null) {
-            return memberDAO.findByMtel(m_tel) == null ? "OK" : "DUPLICATE";
+            return memberMapper.findByMtel(m_tel) == null ? "OK" : "DUPLICATE";
         }
 
         return "INVALID";
@@ -194,11 +192,11 @@ public class MemberController {
         MemberDTO existingUser = null;
 
         if ("nick".equals(type)) {
-            existingUser = memberDAO.findByMnick(value);
+            existingUser = memberMapper.findByMnick(value);
         } else if ("email".equals(type)) {
-            existingUser = memberDAO.findByMemail(value);
+            existingUser = memberMapper.findByMemail(value);
         } else if ("tel".equals(type)) {
-            existingUser = memberDAO.findByMtel(value);
+            existingUser = memberMapper.findByMtel(value);
         }
 
         // 결과 반환: 찾은 데이터가 없으면 OK, 있으면 DUPLICATE
@@ -215,7 +213,7 @@ public class MemberController {
     public String loginSuccess(Authentication authentication, HttpSession session) {
 
         String m_id = authentication.getName();
-        MemberDTO user = memberDAO.findByMid(m_id);
+        MemberDTO user = memberMapper.findByMid(m_id);
 
         if (user != null) {
             session.setAttribute("m_id", user.getM_id());
@@ -259,7 +257,7 @@ public class MemberController {
         }
 
         // ✅ 2️⃣ 사용자 조회
-        MemberDTO member = memberDAO.findByMid(authentication.getName());
+        MemberDTO member = memberMapper.findByMid(authentication.getName());
         if (member == null) {
             result.put("isValid", false);
             return result;
@@ -282,7 +280,7 @@ public class MemberController {
 
     @GetMapping("/user/mypage")
     public String mypage(Authentication authentication, Model model) {
-        MemberDTO user = memberDAO.findByMid(authentication.getName());
+        MemberDTO user = memberMapper.findByMid(authentication.getName());
         model.addAttribute("user", user);
         model.addAttribute("loginType", user.getLogin_type()); // ⭐ 핵심
         return "user/mypage";
@@ -298,14 +296,14 @@ public class MemberController {
         }
 
         // 2. DB 업데이트 실행 (인스턴스 변수인 memberMapper 사용!)
-        memberDAO.updateMemberInfo(dto); 
+        memberMapper.updateMemberInfo(dto); 
         
         return "redirect:/user/mypage";
     }
 
     @GetMapping("/user/delete")
     public String delete(Authentication authentication, HttpSession session) {
-        memberDAO.deleteMember(authentication.getName());
+        memberMapper.deleteMember(authentication.getName());
         session.invalidate();
         return "redirect:/";
     }
@@ -328,9 +326,10 @@ public class MemberController {
 
         return "admin/main"; // 해당 JSP 파일명
     }
+
     @GetMapping("/admin/userManage")
     public String userManage(Model model) {
-        model.addAttribute("userList", memberDAO.findAllMembers());
+        model.addAttribute("userList", memberMapper.findAllMembers());
         return "admin/userManage";
     }
  // 특정 회원의 상세 정보를 보여주는 메서드 추가
@@ -338,7 +337,7 @@ public class MemberController {
     public String userDetail(@RequestParam(name = "m_id") String m_id, Model model) {
         // 1. m_id를 이용해 DB에서 회원 한 명의 정보를 가져옵니다.
         // (사용하시는 Mapper의 메서드명에 맞춰 수정하세요. 예: findByMid 또는 selectUser)
-        MemberDTO member = memberDAO.findByMid(m_id); 
+        MemberDTO member = memberMapper.findByMid(m_id); 
         
         // 2. 모델에 담아서 JSP로 보냅니다.
         model.addAttribute("user", member);
@@ -350,7 +349,7 @@ public class MemberController {
 
     @GetMapping("/admin/forceDelete")
     public String forceDelete(@RequestParam(name = "m_id") String m_id) { // name="m_id" 추가
-        memberDAO.deleteMember(m_id);
+        memberMapper.deleteMember(m_id);
         return "redirect:/admin/userManage";
     }
     
