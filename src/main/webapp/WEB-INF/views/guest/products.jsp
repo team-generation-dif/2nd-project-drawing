@@ -66,14 +66,16 @@
 <h3>상품 목록</h3>
 <div class="product-grid">
     <c:forEach var="product" items="${products}">
-        <div>
-            <img src="${product.p_image}" alt="${product.p_name}" />
+        <div style="border:1px solid #ddd; padding:10px; border-radius:10px; width:180px;">
+            <img src="${product.p_image}" alt="${product.p_name}" style="width:150px;height:150px;" />
             <h4>${product.p_name}</h4>
-            <p>${product.p_price}원</p>
+            <p><strong>${product.p_price}</strong> 원</p>
             <p>⭐ ${product.p_rating}</p>
+            <c:if test="${not empty product.externalUrl}">
+                <a href="${product.externalUrl}" target="_blank">홈페이지에서 보기</a>
+            </c:if>
         </div>
     </c:forEach>
 </div>
-
 </body>
 </html>

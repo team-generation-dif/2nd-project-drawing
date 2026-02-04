@@ -5,6 +5,14 @@
 
 <mapper namespace="com.drawing.springboot.dao.IProductsDAO">
 
+    <select id="getAllProducts" resultType="com.drawing.springboot.dto.ProductsDTO">
+        SELECT * FROM products
+    </select>
+
+    <select id="getProductById" parameterType="long" resultType="com.drawing.springboot.dto.ProductsDTO">
+        SELECT * FROM products WHERE p_code = #{p_code}
+    </select>
+
     <!-- 특정 카테고리 상품 조회 -->
     <select id="getProductsByCategoryId" resultType="com.drawing.springboot.dto.ProductsDTO">
         SELECT p.p_code,
@@ -18,10 +26,8 @@
         FROM products p
         JOIN subcategories s ON p.subcategory_id = s.subcategory_id
         WHERE s.category_id = #{categoryId}
-        ORDER BY p.p_code
     </select>
 
-    <!-- 특정 서브카테고리 상품 조회 -->
     <select id="getProductsBySubcategoryId" parameterType="long" resultType="com.drawing.springboot.dto.ProductsDTO">
         SELECT p_code,
                subcategory_id AS subcategoryId,
@@ -36,31 +42,29 @@
         ORDER BY p_code
     </select>
 
-    <!-- 특정 상품 조회 -->
-    <select id="getProductById" parameterType="long" resultType="com.drawing.springboot.dto.ProductsDTO">
-        SELECT p_code,
-               subcategory_id AS subcategoryId,
-               p_name,
-               p_color,
-               p_width as p_size,
-               p_price,
-               p_image,
-               p_rating
-        FROM products
-        WHERE p_code = #{productId}
-    </select>
-
-    <!-- 상품 등록 -->
     <insert id="insertProduct" parameterType="com.drawing.springboot.dto.ProductsDTO">
-    	INSERT INTO products (p_code, p_name, p_color, p_width, p_price, p_image, p_rating, subcategory_id)
-    	VALUES (#{p_code}, #{p_name}, #{p_color}, #{p_width}, #{p_price}, #{p_image}, #{p_rating}, #{subcategoryId})
+    	INSERT INTO products (p_code, p_name, p_color, p_width, p_price, p_image, p_rating, subcategory_id, category_id, external_url)
+    	VALUES (#{p_code}, #{p_name}, #{p_color}, #{p_width}, #{p_price}, #{p_image}, #{p_rating}, #{subcategoryId}, #{categoryId}, #{externalUrl})
 	</insert>
-	
-	<!-- 전체 상품 조회 -->
-	<select id="getAllProducts" resultType="com.drawing.springboot.dto.ProductsDTO">
-    	SELECT p_code, p_name, p_color, p_width, p_price, p_image, p_rating, subcategory_id
-    	FROM products
-    	ORDER BY p_code
-	</select>
-		
+
+	<update id="updateProduct" parameterType="com.drawing.springboot.dto.ProductsDTO">
+    	UPDATE products
+    	SET p_name=#{p_name}, p_color=#{p_color}, p_width=#{p_width}, p_price=#{p_price},
+        	p_image=#{p_image}, p_rating=#{p_rating}, subcategory_id=#{subcategoryId}, category_id=#{categoryId}, external_url=#{externalUrl}
+    	WHERE p_code=#{p_code}
+	</update>
+
+    <delete id="deleteProduct" parameterType="int">
+        DELETE FROM products WHERE p_code=#{p_code}
+    </delete>
+
+    <insert id="bulkInsertProducts" parameterType="java.util.List">
+        INSERT INTO products (p_code, p_name, p_color, p_width, p_price, p_image, p_rating, subcategory_id)
+        VALUES
+        <foreach collection="list" item="product" separator=",">
+            (#{product.p_code}, #{product.p_name}, #{product.p_color}, #{product.p_width},
+             #{product.p_price}, #{product.p_image}, #{product.p_rating}, #{product.subcategoryId})
+        </foreach>
+    </insert>
 </mapper>
+

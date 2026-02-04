@@ -12,7 +12,7 @@ public class ProductsDTO {
     private double p_rating;    // 평점    
     private String p_url;
     private int subcategoryId;
-    
+    private int categoryId;
     private double p_width;
     private double p_depth;
     private double p_height;

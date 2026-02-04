@@ -25,5 +25,15 @@
         FROM subcategories
         WHERE subcategory_id = #{subcategoryId}
     </select>
+    
+    <select id="getAllSubcategories" resultType="com.drawing.springboot.dto.SubcategoryDTO">
+    	SELECT subcategory_id AS subcategoryId,
+           	category_id AS categoryId,
+           	name,
+           	url
+    	FROM subcategories
+	</select>
+
+    
 
 </mapper>
