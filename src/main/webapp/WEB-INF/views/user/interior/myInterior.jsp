@@ -54,11 +54,12 @@
 	                    <div class="desc">일반적인 방의 구조를 사용합니다.</div>
 	                </div>
 	                
-	                <div class="option-card" onclick="alert('이미지 인식 기능은 준비 중입니다! 🤖')">
+	                <div class="option-card" onclick="triggerImageUpload()">
 	                    <div class="icon">📷</div>
 	                    <div class="title">이미지로 만들기</div>
-	                    <div class="desc">사진으로 방의 구조를 분석합니다.</div>
+	                    <div class="desc">평면도 이미지로 방의 구조를 분석합니다.(정확하지 않을 수 있습니다.)</div>
 	                </div>
+	                <input type="file" id="fp-image-upload" accept="images/*" style="display:none;" onchange="uploadAndAnalyze(this)">
 	            </div>
 	        </div>
 	
@@ -200,7 +201,7 @@
 	                container.innerHTML = '<p>목록을 불러오지 못했습니다.</p>';
 	            });
 	    }
-		// [NEW] 평면도 삭제 함수
+		// 평면도 삭제 함수
 	    function deleteFloorplan(event, f_code) {
 	        // 1. 클릭 이벤트가 부모(div.fp-item)로 전파되는 것을 방지.
 	        event.stopPropagation(); 
@@ -223,6 +224,50 @@
 	                console.error(err);
 	                alert("서버 통신 오류");
 	            });
+	    }
+		// 파일 선택창 열기
+	    function triggerImageUpload() {
+	        document.getElementById('fp-image-upload').click();
+	    }
+
+	    // 파일 선택 시 자동 업로드 & 분석 요청
+	    function uploadAndAnalyze(input) {
+	        if (!input.files || input.files.length === 0) return;
+	        let realWidth = prompt("도면 이미지의 실제 가로 길이(mm)를 입력해주세요.", "15000");
+	        if (!realWidth) return;
+	        
+	        const file = input.files[0];
+	        const formData = new FormData();
+	        formData.append("file", file);
+	        formData.append("realWidth", realWidth);
+
+	        fetch('/user/floorplan/analyze', {
+	            method: 'POST',
+	            body: formData
+	        })
+	        .then(res => res.json())
+	        .then(data => {
+	        	// 파이썬에서 에러 메시지가 왔는지 확인
+	            if (data.length === 1 && data[0].error) {
+	                alert("파이썬 오류 발생:\n" + data[0].error);
+	                console.error(data[0].trace); // 콘솔에 상세 내용 출력
+	                return;
+	            }
+	        	
+	            if (data && data.length > 0) {
+	                // 분석된 벽 데이터를 sessionStorage에 저장
+	                sessionStorage.setItem("importedWalls", JSON.stringify(data));
+	                location.href = '/user/interior/draw?mode=import';
+	            } else {
+	                alert("벽을 찾을 수 없습니다. 이미지가 너무 복잡하거나 흐릿합니다.");
+	            }
+	        })
+	        .catch(err => {
+	            console.error(err);
+	            alert("분석 실패");
+	        });
+	    	// input 초기화 (같은 파일 다시 선택 가능하게)
+	        input.value = '';
 	    }
 	</script>
 </body>

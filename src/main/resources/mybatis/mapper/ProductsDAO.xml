@@ -7,14 +7,14 @@
 
     <!-- 특정 카테고리 상품 조회 -->
     <select id="getProductsByCategoryId" resultType="com.drawing.springboot.dto.ProductsDTO">
-        SELECT p.p_code        AS p_code,
+        SELECT p.p_code,
                p.subcategory_id AS subcategoryId,
-               p.p_name        AS p_name,
-               p.p_color       AS p_color,
-               p.p_width       AS p_width,
-               p.p_price       AS p_price,
-               p.p_image       AS p_image,
-               p.p_rating      AS p_rating
+               p.p_name,
+               p.p_color,
+               p.p_width as p_size,
+               p.p_price,
+               p.p_image,
+               p.p_rating
         FROM products p
         JOIN subcategories s ON p.subcategory_id = s.subcategory_id
         WHERE s.category_id = #{categoryId}
@@ -23,14 +23,14 @@
 
     <!-- 특정 서브카테고리 상품 조회 -->
     <select id="getProductsBySubcategoryId" parameterType="long" resultType="com.drawing.springboot.dto.ProductsDTO">
-        SELECT p_code        AS p_code,
+        SELECT p_code,
                subcategory_id AS subcategoryId,
-               p_name        AS p_name,
-               p_color       AS p_color,
-               p_width       AS p_width,
-               p_price       AS p_price,
-               p_image       AS p_image,
-               p_rating      AS p_rating
+               p_name,
+               p_color,
+               p_width as p_size,
+               p_price,
+               p_image,
+               p_rating
         FROM products
         WHERE subcategory_id = #{subcategoryId}
         ORDER BY p_code
@@ -38,14 +38,14 @@
 
     <!-- 특정 상품 조회 -->
     <select id="getProductById" parameterType="long" resultType="com.drawing.springboot.dto.ProductsDTO">
-        SELECT p_code        AS p_code,
+        SELECT p_code,
                subcategory_id AS subcategoryId,
-               p_name        AS p_name,
-               p_color       AS p_color,
-               p_width       AS p_width,
-               p_price       AS p_price,
-               p_image       AS p_image,
-               p_rating      AS p_rating
+               p_name,
+               p_color,
+               p_width as p_size,
+               p_price,
+               p_image,
+               p_rating
         FROM products
         WHERE p_code = #{productId}
     </select>

@@ -33,7 +33,7 @@ public class ProductsService {
                 dto.setP_color(record.get("p_color"));
 
                 // p_width는 문자열 그대로 저장 ("-", "50x30x80 cm" 등)
-                dto.setP_width(record.get("p_width"));
+                dto.setP_size(record.get("p_width"));
 
                 // 가격도 문자열 그대로 저장 (varchar2 컬럼과 매칭)
                 dto.setP_price(record.get("p_price"));
