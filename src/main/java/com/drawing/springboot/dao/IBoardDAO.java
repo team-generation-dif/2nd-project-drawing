@@ -25,5 +25,13 @@ public interface IBoardDAO {
 
     // 특정 태그의 정보(이름, URL 등)만 수정
     void updateTag(BoardTagDTO tag);
-    
+    List<BoardDTO> getBoardListWithPaging(
+    	    @Param("offset") int offset, 
+    	    @Param("amount") int amount, 
+    	    @Param("m_code") String m_code  // <-- 이 줄을 추가하세요
+    	);
+ // IBoardDAO.java
+    List<BoardDTO> getBoardList(@Param("m_code") String m_code);
+    // 전체 게시글 수 (페이지 번호를 계산하기 위해 필요)
+    int getTotalCount();
 }

@@ -11,6 +11,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.drawing.springboot.dao.IBoardDAO;
+import com.drawing.springboot.dao.IBookmarkDAO;
 import com.drawing.springboot.dto.BoardDTO;
 import com.drawing.springboot.dto.BoardTagDTO;
 import com.drawing.springboot.service.BoardService;
@@ -28,11 +30,47 @@ import lombok.extern.slf4j.Slf4j;
 public class BoardController {
 
     private final BoardService boardService;
+    private final IBoardDAO boardDAO;
+    private final IBookmarkDAO bookmarkDAO;
 
-    /** ✅ 게스트도 보는 목록 */
     @GetMapping("/guest/list")
-    public String list(Model model) {
-        model.addAttribute("list", boardService.getBoardList());
+    public String list(
+            @RequestParam(value = "page", defaultValue = "1") int page, 
+            Model model, 
+            HttpSession session) {
+
+        int amount = 3; 
+        int offset = (page - 1) * amount;
+
+        // 1. 세션에서 m_id 가져오기 (추가된 부분)
+        String m_code = (String) session.getAttribute("m_code");
+
+        // 2. DAO 호출 시 m_id를 세 번째 인자로 전달 (에러 해결 지점!)
+     // BoardController.java
+        List<BoardDTO> list = boardDAO.getBoardListWithPaging(offset, amount, m_code);
+
+        // 이 부분에서 각 게시글마다 북마크 상태를 명확히 셋팅하고 있습니다.
+        if (m_code != null) {
+            for (BoardDTO board : list) {
+                int count = bookmarkDAO.checkBookmark(m_code, board.getB_code());
+                board.setIsBookmarked(count > 0); 
+            }
+        }
+
+        // 중복된 model.addAttribute 중 하나를 정리하고 확실히 전달하세요.
+        model.addAttribute("list", list);
+
+        // 3. 모델에 리스트 담기
+        model.addAttribute("list", list); // ✅ addAllAttributes -> addAttribute로 수정
+
+        // 4. 페이징 처리
+        BoardDTO paging = new BoardDTO(); 
+        int total = boardDAO.getTotalCount();
+        paging.setPage(page); 
+        paging.setPaging(page, amount, total);
+        
+        model.addAttribute("paging", paging); 
+
         return "guest/list";
     }
 

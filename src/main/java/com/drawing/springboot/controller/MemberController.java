@@ -22,6 +22,7 @@ import com.drawing.springboot.dao.IBoardDAO;
 import com.drawing.springboot.dao.ICategoryDAO;
 import com.drawing.springboot.dao.IChatbotDAO;
 import com.drawing.springboot.dao.IMemberDAO;
+import com.drawing.springboot.dto.BoardDTO;
 import com.drawing.springboot.dto.CategoryDTO;
 import com.drawing.springboot.dto.MemberDTO;
 
@@ -48,9 +49,20 @@ public class MemberController {
      * ========================= */
 
     @GetMapping("/")
-    public String mainPage(Model model) {
+    public String mainPage(HttpSession session, Model model) {
+        // 1. 카테고리 정보 가져오기
         List<CategoryDTO> categories = categoryDAO.getAllCategories();
-        model.addAttribute("categories", categories); // ✅ JSP에서 ${categories}로 접근 가능
+        model.addAttribute("categories", categories);
+
+        // 2. 메인에 보여줄 최신 게시글 5개 가져오기 (offset 0, amount 5)
+        String m_code = (String) session.getAttribute("m_code");
+        
+        // BoardController에서 사용한 것과 동일한 방식으로 호출합니다.
+        List<BoardDTO> communityList = boardDAO.getBoardListWithPaging(0, 4, m_code);
+        
+        // 3. 모델에 게시글 리스트 추가
+        model.addAttribute("communityList", communityList); 
+
         return "guest/main";
     }
     
