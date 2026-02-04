@@ -99,6 +99,7 @@
 </script>
 </head>
 <body>
+    <jsp:include page="../guest/Header.jsp" />
 <h2>상품 등록</h2>
 
 <form name="newForm" action="${pageContext.request.contextPath}/products/admin/new" 

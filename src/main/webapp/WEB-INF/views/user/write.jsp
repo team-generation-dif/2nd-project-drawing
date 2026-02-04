@@ -138,7 +138,7 @@
 <body>
 <jsp:include page="/WEB-INF/views/guest/Header.jsp" />
 <div class="write-wrapper">
-    <h2>취향을 그리다</h2>
+    <h2>🎨 취향을 그리다</h2>
 
     <form action="/user/insert?${_csrf.parameterName}=${_csrf.token}" method="post" id="writeForm" enctype="multipart/form-data">
         <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}" />

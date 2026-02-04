@@ -13,14 +13,33 @@
         SELECT * FROM products WHERE p_code = #{p_code}
     </select>
 
-    <select id="getProductsByCategoryId" parameterType="long" resultType="com.drawing.springboot.dto.ProductsDTO">
-        SELECT * FROM products p
+    <!-- 특정 카테고리 상품 조회 -->
+    <select id="getProductsByCategoryId" resultType="com.drawing.springboot.dto.ProductsDTO">
+        SELECT p.p_code,
+               p.subcategory_id AS subcategoryId,
+               p.p_name,
+               p.p_color,
+               p.p_width as p_size,
+               p.p_price,
+               p.p_image,
+               p.p_rating
+        FROM products p
         JOIN subcategories s ON p.subcategory_id = s.subcategory_id
         WHERE s.category_id = #{categoryId}
     </select>
 
     <select id="getProductsBySubcategoryId" parameterType="long" resultType="com.drawing.springboot.dto.ProductsDTO">
-        SELECT * FROM products WHERE subcategory_id = #{subcategoryId}
+        SELECT p_code,
+               subcategory_id AS subcategoryId,
+               p_name,
+               p_color,
+               p_width as p_size,
+               p_price,
+               p_image,
+               p_rating
+        FROM products
+        WHERE subcategory_id = #{subcategoryId}
+        ORDER BY p_code
     </select>
 
     <insert id="insertProduct" parameterType="com.drawing.springboot.dto.ProductsDTO">

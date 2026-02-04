@@ -37,12 +37,12 @@ public class ProductsService {
                 product.setP_code(Integer.parseInt(record.get("p_code")));
                 product.setP_name(record.get("p_name"));
                 product.setP_color(record.get("p_color"));
-                product.setP_width(record.get("p_width"));
                 product.setP_price(record.get("p_price")); // 문자열 그대로 저장
                 product.setP_image(record.get("p_image"));
 
                 String rating = record.get("p_rating");
                 product.setP_rating(rating.isEmpty() ? null : Double.parseDouble(rating));
+                dto.setP_size(record.get("p_width"));
 
                 String subId = record.get("subcategory_id");
                 product.setSubcategoryId(subId.isEmpty() ? 0 : Integer.parseInt(subId));

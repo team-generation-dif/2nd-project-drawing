@@ -1,4 +1,5 @@
 // main.js
+import * as THREE from 'three';
 import { state } from './state.js'; 
 import { initCore, animate, switchCamera, scene, renderer, currentCamera } from './core.js'; 
 import { 
@@ -7,6 +8,7 @@ import {
 } from './interaction.js';
 import { closePanel, loadFurnitureList } from './ui.js'; 
 import { undo, redo, restoreState } from './history.js';
+import { createPillar, createWall } from './objects.js';
 
 initCore();
 setupEventListeners();
@@ -76,3 +78,33 @@ function createSaveDataJSON() { return { meta: { height: state.wallHeight }, pil
 function captureThumbnail() { renderer.render(scene, currentCamera); const screenshotData = renderer.domElement.toDataURL("image/png"); return dataURItoBlob(screenshotData); }
 function dataURItoBlob(dataURI) { const byteString = atob(dataURI.split(',')[1]); const mimeString = dataURI.split(',')[0].split(':')[1].split(';')[0]; const ab = new ArrayBuffer(byteString.length); const ia = new Uint8Array(ab); for (let i = 0; i < byteString.length; i++) ia[i] = byteString.charCodeAt(i); return new Blob([ab], {type: mimeString}); }
 (function loadDataFromServer() { const iCodeInput = document.getElementById('server-i-code'); const iTitleInput = document.getElementById('server-i-title'); const jsonDataInput = document.getElementById('server-json-data'); if (iCodeInput && iCodeInput.value) { state.iCode = iCodeInput.value; } if (iTitleInput && iTitleInput.value) { state.iTitle = iTitleInput.value; console.log("제목 로드:", state.iTitle); } if (jsonDataInput && jsonDataInput.value) { try { const savedData = JSON.parse(jsonDataInput.value); restoreState(savedData); if (savedData.meta && savedData.meta.height) { state.wallHeight = savedData.meta.height; document.getElementById('globalHeight').value = state.wallHeight; } } catch (e) { console.error("데이터 로딩 실패:", e); } } })();
+(function checkImportedData() {
+    // 1. URL 파라미터 체크 (mode=import)
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('mode') === 'import') {
+        
+        const wallsJson = sessionStorage.getItem("importedWalls");
+        if (wallsJson) {
+            const wallsData = JSON.parse(wallsJson);
+            
+            // 2. 벽 생성 루프
+            // 좌표 데이터: {x1, z1, x2, z2}
+            wallsData.forEach(w => {
+                const startPos = new THREE.Vector3(w.x1, 0, w.z1);
+                const endPos = new THREE.Vector3(w.x2, 0, w.z2);
+                
+                // objects.js의 함수 활용
+                // 기둥 생성 (중복 체크는 createPillar 내부에서 함)
+                const p1 = createPillar(startPos);
+                const p2 = createPillar(endPos);
+                
+                // 벽 생성
+                createWall(p1, p2);
+            });
+
+            // 3. 데이터 청소 (재접속 시 중복 생성 방지)
+            sessionStorage.removeItem("importedWalls");
+            console.log("이미지 기반 벽 생성 완료!");
+        }
+    }
+})();

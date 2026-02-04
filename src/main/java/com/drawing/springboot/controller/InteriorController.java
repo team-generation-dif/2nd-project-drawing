@@ -2,6 +2,7 @@ package com.drawing.springboot.controller;
 
 import java.io.File;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -141,13 +142,60 @@ public class InteriorController {
     
     @RequestMapping("/user/interior/prodlist")
     @ResponseBody
-    public List<ProductsDTO> getEditorProducts(@RequestParam(value="categoryId", required=false) Long categoryId) {
-        if (categoryId != null) {
-            // 임시로 특정 서브카테고리만 가져오거나 전체를 가져옴
-             return productsDAO.getProductsByCategoryId(categoryId); // 임시: categoryId를 subcategoryId로 취급
+    public List<ProductsDTO> getEditorProducts(@RequestParam(value="categoryId", required=false) Long categoryId,
+    										   @RequestParam(value="subcategoryId", required=false) Long subcategoryId) {
+        
+    	List<ProductsDTO> list = null;
+    	
+    	// 1. 데이터 조회
+        if (subcategoryId != null) {
+            list = productsDAO.getProductsBySubcategoryId(subcategoryId);
+        } else if (categoryId != null) {
+            list = productsDAO.getProductsByCategoryId(categoryId);
         }
-        // 전체 목록 (또는 랜덤 추천)이 필요할수도
-        return null; // 빈 리스트 방지용
+        
+        if (list == null) {
+        	return null;
+    	}
+        Iterator<ProductsDTO> iterator = list.iterator();
+        while (iterator.hasNext()) {
+            ProductsDTO dto = iterator.next();
+            String rawSize = dto.getP_size(); // DB에서 가져온 "100x80x80"
+            
+            boolean isValid = false;
+
+            if (rawSize != null && !rawSize.trim().isEmpty()) {
+                // "x" 또는 "X"로 분리
+                String[] parts = rawSize.split("[xX]");
+                
+                // 정확히 3덩어리(가로x세로x높이)여야 함
+                if (parts.length == 3) {
+                    try {
+                        // 문자열을 숫자로 변환 (공백 제거)
+                        double w = Double.parseDouble(parts[0].trim());
+                        double d = Double.parseDouble(parts[1].trim());
+                        double h = Double.parseDouble(parts[2].trim());
+                        
+                        // DTO에 예쁘게 담기
+                        dto.setP_width(w);
+                        dto.setP_depth(d); // 세로
+                        dto.setP_height(h);
+                        
+                        isValid = true;
+                    } catch (NumberFormatException e) {
+                        // 숫자가 아닌 경우 (예: "100x80x높이")
+                        isValid = false;
+                    }
+                }
+            }
+            
+            // 조건에 안 맞으면 리스트에서 삭제
+            if (!isValid) {
+                iterator.remove();
+            }
+        }
+        
+        return list; 
     }
     
     @RequestMapping("/user/interior/favlist")
