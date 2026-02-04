@@ -1,13 +1,14 @@
 package com.drawing.springboot.controller;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.InputStreamReader;
 import java.util.List;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -90,6 +91,48 @@ public class FloorplanController {
         } catch (Exception e) {
             e.printStackTrace();
             return "fail";
+        }
+    }
+    
+    // 평면도 이미지 분석
+    @RequestMapping("/user/floorplan/analyze")
+    @ResponseBody
+    public String analyzeFloorplan(@RequestParam("file") MultipartFile file, @RequestParam(value="realWidth", defaultValue="15000") String realWidth) {
+        try {
+            // 1. 이미지 임시 저장
+            String originalName = file.getOriginalFilename();
+            String saveName = UUID.randomUUID().toString() + "_" + originalName;
+            String fullPath = uploadDir + saveName;
+            File dest = new File(fullPath);
+            file.transferTo(dest);
+
+            // 2. 파이썬 스크립트 실행 (경로는 본인 환경에 맞게 수정 필수!)
+            String pythonPath = "C:\\Users\\KH\\AppData\\Local\\Programs\\Python\\Python313\\python.exe";
+            
+            String pythonScriptPath = "C:/Springboot/drawing/pythonscript/wall_extractor.py"; 
+            ProcessBuilder pb = new ProcessBuilder(pythonPath, pythonScriptPath, fullPath, realWidth);
+            pb.redirectErrorStream(true);
+            Process process = pb.start();
+
+            // 3. 파이썬 출력(JSON) 읽기
+            BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream(), "EUC-KR"));
+            StringBuilder jsonResult = new StringBuilder();
+            String line;
+            while ((line = reader.readLine()) != null) {
+                jsonResult.append(line);
+            }
+            
+            // 프로세스 종료 대기
+            process.waitFor();
+            
+            // 임시 파일 삭제
+            dest.delete(); 
+
+            return jsonResult.toString(); // JSON 배열 문자열 반환
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return "[]"; // 에러 시 빈 배열
         }
     }
 }
