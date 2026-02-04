@@ -1,15 +1,15 @@
 package com.drawing.springboot.service;
 
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.Reader;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.drawing.springboot.dao.IProductsDAO;
@@ -20,34 +20,39 @@ public class ProductsService {
 
     @Autowired
     private IProductsDAO productsDAO;
+    
+    @Transactional
+    public void importCsv(MultipartFile file) throws Exception {
+        List<ProductsDTO> productList = new ArrayList<>();
 
-    public void importCsv(MultipartFile file) throws IOException {
-        try (Reader reader = new InputStreamReader(file.getInputStream(), StandardCharsets.UTF_8)) {
-            CSVParser parser = CSVFormat.DEFAULT.withFirstRecordAsHeader().parse(reader);
+        try (CSVParser parser = CSVParser.parse(
+                file.getInputStream(), StandardCharsets.UTF_8,
+                CSVFormat.DEFAULT.withHeader(
+                    "p_code","p_name","p_color","p_width","p_price","p_image","p_rating","subcategory_id"
+                ).withSkipHeaderRecord())) {
 
             for (CSVRecord record : parser) {
-                ProductsDTO dto = new ProductsDTO();
+                ProductsDTO product = new ProductsDTO();
 
-                dto.setP_code(Integer.parseInt(record.get("p_code")));
-                dto.setP_name(record.get("p_name"));
-                dto.setP_color(record.get("p_color"));
+                product.setP_code(Integer.parseInt(record.get("p_code")));
+                product.setP_name(record.get("p_name"));
+                product.setP_color(record.get("p_color"));
+                product.setP_width(record.get("p_width"));
+                product.setP_price(record.get("p_price")); // 문자열 그대로 저장
+                product.setP_image(record.get("p_image"));
 
-                // p_width는 문자열 그대로 저장 ("-", "50x30x80 cm" 등)
-                dto.setP_width(record.get("p_width"));
+                String rating = record.get("p_rating");
+                product.setP_rating(rating.isEmpty() ? null : Double.parseDouble(rating));
 
-                // 가격도 문자열 그대로 저장 (varchar2 컬럼과 매칭)
-                dto.setP_price(record.get("p_price"));
+                String subId = record.get("subcategory_id");
+                product.setSubcategoryId(subId.isEmpty() ? 0 : Integer.parseInt(subId));
 
-                dto.setP_image(record.get("p_image"));
-
-                // 평점은 숫자로 변환, 빈 값이면 0.0
-                String ratingStr = record.get("p_rating");
-                dto.setP_rating(ratingStr == null || ratingStr.isEmpty() ? 0.0 : Double.parseDouble(ratingStr));
-
-                dto.setSubcategoryId(Integer.parseInt(record.get("subcategory_id")));
-
-                productsDAO.insertProduct(dto);
+                productList.add(product);
             }
         }
+                
+        // ✅ 한 번에 bulk insert 실행
+        productsDAO.bulkInsertProducts(productList);
     }
 }
+
