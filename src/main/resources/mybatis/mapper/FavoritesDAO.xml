@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.drawing.springboot.dao.IFavoritesDAO">
+
+  	<select id="favoritesByMCode" resultType="com.drawing.springboot.dto.ProductsDTO">
+        SELECT p.p_code,
+               subcategory_id,
+               p_name,
+               p_price,
+               p_image,
+               p_rating
+        FROM products p join favorites f on p.p_code = f.p_code
+        WHERE f.m_code = #{m.code}
+        ORDER BY f.a_code desc
+    </select>
+    
+</mapper>
