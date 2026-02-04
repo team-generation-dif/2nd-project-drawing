@@ -150,19 +150,19 @@ public class InteriorController {
         return null; // 빈 리스트 방지용
     }
     
-//    @RequestMapping("/user/interior/favlist")
-//    @ResponseBody
-//    public List<ProductsDTO> getFavoriteList(Authentication authentication) {
-//    	String m_code = "";
-//        if (authentication != null) {
-//            try {
-//                String m_id = authentication.getName();
-//                m_code = memberDAO.findByMid(m_id).getM_code();
-//            } catch (Exception e) {
-//                e.printStackTrace();
-//            }
-//        }
-//        
-//        return productsDAO.favoritesByMCode(m_code);
-//    }
+    @RequestMapping("/user/interior/favlist")
+    @ResponseBody
+    public List<ProductsDTO> getFavoriteList(Authentication authentication) {
+    	String m_code = "";
+        if (authentication != null) {
+            try {
+                String m_id = authentication.getName();
+                m_code = memberDAO.findByMid(m_id).getM_code();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        
+        return favoritesDAO.favoritesByMCode(m_code);
+    }
 }

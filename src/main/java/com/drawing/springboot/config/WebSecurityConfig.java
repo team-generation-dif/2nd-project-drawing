@@ -38,7 +38,7 @@ public class WebSecurityConfig {
             	        DispatcherType.FORWARD,
             	        DispatcherType.INCLUDE
             	    ).permitAll()
-            	    .requestMatchers("/", "/error","/CSS/**", "/JS/**", "/imgsrc/**", "/upload/**").permitAll()
+            	    .requestMatchers("/", "/error","/CSS/**", "/JS/**", "/images/**", "/upload/**").permitAll()
             	    .requestMatchers("/login/**", "/oauth2/**","/notice/**").permitAll()
             	    .requestMatchers("/chatbot/**").permitAll()
             	    .requestMatchers("/email/**").permitAll()

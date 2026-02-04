@@ -50,18 +50,6 @@
         WHERE p_code = #{productId}
     </select>
 
-<!--  	<select id="favoritesByMCode" resultType="com.drawing.springboot.dto.ProductsDTO">
-        SELECT p.p_code,
-               subcategory_id,
-               p_name,
-               p_price,
-               p_image,
-               p_rating,
-               review_count
-        FROM products p join favorites f on p.p_code = f.p_code
-        WHERE f.m_code = 
-    </select> -->
-	
     <!-- 상품 등록 -->
     <insert id="insertProduct" parameterType="com.drawing.springboot.dto.ProductsDTO">
     	INSERT INTO products (p_code, p_name, p_color, p_width, p_price, p_image, p_rating, subcategory_id)
