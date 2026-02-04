@@ -4,10 +4,10 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>그리다 | 작가 상세 정보</title>
+    <title>그리다 어드민 | 작가 상세 정보</title>
+    <link href="https://fonts.googleapis.com/css2?family=Nanum+Myeongjo&family=Pretendard:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Nanum+Myeongjo&family=Pretendard:wght@400;600&display=swap');
-
+        /* 1. 디자인 시스템 통일 */
         body {
             background-color: #fffaf5;
             font-family: 'Pretendard', sans-serif;
@@ -16,47 +16,50 @@
         }
 
         .detail-wrapper {
-            max-width: 550px;
+            max-width: 600px; /* 가독성을 위해 살짝 조절 */
             margin: 80px auto;
             padding: 0 20px;
         }
 
         .detail-card {
             background: #ffffff;
-            border-radius: 40px;
-            box-shadow: 0 15px 35px rgba(139, 126, 116, 0.08);
+            border-radius: 35px; /* 관리자 페이지 곡률 통일 */
+            box-shadow: 0 15px 40px rgba(139, 126, 116, 0.06);
             border: 1px solid #f7ede2;
-            padding: 50px;
+            padding: 60px 50px;
             position: relative;
             overflow: hidden;
         }
 
-        /* 상단 장식 라인 */
+        /* 상단 포인트 라인 - 브랜드 컬러로 세련되게 */
         .detail-card::before {
             content: "";
             position: absolute;
             top: 0; left: 0; right: 0;
-            height: 8px;
-            background: linear-gradient(to right, #ffccbb, #8b7e74);
+            height: 6px;
+            background: #8b7e74;
         }
 
         .detail-card h3 {
             font-family: 'Nanum Myeongjo', serif;
-            font-size: 1.8rem;
+            font-size: 2rem;
             text-align: center;
-            margin-bottom: 40px;
-            color: #4a3f35;
+            margin-bottom: 50px;
+            color: #3d342c;
+            letter-spacing: -0.02em;
         }
 
+        /* 정보 행 레이아웃 */
         .info-group {
-            margin-bottom: 25px;
+            margin-bottom: 20px;
         }
 
         .info-row {
             display: flex;
             align-items: center;
-            padding: 15px 0;
-            border-bottom: 1px solid #fcf8f5;
+            padding: 20px 10px;
+            border-bottom: 1px solid #fcf6f0;
+            transition: background 0.2s;
         }
 
         .info-row:last-child {
@@ -65,54 +68,61 @@
 
         .label {
             font-weight: 600;
-            width: 100px;
+            width: 110px;
             color: #8b7e74;
-            font-size: 0.9rem;
+            font-size: 0.95rem;
         }
 
         .value {
             flex: 1;
-            color: #5d5a58;
-            font-size: 1rem;
+            color: #4a3f35;
+            font-size: 1.05rem;
         }
 
-        /* 권한 배지 스타일 */
+        /* 권한 배지 스타일 통일 */
         .role-badge {
             display: inline-block;
-            padding: 4px 12px;
+            padding: 5px 14px;
             border-radius: 12px;
             font-size: 0.8rem;
-            font-weight: bold;
-            background-color: #f7ede2;
-            color: #8b7e74;
+            font-weight: 700;
+            background-color: #fcf6f0;
+            color: #e76f51; /* 포인트 컬러 */
+            border: 1px solid #f9e8de;
         }
 
+        /* 버튼 영역 */
         .btn-area {
-            margin-top: 40px;
-            text-align: center;
+            margin-top: 50px;
             display: flex;
-            gap: 10px;
+            gap: 15px;
             justify-content: center;
         }
 
         .btn {
-            padding: 12px 30px;
-            border-radius: 20px;
+            width: 140px;
+            padding: 15px 0;
+            border-radius: 25px;
             font-size: 0.95rem;
-            font-weight: 600;
+            font-weight: 700;
             cursor: pointer;
-            transition: 0.3s;
+            transition: all 0.3s;
             border: none;
+            text-align: center;
             text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
         }
 
         .btn-back {
-            background-color: #eee;
-            color: #777;
+            background-color: #fff;
+            color: #8b7e74;
+            border: 1px solid #8b7e74;
         }
 
         .btn-back:hover {
-            background-color: #e2e2e2;
+            background-color: #fdfbf9;
         }
 
         .btn-edit {
@@ -121,7 +131,7 @@
         }
 
         .btn-edit:hover {
-            background-color: #6d5d6e;
+            background-color: #4a3f35;
             transform: translateY(-2px);
         }
     </style>
@@ -131,7 +141,7 @@
 
     <div class="detail-wrapper">
         <div class="detail-card">
-            <h3>작가 상세 정보</h3>
+            <h3>회원 상세 정보</h3>
             
             <div class="info-group">
                 <div class="info-row">
@@ -148,18 +158,24 @@
                 </div>
                 <div class="info-row">
                     <span class="label">이메일</span>
-                    <span class="value">${user.m_email}</span>
+                    <span class="value" style="color: #a39485;">${user.m_email}</span>
                 </div>
                 <div class="info-row">
                     <span class="label">권한</span>
                     <span class="value">
-                        <span class="role-badge">${user.m_role}</span>
+                        <span class="role-badge">
+                            <c:choose>
+                                <c:when test="${user.m_role eq 'ROLE_ADMIN'}">ROLE_ADMIN</c:when>
+                                <c:otherwise>ROLE_USER</c:otherwise>
+                            </c:choose>
+                        </span>
                     </span>
                 </div>
             </div>
 
             <div class="btn-area">
-                <button class="btn btn-back" onclick="history.back()">목록으로</button>
+                <a href="javascript:history.back()" class="btn btn-back">목록으로</a>
+                <a href="/admin/userEdit?m_id=${user.m_id}" class="btn btn-edit">정보 수정</a>
             </div>
         </div>
     </div>
