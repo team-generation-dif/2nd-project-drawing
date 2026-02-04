@@ -172,9 +172,9 @@ public class InteriorController {
                 if (parts.length == 3) {
                     try {
                         // 문자열을 숫자로 변환 (공백 제거)
-                        double w = Double.parseDouble(parts[0].trim());
-                        double d = Double.parseDouble(parts[1].trim());
-                        double h = Double.parseDouble(parts[2].trim());
+                        double w = Double.parseDouble(parts[0].trim())*10;
+                        double d = Double.parseDouble(parts[1].trim())*10;
+                        double h = Double.parseDouble(parts[2].trim())*10;
                         
                         // DTO에 예쁘게 담기
                         dto.setP_width(w);

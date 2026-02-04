@@ -116,6 +116,7 @@ export function createFloorMesh(centerX, centerZ, width, depth, save = true) {
 
 export function createFurniture(id, pos, rotationY, save = true, customDims = null) {
     let width, height, depth, color;
+	let fName = id;
 
     // 1. 커스텀 가구(DB에서 불러온 것)인 경우
     if (id === 'custom' && customDims) {
@@ -123,6 +124,8 @@ export function createFurniture(id, pos, rotationY, save = true, customDims = nu
         height = customDims.height;
         depth = customDims.depth;
         color = customDims.color || 0x8d6e63;
+		
+		if (customDims.name) fName = customDims.name;
     } 
     // 2. 고정 가구(의자, 책상 버튼 등)인 경우
     else {
@@ -132,6 +135,7 @@ export function createFurniture(id, pos, rotationY, save = true, customDims = nu
         height = info.height;
         depth = info.depth;
         color = info.color;
+		fName = id;
     }
 
     const geometry = new THREE.BoxGeometry(width, height, depth);
@@ -142,12 +146,13 @@ export function createFurniture(id, pos, rotationY, save = true, customDims = nu
     mesh.position.set(pos.x, height / 2, pos.z);
     mesh.rotation.y = rotationY;
     mesh.castShadow = true; mesh.receiveShadow = true;
-    
+	mesh.userData.name = fName;
     scene.add(mesh);
 
     const data = { 
         type: 'furniture', 
         subType: id, // 'custom' 또는 'desk' 등
+		name: fName,
         mesh: mesh,
         width: width, height: height, depth: depth,
         // 나중에 다시 불러올 때를 위해 커스텀 정보도 저장하는 것이 좋음

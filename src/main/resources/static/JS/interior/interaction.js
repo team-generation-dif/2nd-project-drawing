@@ -23,7 +23,42 @@ const inputEl = document.getElementById('lengthInput');
 export function setMode(m, furnitureId = null) { state.mode = m; state.activeFurnitureId = furnitureId; console.log("Mode:", m, furnitureId); document.querySelectorAll('button').forEach(b => b.classList.remove('active')); let btnId = 'btn-' + m; if (m === 'furniture' && furnitureId) btnId = 'btn-' + furnitureId; const btn = document.getElementById(btnId); if (btn) btn.classList.add('active'); deselectObject(); resetDrawing(); }
 export function switchTab(tabName) { switchTabUI(tabName); setMode('select'); }
 export function setGlobalHeight(val) { const newHeight = parseFloat(val); if (newHeight < 1000) return; state.wallHeight = newHeight; state.walls.forEach(w => refreshWallGeometry(w)); state.pillars.forEach(p => refreshPillarGeometry(p)); saveState(); }
-export function repositionFurniture() { if (state.selectedObject && state.selectedObject.type === 'furniture') { const furn = state.selectedObject; const id = furn.subType; const rot = furn.mesh.rotation.y; scene.remove(furn.mesh); state.furnitures.splice(state.furnitures.indexOf(furn), 1); setMode('furniture', id); setTimeout(() => { if(state.previewObject) state.previewObject.rotation.y = rot; }, 50); } }
+export function repositionFurniture() { 
+    if (state.selectedObject && state.selectedObject.type === 'furniture') { 
+        const furn = state.selectedObject; 
+        const rot = furn.mesh.rotation.y; 
+
+        // 현재 변경된 규격(width, height, depth)과 이름, 색상을 백업
+        // 선택된 상태라 초록색일 수 있으니, 저장해둔 원래 색(tempOriginalColor)을 가져와야 함
+        const currentColor = (furn.tempOriginalColor !== undefined) 
+                             ? furn.tempOriginalColor 
+                             : furn.mesh.material.color.getHex();
+
+        state.activeFurnitureSpecs = {
+            id: furn.subType,        // 원래 ID (p_code)
+            name: furn.name,         // 현재 이름
+            width: parseFloat(furn.width),   // 유저가 수정한 너비
+            height: parseFloat(furn.height), // 유저가 수정한 높이
+            depth: parseFloat(furn.depth),   // 유저가 수정한 깊이
+            color: currentColor      // 원래 색상
+        };
+
+        // 현재 객체 삭제
+        scene.remove(furn.mesh); 
+        state.furnitures.splice(state.furnitures.indexOf(furn), 1); 
+        
+        // UI 패널 닫기 및 선택 해제
+        deselectObject();
+
+        // 모드를 'custom'으로 설정
+        setMode('furniture', 'custom'); 
+
+        // 회전값 복구
+        setTimeout(() => { 
+            if(state.previewObject) state.previewObject.rotation.y = rot; 
+        }, 50); 
+    } 
+}
 export function deleteFurniture() { if (state.selectedObject && state.selectedObject.type === 'furniture') { const furn = state.selectedObject; scene.remove(furn.mesh); state.furnitures.splice(state.furnitures.indexOf(furn), 1); deselectObject(); saveState(); } }
 export function onWallThicknessChange(val) { if (!state.selectedObject || !state.selectedObject.isWall) return; let newThick = parseFloat(val); if (newThick < 10) newThick = 10; state.selectedObject.thickness = newThick; refreshWallGeometry(state.selectedObject); checkAndResizePillar(state.selectedObject.start, newThick); checkAndResizePillar(state.selectedObject.end, newThick); saveState(); }
 export function onPillarSizeChange(val) { if (!state.selectedObject || !state.selectedObject.isPillar) return; let newSize = parseFloat(val); if (newSize < 10) newSize = 10; state.selectedObject.size = newSize; refreshPillarGeometry(state.selectedObject); saveState(); }
@@ -72,6 +107,7 @@ function onMouseDown(e) {
                     state.activeFurnitureSpecs
                 );
                 saveState();
+				setMode('select');
             } else {
                 alert("다른 물체와 겹칩니다.");
             }
