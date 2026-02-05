@@ -37,7 +37,11 @@
     WHERE M_EMAIL = #{m_email}
       AND M_ID != #{m_id}
 </select>
-
+<select id="getNewUsersToday" resultType="int">
+    SELECT COUNT(*) 
+    FROM MEMBER 
+    WHERE TRUNC(M_DATE) = TRUNC(SYSDATE)
+</select>
 <select id="findByMtelExceptMe" resultType="com.drawing.springboot.dto.MemberDTO">
     SELECT *
     FROM MEMBER

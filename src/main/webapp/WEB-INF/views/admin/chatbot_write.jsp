@@ -3,7 +3,7 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>그리다 어드민 | 챗봇 지식 등록</title>
+    <title>그리다 관리자 | 챗봇 지식 등록</title>
     <link href="https://fonts.googleapis.com/css2?family=Nanum+Myeongjo&family=Pretendard:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
         /* 1. 전체 배경 및 초기화 (디자인 시스템 통일) */
@@ -19,10 +19,10 @@
         .admin-write-wrap {
             background: #ffffff;
             width: 90%;
-            max-width: 1100px;
+            max-width: 1200px;
             margin: 60px auto 120px;
             padding: 80px 60px;
-            border-radius: 35px;
+            border-radius: 20px;
             box-shadow: 0 10px 40px rgba(139, 126, 116, 0.05);
             border: 1px solid #f7ede2;
             box-sizing: border-box;
@@ -167,7 +167,7 @@
 
     <div class="admin-write-wrap">
         <h2>🤖 챗봇 답변 신규 등록</h2>
-        <hr>
+
 
         <form action="/admin/chatbot_insert" method="post" enctype="multipart/form-data">
             <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}"/>

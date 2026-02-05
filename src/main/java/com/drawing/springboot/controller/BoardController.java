@@ -143,4 +143,89 @@ public class BoardController {
             return new ArrayList<>();
         }
     }
+    /** ✅ 수정 페이지 이동 */
+    @GetMapping("/user/edit")
+    public String editForm(@RequestParam("b_code") String b_code, Model model, HttpSession session) {
+        
+        // 1. 로그인 체크
+        String m_id = (String) session.getAttribute("m_id");
+        if (m_id == null) return "redirect:/guest/loginForm";
+
+        // 2. 기존 데이터 불러오기 (상세보기와 동일한 로직)
+        BoardDTO board = boardService.getDetail(b_code);
+        List<BoardTagDTO> tags = boardService.getTagsByBoard(b_code);
+
+        // 3. 본인 글인지 확인 (보안 강화)
+        if (!m_id.equals(board.getM_id())) {
+            return "redirect:/guest/list"; // 본인 글 아니면 목록으로 튕겨내기
+        }
+
+        model.addAttribute("board", board);
+        model.addAttribute("tags", tags);
+        
+        return "user/edit"; // user 폴더 안의 edit.jsp를 리턴
+    }
+    /** ✅ 게시글 수정 실행 (이미지 유지 로직 포함) */
+    @PostMapping("/user/boardUpdate")
+    public String boardUpdate(BoardDTO board,
+                             @RequestParam(value="file", required=false) MultipartFile file,
+                             @RequestParam(value="tagData", required=false, defaultValue="[]") String tagData,
+                             HttpSession session) {
+        try {
+            // 1. 로그인 확인
+            String m_id = (String) session.getAttribute("m_id");
+            if (m_id == null) return "redirect:/guest/loginForm";
+
+            // 2. 기존 데이터 불러오기 (기존 이미지 경로 확보용)
+            BoardDTO oldBoard = boardService.getDetail(board.getB_code());
+
+            // 3. 이미지 처리
+            if (file != null && !file.isEmpty()) {
+                // 새 파일이 업로드된 경우
+                File saveDir = new File("C:/upload/");
+                if (!saveDir.exists()) saveDir.mkdirs();
+
+                String saveName = System.currentTimeMillis() + "_" + file.getOriginalFilename();
+                file.transferTo(new File(saveDir, saveName));
+                board.setB_image(saveName); // 새 파일명 세팅
+            } else {
+                // 새 파일이 없는 경우 ✨ 기존 이미지 파일명을 그대로 유지
+                board.setB_image(oldBoard.getB_image());
+            }
+
+            // 4. 태그 데이터 및 서비스 호출
+            List<BoardTagDTO> tagList = parseTagData(tagData);
+            boardService.updateBoard(board, tagList);
+
+            return "redirect:/user/detail?b_code=" + board.getB_code();
+
+        } catch (Exception e) {
+            log.error("수정 중 에러 발생: ", e);
+            return "redirect:/user/edit?b_code=" + board.getB_code() + "&error";
+        }
+    }
+    /** ✅ 게시글 삭제 실행 */
+    @GetMapping("/user/boardDelete")
+    public String boardDelete(@RequestParam("b_code") String b_code, HttpSession session) {
+        try {
+            // 1. 세션 체크
+            String m_id = (String) session.getAttribute("m_id");
+            if (m_id == null) return "redirect:/guest/loginForm";
+
+            // 2. 작성자 본인 확인 (선택 사항이지만 권장)
+            BoardDTO board = boardService.getDetail(b_code);
+            if (!m_id.equals(board.getM_id())) {
+                return "redirect:/guest/list";
+            }
+
+            // 3. 삭제 실행 (서비스에서 태그 -> 게시글 순으로 삭제)
+            boardService.removeBoard(b_code);
+
+            return "redirect:/guest/list"; // 삭제 후 목록으로 이동
+
+        } catch (Exception e) {
+            log.error("삭제 실패: ", e);
+            return "redirect:/user/detail?b_code=" + b_code + "&error=delete";
+        }
+    }
 }

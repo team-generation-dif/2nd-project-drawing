@@ -5,7 +5,7 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title>상품 수정</title>
+<title>그리다 관리자 | 상품 수정</title>
 <style>
     body {
         font-family: '맑은 고딕', sans-serif;

@@ -25,6 +25,7 @@ import com.drawing.springboot.dao.IMemberDAO;
 import com.drawing.springboot.dto.BoardDTO;
 import com.drawing.springboot.dto.CategoryDTO;
 import com.drawing.springboot.dto.MemberDTO;
+import com.drawing.springboot.service.NaverShoppingService;
 
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
@@ -334,6 +335,7 @@ public class MemberController {
         
         // 2. 작품 모니터링: 오늘 업로드 수
         model.addAttribute("todayWorks", boardDAO.getTodayWorkCount());
+        model.addAttribute("newUsersToday", memberMapper.getNewUsersToday());
         
         // 3. 챗봇 관리: 오늘 총 사용 횟수 (수정된 부분)
         model.addAttribute("todayChatCount", chatbotDAO.getTodayChatCount());
@@ -365,6 +367,15 @@ public class MemberController {
     public String forceDelete(@RequestParam(name = "m_id") String m_id) { // name="m_id" 추가
         memberMapper.deleteMember(m_id);
         return "redirect:/admin/userManage";
+    }
+    @Autowired
+    private NaverShoppingService naverShoppingService;
+
+    // 실시간 가구 트렌드 데이터 반환 (AJAX용)
+    @GetMapping("/admin/furnitureTrends")
+    @ResponseBody
+    public Map<String, Integer> getFurnitureTrends() {
+        return naverShoppingService.getFurnitureTrends();
     }
     
 }

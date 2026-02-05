@@ -3,7 +3,7 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>3D 인테리어 에디터</title>
+    <title>그리다 | 3D 인테리어 에디터</title>
 <style>
     /* 1. 기본 테마 설정 */
     :root {

@@ -4,7 +4,7 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>그리다 어드민 | 회원 관리</title>
+    <title>그리다 관리자 | 회원 관리</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Nanum+Myeongjo&family=Pretendard:wght@400;600&display=swap');
 
@@ -16,12 +16,12 @@
         }
 
         .admin-container {
-            max-width: 1280px;
-            margin: 40px auto;
-            padding: 40px;
+            max-width: 1200px;
+            margin: 60px auto 120px;
+            padding: 50px 60px;
             background: #ffffff;
-            border-radius: 35px;
-            border: 1px solid #f7ede2;
+            border-radius: 20px;
+            border: 2px solid #f7ede2;
             box-shadow: 0 10px 30px rgba(139, 126, 116, 0.05);
         }
 

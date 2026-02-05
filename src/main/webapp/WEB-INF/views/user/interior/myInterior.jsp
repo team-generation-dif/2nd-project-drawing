@@ -5,18 +5,22 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title>그리다 | 내 아뜰리에</title>
+<title>그리다 | 나의 3D작품</title>
 </head>
 <body>
     <%@ include file="../../guest/Header.jsp" %>
     
-    <div class="container">
-        <h2>내 아뜰리에</h2>
-        
+<div class="container">
+    <div class="title-area">
+        <div class="title-group">
+            <h2>내 아뜰리에</h2> 
+            <p>나의 소중한 공간을 3D로 꾸며보세요</p>    
+        </div>
+
         <div class="action-bar">
             <button class="btn-new" onclick="openNewModal()">+ 새 인테리어 기록하기</button>
         </div>
-
+    </div>
         <div class="library-grid">
             <c:forEach var="list" items="${dto}">
                 <div class="card">
@@ -84,77 +88,90 @@
 	<style>
     /* 1. 전체 배경 및 초기화 */
     body {
-        background-color: #fdfbf9;
+        background-color: #fffaf5;
         font-family: 'Pretendard', -apple-system, sans-serif;
         color: #4a3f35;
         margin: 0; padding: 0;
     }
 
-    .container {
-        max-width: 1100px;
-        margin: 60px auto 120px;
-        padding: 0 20px;
-    }
+    /* 1. 컨테이너 및 제목 영역 정돈 */
+.container {
+    max-width: 1200px; /* 매거진 비율을 위해 살짝 조정 */
+    margin: 0 auto; 
+    padding: 100px 20px; 
+}
 
-   h2 {
-        font-family: 'Nanum Myeongjo', serif;
-        font-weight: 700;
-        color: #3d342c;
-        font-size: 2.2rem;
-        margin-bottom: 10px; /* 아래 설명글이나 버튼과의 간격을 위해 조절 */
-        text-align: left;    /* 왼쪽 정렬로 변경 */
-    }
+.title-area {
+    display: flex;
+    justify-content: space-between; /* 제목그룹은 왼쪽, 버튼은 오른쪽 */
+    align-items: flex-end; 
+    margin-bottom: 50px;
+    border-bottom: 2px solid #f7ede2;
+    padding-bottom: 25px;
+}
 
-    /* 2. 상단 액션 바 */
-    .action-bar {
-        display: flex;
-        justify-content: flex-end;
-        margin-bottom: 40px;
-    }
+/* 제목과 p글자를 세로로 나열 */
+.title-group {
+    display: flex;
+    flex-direction: column;
+    gap: 10px; /* 제목과 설명글 사이 간격 */
+}
 
-    .title-area {
-        border-bottom: 1px solid #f0eeec;
-        margin-bottom: 40px;
-        padding-bottom: 20px;
-        display: flex;
-        justify-content: space-between;
-        align-items: flex-end; /* 제목과 버튼을 바닥선에 맞춤 */
-    }
+.title-group h2 {
+        font-family: 'Nanum Myeongjo', serif; 
+        font-size: 2.2rem; /* 관리자 페이지와 통일감을 위해 살짝 조절 */
+        color: #3d342c; 
+        margin: 0;
+        letter-spacing: -0.03em;
+}
 
-    .btn-new {
-        background-color: #8b7e74;
-        color: white;
-        padding: 12px 24px;
-        border-radius: 10px;
-        border: none;
-        font-weight: 600;
-        cursor: pointer;
-        transition: all 0.3s;
-    }
-    .btn-new:hover {
-        background-color: #766b62;
-        transform: translateY(-2px);
-    }
+.title-group p {
+    margin: 0; /* 기본 여백 제거 */
+    color: #8b7e74;
+    font-size: 1.05rem;
+    font-weight: 500;
+}
 
-    /* 3. 인테리어 리스트 (카드 레이아웃) */
-    .library-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-        gap: 30px;
-    }
+.action-bar {
+    margin-bottom: 0 !important; /* 기존 아래 여백 제거 */
+}
 
-    .card {
-        background: #fff;
-        border-radius: 20px;
-        overflow: hidden;
-        border: 1px solid rgba(231, 224, 217, 0.5);
-        transition: all 0.3s ease;
-        position: relative;
-    }
-    .card:hover {
-        transform: translateY(-8px);
-        box-shadow: 0 15px 40px rgba(139, 126, 116, 0.1);
-    }
+
+.btn-new {
+    background-color: #8b7e74;
+    color: white;
+    padding: 14px 28px;
+    border-radius: 15px;
+    border: none;
+    font-weight: 700;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    box-shadow: 0 8px 20px rgba(139, 126, 116, 0.15);
+}
+.btn-new:hover {
+    background-color: #4a3f35;
+    transform: translateY(-4px) scale(1.02);
+    box-shadow: 0 12px 25px rgba(139, 126, 116, 0.25);
+}
+.library-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 40px;
+}
+
+.card {
+    background: #fff;
+    border-radius: 30px;
+    overflow: hidden;
+    border: 1px solid #f7ede2;
+    transition: all 0.4s ease;
+}
+
+.card:hover {
+    transform: translateY(-12px);
+    box-shadow: 0 20px 40px rgba(139, 126, 116, 0.12);
+}
 
     .thumb-img {
         width: 100%;
@@ -178,15 +195,24 @@
     }
     .card-info .date { font-size: 0.85rem; color: #b7ada6; }
 
-    .btn-delete-card {
-        position: absolute; top: 15px; right: 15px;
-        background: rgba(255, 255, 255, 0.9);
-        color: #d97d6a; border: none; width: 32px; height: 32px;
-        border-radius: 50%; cursor: pointer; display: flex;
-        align-items: center; justify-content: center;
-        opacity: 0; transition: opacity 0.3s;
-    }
-    .card:hover .btn-delete-card { opacity: 1; }
+ /* 4. 삭제 버튼 (세련된 코랄 레드) */
+.btn-delete-card {
+    position: absolute; top: 20px; right: 20px;
+    background: rgba(255, 255, 255, 0.9);
+    backdrop-filter: blur(5px);
+    color: #e76f51; /* 포인트 컬러 통일 */
+    border: 1px solid #ffccbb;
+    width: 36px; height: 36px;
+    border-radius: 50%; 
+    font-size: 20px;
+    font-weight: bold;
+    cursor: pointer;
+    z-index: 10;
+    opacity: 0; 
+    transition: all 0.3s ease;
+}
+.card:hover .btn-delete-card { opacity: 1; }
+.btn-delete-card:hover { background: #e76f51; color: white; transform: rotate(90deg); }
 
     /* 4. 모달 스타일 정제 */
     .modal-overlay {
@@ -205,21 +231,50 @@
         font-size: 1.6rem; color: #3d342c; margin-top: 0;
     }
     
-    .option-grid {
-        display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px;
-        margin-top: 30px;
-    }
-    .option-card {
-        background: #fdfbf9; border: 1px solid #f0eeec; border-radius: 18px;
-        padding: 35px 25px; cursor: pointer; transition: all 0.3s; text-align: center;
-    }
-    .option-card:hover {
-        border-color: #8b7e74; background: #fff;
-        transform: translateY(-5px); box-shadow: 0 10px 25px rgba(139, 126, 116, 0.08);
-    }
-    .option-card .icon { font-size: 36px; margin-bottom: 15px; }
-    .option-card .title { font-weight: 700; color: #3d342c; margin-bottom: 8px; }
-    .option-card .desc { font-size: 0.85rem; color: #8b7e74; line-height: 1.5; }
+/* 5. 모달 옵션 카드 (핵심 UI) */
+.option-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 24px;
+    margin-top: 30px;
+}
+
+.option-card {
+    background: #ffffff;
+    border: 1.5px solid #f7ede2;
+    border-radius: 25px;
+    padding: 40px 30px;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    position: relative;
+    overflow: hidden;
+}
+
+.option-card:hover {
+    border-color: #8b7e74;
+    background: #fff;
+    transform: translateY(-8px);
+    box-shadow: 0 15px 30px rgba(139, 126, 116, 0.1);
+}
+.option-card .icon {
+    font-size: 40px;
+    margin-bottom: 20px;
+    display: block;
+}
+
+.option-card .title {
+    font-family: 'Nanum Myeongjo', serif;
+    font-size: 1.25rem;
+    font-weight: 800;
+    color: #3d342c;
+    margin-bottom: 12px;
+}
+
+.option-card .desc {
+    font-size: 0.9rem;
+    color: #a39485;
+    line-height: 1.6;
+}
 
     /* 5. 평면도 리스트 모달 내 그리드 */
     .list-grid {
@@ -238,6 +293,22 @@
         background: none; border: 1px solid #f0eeec; color: #8b7e74;
         padding: 8px 16px; border-radius: 8px; cursor: pointer; margin-bottom: 20px;
     }
+    /* 6. 평면도 아이템 내 삭제 버튼 */
+.btn-delete-fp {
+    background: #fff;
+    color: #e76f51;
+    border: 1px solid #ffccbb;
+    padding: 5px 12px;
+    border-radius: 10px;
+    font-size: 0.75rem;
+    margin: 0 0 10px 10px;
+    cursor: pointer;
+}
+
+.btn-delete-fp:hover {
+    background: #e76f51;
+    color: #fff;
+}
 </style>
 	
 	<script>

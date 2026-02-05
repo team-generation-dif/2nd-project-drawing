@@ -4,78 +4,151 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>내가 찜한 사진 - 그리다 아뜰리에</title>
+    <title>그리다 | 북마크</title>
     <style>
-        /* 기본 레이아웃 유지 */
-        body { background-color: #fffaf5; font-family: 'Pretendard', sans-serif; margin: 0; color: #4a3f35; }
-        .container { max-width: 1200px; margin: 60px auto; padding: 0 40px; }
-        
-        /* 헤더 부분 */
-        .page-header { margin-bottom: 40px; border-bottom: 1px solid #eee1d5; padding-bottom: 20px; }
-        .page-header h2 { font-family: 'Nanum Myeongjo', serif; font-size: 28px; color: #4a3f35; margin: 0; }
-        .page-header p { color: #8b7e74; font-size: 15px; margin-top: 8px; }
+/* 1. 기본 레이아웃 및 폰트 세팅 */
+body { 
+    background-color: #fffaf5; 
+    font-family: 'Pretendard', sans-serif; 
+    margin: 0; 
+    color: #4a3f35; 
+}
 
-        /* 그리드 시스템 (3단 배열) */
-        .photo-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 30px; }
+.container { 
+    max-width: 1200px; /* 매거진 비율을 위해 살짝 조정 */
+    margin: 0 auto; 
+    padding: 100px 20px;  
+}
 
-        /* 카드 디자인 */
-        .photo-card { cursor: pointer; transition: transform 0.3s ease; }
-        .photo-card:hover { transform: translateY(-8px); }
-        .photo-img-wrap { position: relative; width: 100%; aspect-ratio: 3 / 4; border-radius: 15px; overflow: hidden; box-shadow: 0 10px 20px rgba(0,0,0,0.05); }
-        .photo-img-wrap img { width: 100%; height: 100%; object-fit: cover; }
+/* 2. 페이지 헤더 (목록 페이지와 통일감) */
+.page-header { 
+    margin-bottom: 60px; 
+    border-bottom: 1px solid #f7ede2; 
+    padding-bottom: 30px; 
+}
 
-        /* 카드 위 정보 및 버튼 */
-        .photo-overlay { position: absolute; bottom: 0; left: 0; right: 0; padding: 20px; background: linear-gradient(transparent, rgba(0,0,0,0.5)); display: flex; justify-content: space-between; align-items: center; }
+.page-header h2 { 
+    font-family: 'Nanum Myeongjo', serif; 
+    font-size: 2.2rem; 
+    color: #3d342c; 
+    margin: 0; 
+    letter-spacing: -0.02em;
+}
+
+.page-header p { 
+    color: #8b7e74; 
+    font-size: 1rem; 
+    margin-top: 12px; 
+}
+
+/* 3. 그리드 및 카드 디자인 (목록 페이지 스타일 계승) */
+.photo-grid { 
+    display: grid; 
+    grid-template-columns: repeat(3, 1fr); 
+    gap: 40px; 
+}
+
+.photo-card { 
+    background: #fff;
+    border-radius: 30px; 
+    overflow: hidden;
+    box-shadow: 0 10px 30px rgba(139, 126, 116, 0.05);
+    transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+    border: 1px solid #f7ede2;
+    cursor: pointer;
+}
+
+.photo-card:hover { 
+    transform: translateY(-12px); 
+    box-shadow: 0 20px 45px rgba(139, 126, 116, 0.12);
+}
+
+.photo-img-wrap { 
+    position: relative; 
+    width: 100%; 
+    aspect-ratio: 1 / 1.1; /* 보관함은 격자 형태가 예쁘므로 비율 살짝 조정 */
+    overflow: hidden; 
+}
+
+.photo-img-wrap img { 
+    width: 100%; height: 100%; object-fit: cover; 
+    transition: transform 0.8s ease;
+}
+
+.photo-card:hover .photo-img-wrap img {
+    transform: scale(1.05);
+}
+
+/* 4. 오버레이 및 북마크 버튼 */
+.photo-overlay { 
+    position: absolute; bottom: 0; left: 0; right: 0; 
+    padding: 25px 20px; 
+    background: linear-gradient(transparent, rgba(61, 52, 44, 0.7)); 
+    display: flex; justify-content: space-between; align-items: center; 
+}
         .user-info { display: flex; align-items: center; gap: 8px; color: white; }
         .user-thumb { width: 24px; height: 24px; border-radius: 50%; background: #fff; }
-        .user-nick { font-size: 14px; font-weight: 600; text-shadow: 0 1px 2px rgba(0,0,0,0.3); }
+.user-nick { 
+    font-size: 0.9rem; font-weight: 600; color: #fff; 
+    text-shadow: 0 1px 4px rgba(0,0,0,0.3);
+}
 
-        .btn-bookmark { background: none; border: none; cursor: pointer; padding: 5px; }
+.btn-bookmark { 
+    background: rgba(255, 255, 255, 0.9); 
+    backdrop-filter: blur(5px);
+    border: 1px solid #ffccbb; 
+    width: 38px; height: 38px;
+    border-radius: 50%;
+    cursor: pointer; 
+    display: flex; justify-content: center; align-items: center;
+    transition: 0.3s;
+}
+.btn-bookmark:hover {
+    transform: scale(1.1);
+    background: #fff;
+}
         .btn-bookmark svg { filter: drop-shadow(0 1px 2px rgba(0,0,0,0.3)); transition: 0.2s; }
 
         /* 데이터가 없을 때 */
-        .empty-container { text-align: center; padding: 100px 0; }
+       .empty-container { 
+    text-align: center; padding: 120px 0; 
+    background: #fff; border-radius: 40px; border: 1px dashed #dcd0c5;
+}
         .empty-container p { font-size: 18px; color: #abb3bb; }
-        .btn-go-main { display: inline-block; margin-top: 20px; padding: 12px 30px; background: #e76f51; color: white; text-decoration: none; border-radius: 25px; font-weight: 700; }
-   /* 페이징 스타일 - 이미지 디자인 통일 버전 */
+        .btn-go-main { 
+    display: inline-block; margin-top: 25px; 
+    padding: 15px 35px; background: #8b7e74; color: white; 
+    text-decoration: none; border-radius: 18px; font-weight: 700; 
+    transition: 0.3s;
+}
+.btn-go-main:hover { background: #4a3f35; transform: translateY(-3px); }
 .pagination {
-    margin-top: 50px;
-    display: flex;
-    justify-content: center;
-    gap: 15px; /* 원 사이의 간격 */
-    align-items: center;
+    margin-top: 80px;
+    display: flex; justify-content: center; gap: 8px; align-items: center;
 }
 
 .pagination a {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    width: 40px;  /* 원형을 위한 고정 크기 */
-    height: 40px;
-    text-decoration: none;
-    font-size: 16px;
-    font-weight: 600;
-    color: #8b7e74; /* 기본 숫자 색상 */
-    border-radius: 50%; /* 완전한 원형 */
-    border: 1px solid #f2e8df; /* 연한 베이지색 테두리 */
-    background-color: #ffffff;
+    width: 44px; height: 44px;
+    border-radius: 14px;
+    background: #fff; color: #8b7e74;
+    text-decoration: none; font-weight: 600;
+    border: 1px solid #f7ede2;
+    display: flex; justify-content: center; align-items: center;
     transition: all 0.3s ease;
 }
 
-/* 현재 활성화된 페이지 (제공해주신 이미지의 1번 스타일) */
 .pagination a.active {
-    background-color: #8e8071; /* 이미지의 갈색 톤 */
-    color: #ffffff !important; /* 흰색 글자 */
-    border-color: #8e8071;
+    background-color: #8b7e74;
+    color: #ffffff !important;
+    border-color: #8b7e74;
+    box-shadow: 0 5px 15px rgba(139, 126, 116, 0.2);
 }
 
-/* 마우스 호버 시 */
 .pagination a:hover:not(.active) {
-    background-color: #fcf9f6;
-    border-color: #8e8071;
-    color: #8e8071;
+    background-color: #fdfbf9;
+    border-color: #8b7e74;
+    transform: translateY(-2px);
 }
-
 /* 이전/다음 글자 스타일 */
 .pagination .nav-btn {
     border: none;
@@ -122,8 +195,8 @@
             </c:when>
             <c:otherwise>
                 <div class="empty-container">
-                    <p>아직 찜한 사진이 없네요!</p>
-                    <a href="/" class="btn-go-main">예쁜 사진 보러가기</a>
+                    <p>아직 찜한 인테리어가 없네요!</p>
+                    <a href="/" class="btn-go-main">예쁜 인테리어 보러가기</a>
                 </div>
             </c:otherwise>
         </c:choose>
