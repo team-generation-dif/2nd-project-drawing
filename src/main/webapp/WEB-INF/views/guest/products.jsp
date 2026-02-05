@@ -1,4 +1,5 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
 <!DOCTYPE html>
 <html>
 <head>
@@ -14,23 +15,88 @@
         color: #333;
         margin-bottom: 20px;
     }
-    .subcategory-grid, .product-grid {
+    h3 {
+        margin-top: 30px;
+        color: #444;
+    }
+    /* 하위 카테고리 카드 */
+    .subcategory-grid {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 20px;
         margin-bottom: 40px;
     }
-    .subcategory-grid div, .product-grid div {
-        display: inline-block;
-        margin: 10px;
+    .subcategory-card {
+        background: #fff;
+        border: 1px solid #ddd;
+        border-radius: 10px;
+        width: 150px;
+        padding: 10px;
         text-align: center;
+        transition: box-shadow 0.3s;
     }
-    .subcategory-grid img {
+    .subcategory-card:hover {
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+    .subcategory-card img {
         width: 100px;
         height: 100px;
-        border-radius: 20px;
+        border-radius: 8px;
+        object-fit: cover;
+        margin-bottom: 8px;
     }
-    .product-grid img {
-        width: 150px;
-        height: 150px;
+    .subcategory-card p {
+        margin: 0;
+        font-size: 14px;
+        color: #333;
+        font-weight: bold;
+    }
+    /* 상품 카드 */
+    .product-grid {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 20px;
+    }
+    .product-card {
+        background: #fff;
+        border: 1px solid #ddd;
         border-radius: 10px;
+        width: 220px;
+        padding: 15px;
+        text-align: center;
+        transition: box-shadow 0.3s;
+    }
+    .product-card:hover {
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+    .product-card img {
+        width: 180px;
+        height: 180px;
+        border-radius: 8px;
+        object-fit: cover;
+        margin-bottom: 10px;
+    }
+    .product-card h4 {
+        margin: 10px 0 5px;
+        font-size: 16px;
+        color: #333;
+    }
+    .product-card p {
+        margin: 5px 0;
+        color: #555;
+    }
+    .product-card a {
+        display: inline-block;
+        margin-top: 10px;
+        padding: 6px 12px;
+        background-color: #2196F3;
+        color: white;
+        text-decoration: none;
+        border-radius: 5px;
+        font-size: 14px;
+    }
+    .product-card a:hover {
+        background-color: #1976D2;
     }
 </style>
 </head>
@@ -50,11 +116,12 @@
 
 <!-- 하위 카테고리 목록 (카테고리 페이지에서만 출력) -->
 <c:if test="${not empty subcategories}">
+<h3>하위 카테고리</h3>
 <div class="subcategory-grid">
     <c:forEach var="sub" items="${subcategories}">
-        <div>
+        <div class="subcategory-card">
             <a href="/products/subcategories/${sub.subcategoryId}">
-                <img src="${sub.image}" alt="${sub.name}" />
+                <img src="${sub.url}" alt="${sub.name}" />
                 <p>${sub.name}</p>
             </a>
         </div>
@@ -66,16 +133,23 @@
 <h3>상품 목록</h3>
 <div class="product-grid">
     <c:forEach var="product" items="${products}">
-        <div style="border:1px solid #ddd; padding:10px; border-radius:10px; width:180px;">
-            <img src="${product.p_image}" alt="${product.p_name}" style="width:150px;height:150px;" />
-            <h4>${product.p_name}</h4>
-            <p><strong>${product.p_price}</strong> 원</p>
-            <p>⭐ ${product.p_rating}</p>
-            <c:if test="${not empty product.externalUrl}">
-                <a href="${product.externalUrl}" target="_blank">홈페이지에서 보기</a>
-            </c:if>
-        </div>
+        <div class="product-card">
+    		<img src="${product.p_image}" alt="${product.p_name}" />
+    		<h4>${product.p_name}</h4>
+    		<p><strong>${product.p_price}</strong> 원</p>
+    		<p>⭐ ${product.p_rating}</p>
+    		<c:if test="${not empty product.p_url}">
+        		<a href="${product.p_url}" target="_blank">홈페이지에서 보기</a>
+    		</c:if>
+    		
+    		<!-- 찜하기 버튼 -->
+    		<form action="/products/favorites/add" method="post">
+        		<input type="hidden" name="p_code" value="${product.p_code}" />
+        		<button type="submit" class="wishlist-btn">♡ 찜하기</button>
+    		</form>
+		</div>
     </c:forEach>
 </div>
+
 </body>
 </html>
