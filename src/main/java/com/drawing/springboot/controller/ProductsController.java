@@ -5,6 +5,7 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -22,22 +23,17 @@ import com.drawing.springboot.service.FavoritesService;
 import com.drawing.springboot.service.ProductsService;
 
 import jakarta.servlet.http.HttpSession;
+import jakarta.validation.Valid;
 
 @Controller
 @RequestMapping("/products")
 public class ProductsController {
 
-    @Autowired
-    private IProductsDAO productsDAO;
-    @Autowired
-    private ICategoryDAO categoryDAO;
-    @Autowired
-    private ISubcategoryDAO subcategoryDAO;
-    @Autowired
-    private ProductsService productsService;
-    @Autowired
-    private FavoritesService favoritesService;
-    
+    @Autowired private IProductsDAO productsDAO;
+    @Autowired private ICategoryDAO categoryDAO;
+    @Autowired private ISubcategoryDAO subcategoryDAO;
+    @Autowired private ProductsService productsService;
+    @Autowired private FavoritesService favoritesService;
 
     // 카테고리 목록
     @GetMapping("/categories")
@@ -63,7 +59,7 @@ public class ProductsController {
 
     // 상품 상세 (로그인 체크 후 IKEA URL로 리다이렉트)
     @GetMapping("/{productId}")
-    public String productDetail(@PathVariable Long p_code, HttpSession session) {
+    public String productDetail(@PathVariable("productId") Long p_code, HttpSession session) {
         if (session.getAttribute("role") == null) {
             return "redirect:/guest/loginForm?redirect=/products/" + p_code;
         }
@@ -72,43 +68,58 @@ public class ProductsController {
         return "redirect:" + ikeaUrl;
     }
 
-    // 관리자 상품 등록 폼
+ // 관리자 상품 등록 폼
     @GetMapping("/admin/new")
     public String newProductForm(Model model) {
-    	model.addAttribute("product", new ProductsDTO());
-    	model.addAttribute("categories", categoryDAO.getAllCategories()); // ✅ 상위 카테고리
-    	model.addAttribute("subcategories", subcategoryDAO.getAllSubcategories()); // ✅ 서브카테고리
-    	return "admin/newproducts";
+        model.addAttribute("product", new ProductsDTO());
+        model.addAttribute("categories", categoryDAO.getAllCategories());
+        model.addAttribute("subcategories", subcategoryDAO.getAllSubcategories());
+        return "admin/newproducts"; // 등록 폼 JSP
     }
 
-    // 관리자 상품 등록 처리
+    // 관리자 상품 등록 처리 (유효성 검사 포함)
     @PostMapping("/admin/new")
-    public String createProduct(ProductsDTO product) {
-        productsDAO.insertProduct(product);
-        return "redirect:/products/admin/products";
+    public String createProduct(@Valid ProductsDTO product,
+                                BindingResult result,
+                                Model model) {
+        if (result.hasErrors()) {
+            return "admin/products_new"; // 유효성 실패 시 다시 등록 페이지
+        }
+        if (productsService.existsByName(product.getP_name())) {
+            model.addAttribute("errorMessage", "이미 존재하는 상품명입니다.");
+            return "admin/products_new"; // 중복 시 다시 등록 페이지
+        }
+        productsService.insertProduct(product);
+        return "redirect:/products/admin/list"; // 등록 후 목록으로 이동
     }
-
 
     // 관리자 상품 수정 폼
     @GetMapping("/admin/edit/{p_code}")
     public String editProductForm(@PathVariable("p_code") int p_code, Model model) {
         ProductsDTO product = productsDAO.getProductById((long)p_code);
         model.addAttribute("product", product);
-        return "admin/editproduct";
+        
+        // ✅ 카테고리/서브카테고리 리스트도 모델에 추가
+        List<CategoryDTO> categories = categoryDAO.getAllCategories();
+        List<SubcategoryDTO> subcategories = subcategoryDAO.getAllSubcategories();
+        model.addAttribute("categories", categories);
+        model.addAttribute("subcategories", subcategories);
+              
+        return "admin/editproduct"; // 수정 폼 JSP
     }
 
-    // 관리자 상품 수정 처리
-    @PostMapping("/admin/edit")
+    // 상품 수정 처리
+    @PostMapping("/admin/update")
     public String updateProduct(ProductsDTO product) {
-        productsDAO.updateProduct(product);
-        return "redirect:/products/admin/products";
+        productsDAO.updateProduct(product); // DB 업데이트
+        return "redirect:/products/admin/list"; // 수정 후 목록으로 이동
     }
 
     // 관리자 상품 삭제
     @GetMapping("/admin/delete/{p_code}")
     public String deleteProduct(@PathVariable("p_code") int p_code) {
         productsDAO.deleteProduct(p_code);
-        return "redirect:/products/admin/products";
+        return "redirect:/products/admin/list"; // 삭제 후 목록으로 이동
     }
 
     // CSV 업로드 처리
@@ -118,19 +129,33 @@ public class ProductsController {
             productsService.importCsv(file);
             model.addAttribute("message", "CSV 업로드 성공!");
         } catch (Exception e) {
-            model.addAttribute("message", "CSV 업로드 실패: " + e.getMessage());
+            model.addAttribute("errorMessage", "CSV 업로드 실패: " + e.getMessage());
         }
-        List<ProductsDTO> products = productsDAO.getAllProducts();
-        model.addAttribute("products", products);
-        return "admin/products";
+        return "admin/products"; // 업로드 페이지 (products.jsp)
     }
 
-    // 관리자 상품 전체 조회
-    @GetMapping("/admin/products")
-    public String showAllProducts(Model model) {
-        List<ProductsDTO> products = productsDAO.getAllProducts();
+    // CSV 업로드 페이지 이동
+    @GetMapping("/admin/upload-page")
+    public String showUploadPage() {
+        return "admin/products"; // 업로드 전용 페이지
+    }
+
+    // 관리자 상품 조회 (목록)
+    @GetMapping("/admin/list")
+    public String listProducts(@RequestParam(name = "page", defaultValue = "1") int page,
+                               @RequestParam(name = "size", defaultValue = "10") int size,
+                               Model model) {
+        int offset = (page - 1) * size;
+        List<ProductsDTO> products = productsDAO.getProductsPaged(size, offset);
+        int totalCount = productsDAO.countProducts();
+        int totalPages = (int) Math.ceil((double) totalCount / size);
+
         model.addAttribute("products", products);
-        return "admin/products";
+        model.addAttribute("currentPage", page);
+        model.addAttribute("totalPages", totalPages);
+        model.addAttribute("size", size);
+
+        return "admin/products_list";
     }
 
     // 서브카테고리 상품 조회
@@ -140,19 +165,14 @@ public class ProductsController {
         SubcategoryDTO subcategory = subcategoryDAO.getSubcategoryById(subcategoryId);
         model.addAttribute("products", products);
         model.addAttribute("subcategory", subcategory);
-        return "guest/products";
+        return "guest/products";	// ✅ 유저 페이지 JSP로 연결
     }
-    
+
     // 찜 추가
     @PostMapping("/favorites/add")
     public String addFavorite(@RequestParam("p_code") int p_code, HttpSession session) {
         String m_code = (String) session.getAttribute("m_code");
-        System.out.println("찜 추가 요청 - 세션 m_code = " + m_code); // ✅ 로그 찍기
-        System.out.println("찜 추가 요청 - 상품 코드 = " + p_code);
-
-        if (m_code == null) {
-            return "redirect:/guest/loginForm";
-        }
+        if (m_code == null) return "redirect:/guest/loginForm";
         favoritesService.addFavorite(m_code, p_code);
         return "redirect:/products/favorites";
     }
@@ -161,39 +181,26 @@ public class ProductsController {
     @PostMapping("/favorites/remove")
     public String removeFavorite(@RequestParam("p_code") int p_code, HttpSession session) {
         String m_code = (String) session.getAttribute("m_code");
-        System.out.println("찜 삭제 요청 - 세션 m_code = " + m_code); // ✅ 로그 찍기
-        System.out.println("찜 삭제 요청 - 상품 코드 = " + p_code);
-
-        if (m_code == null) {
-            return "redirect:/guest/loginForm";
-        }
+        if (m_code == null) return "redirect:/guest/loginForm";
         favoritesService.removeFavorite(m_code, p_code);
         return "redirect:/products/favorites";
     }
 
     // 찜 목록 조회
     @GetMapping("/favorites")
-    public String favoritesPage(HttpSession session, Model model) {
+    public String favoritesPage(@RequestParam(value = "subcategoryId", required = false) Integer subcategoryId,
+                                HttpSession session, Model model) {
         String m_code = (String) session.getAttribute("m_code");
-        System.out.println("찜 목록 조회 - 세션 m_code = " + m_code); // ✅ 로그 찍기
+        if (m_code == null) return "redirect:/guest/loginForm";
 
-        if (m_code == null) {
-            return "redirect:/guest/loginForm";
-        }
-
-        List<ProductsDTO> favorites = favoritesService.getFavoritesByMember(m_code);
-        System.out.println("찜 목록 조회 - 결과 개수 = " + favorites.size()); // ✅ 로그 찍기
-        for (ProductsDTO product : favorites) {
-            System.out.println("찜 상품: " + product.getP_code() + " / " + product.getP_name());
+        List<ProductsDTO> favorites;
+        if (subcategoryId != null) {
+            favorites = favoritesService.getFavoritesByCategory(m_code, subcategoryId);
+        } else {
+            favorites = favoritesService.getFavoritesByMember(m_code);
         }
 
         model.addAttribute("favorites", favorites);
         return "user/favorites";
     }
-
-
-
-
-
 }
-

@@ -21,6 +21,14 @@ public class ProductsService {
     @Autowired
     private IProductsDAO productsDAO;
     
+    public boolean existsByName(String name) {
+        return productsDAO.countByName(name) > 0;
+    }
+
+    public void insertProduct(ProductsDTO product) {
+        productsDAO.insertProduct(product);
+    }
+    
     @Transactional
     public void importCsv(MultipartFile file) throws Exception {
         List<ProductsDTO> productList = new ArrayList<>();
