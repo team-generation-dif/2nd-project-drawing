@@ -18,4 +18,29 @@
         ORDER BY f.a_code desc
     </select>
     
+    <!-- 찜 추가 -->
+<insert id="addFavorite" parameterType="map">
+    INSERT INTO FAVORITES (A_CODE, M_CODE, P_CODE)
+    VALUES (#{a_code}, #{m_code}, #{p_code})
+</insert>
+
+<!-- 찜 삭제 -->
+<delete id="removeFavorite" parameterType="map">
+    DELETE FROM FAVORITES
+    WHERE M_CODE = #{m_code} AND P_CODE = #{p_code}
+</delete>
+
+<!-- 찜 목록 조회 -->
+<select id="getFavoritesByMember" parameterType="string" resultType="com.drawing.springboot.dto.ProductsDTO">
+    SELECT p.p_code   AS p_code,
+           p.p_name   AS p_name,
+           p.p_price  AS p_price,
+           p.p_image  AS p_image,
+           p.p_rating AS p_rating
+    FROM FAVORITES f
+    JOIN products p ON f.p_code = p.p_code
+    WHERE f.m_code = #{m_code}
+</select>
+
+      
 </mapper>

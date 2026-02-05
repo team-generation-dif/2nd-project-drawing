@@ -42,7 +42,7 @@ public class ProductsService {
 
                 String rating = record.get("p_rating");
                 product.setP_rating(rating.isEmpty() ? null : Double.parseDouble(rating));
-                dto.setP_size(record.get("p_width"));
+                product.setP_size(record.get("p_width"));
 
                 String subId = record.get("subcategory_id");
                 product.setSubcategoryId(subId.isEmpty() ? 0 : Integer.parseInt(subId));

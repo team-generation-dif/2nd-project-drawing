@@ -18,6 +18,7 @@ import com.drawing.springboot.dao.ISubcategoryDAO;
 import com.drawing.springboot.dto.CategoryDTO;
 import com.drawing.springboot.dto.ProductsDTO;
 import com.drawing.springboot.dto.SubcategoryDTO;
+import com.drawing.springboot.service.FavoritesService;
 import com.drawing.springboot.service.ProductsService;
 
 import jakarta.servlet.http.HttpSession;
@@ -34,7 +35,8 @@ public class ProductsController {
     private ISubcategoryDAO subcategoryDAO;
     @Autowired
     private ProductsService productsService;
-
+    @Autowired
+    private FavoritesService favoritesService;
     
 
     // 카테고리 목록
@@ -140,5 +142,58 @@ public class ProductsController {
         model.addAttribute("subcategory", subcategory);
         return "guest/products";
     }
+    
+    // 찜 추가
+    @PostMapping("/favorites/add")
+    public String addFavorite(@RequestParam("p_code") int p_code, HttpSession session) {
+        String m_code = (String) session.getAttribute("m_code");
+        System.out.println("찜 추가 요청 - 세션 m_code = " + m_code); // ✅ 로그 찍기
+        System.out.println("찜 추가 요청 - 상품 코드 = " + p_code);
+
+        if (m_code == null) {
+            return "redirect:/guest/loginForm";
+        }
+        favoritesService.addFavorite(m_code, p_code);
+        return "redirect:/products/favorites";
+    }
+
+    // 찜 삭제
+    @PostMapping("/favorites/remove")
+    public String removeFavorite(@RequestParam("p_code") int p_code, HttpSession session) {
+        String m_code = (String) session.getAttribute("m_code");
+        System.out.println("찜 삭제 요청 - 세션 m_code = " + m_code); // ✅ 로그 찍기
+        System.out.println("찜 삭제 요청 - 상품 코드 = " + p_code);
+
+        if (m_code == null) {
+            return "redirect:/guest/loginForm";
+        }
+        favoritesService.removeFavorite(m_code, p_code);
+        return "redirect:/products/favorites";
+    }
+
+    // 찜 목록 조회
+    @GetMapping("/favorites")
+    public String favoritesPage(HttpSession session, Model model) {
+        String m_code = (String) session.getAttribute("m_code");
+        System.out.println("찜 목록 조회 - 세션 m_code = " + m_code); // ✅ 로그 찍기
+
+        if (m_code == null) {
+            return "redirect:/guest/loginForm";
+        }
+
+        List<ProductsDTO> favorites = favoritesService.getFavoritesByMember(m_code);
+        System.out.println("찜 목록 조회 - 결과 개수 = " + favorites.size()); // ✅ 로그 찍기
+        for (ProductsDTO product : favorites) {
+            System.out.println("찜 상품: " + product.getP_code() + " / " + product.getP_name());
+        }
+
+        model.addAttribute("favorites", favorites);
+        return "user/favorites";
+    }
+
+
+
+
+
 }
 
