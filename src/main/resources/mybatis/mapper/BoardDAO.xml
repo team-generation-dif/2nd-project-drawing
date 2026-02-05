@@ -60,12 +60,14 @@
     DELETE FROM board WHERE b_code = #{b_code}
 </delete>
 <update id="updateBoard" parameterType="com.drawing.springboot.dto.BoardDTO">
-        UPDATE board 
-        SET b_title = #{b_title}, 
-            b_content = #{b_content}, 
-            b_image = #{b_image}
-        WHERE b_code = #{b_code}
-    </update>
+    UPDATE board 
+    SET b_title = #{b_title}, 
+        b_content = #{b_content}
+        <if test="b_image != null and b_image != ''">
+        , b_image = #{b_image}
+        </if>
+    WHERE b_code = #{b_code}
+</update>
 <select id="getTodayWorkCount" resultType="int">
     SELECT COUNT(*) 
     FROM BOARD 

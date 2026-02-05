@@ -3,7 +3,7 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>그리다 | 공지사항 수정</title>
+    <title>그리다 관리자 | 공지사항 수정</title>
     <link href="https://fonts.googleapis.com/css2?family=Nanum+Myeongjo&family=Pretendard:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
         /* 1. 전체 배경 및 초기화 (기록하기 페이지와 동일) */
@@ -19,7 +19,7 @@
         .admin-write-wrap {
             background: #ffffff;
             width: 90%;
-            max-width: 1100px; /* 취향 기록하기 페이지와 동일한 너비 */
+            max-width: 1200px; /* 취향 기록하기 페이지와 동일한 너비 */
             margin: 60px auto 120px;
             padding: 80px 60px;
             border-radius: 20px;
@@ -142,7 +142,7 @@
 
     <div class="admin-write-wrap">
         <h2>✏️ 공지사항 수정</h2>
-        <hr>
+
 
         <form action="/admin/notice_update" method="post">
             <input type="hidden" name="n_code" value="${dto.n_code}">

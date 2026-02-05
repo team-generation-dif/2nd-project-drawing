@@ -4,7 +4,7 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title>그리다 | 취향을 담다</title>
+<title>그리다 | 인테리어를 담다</title>
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Nanum+Myeongjo&family=Pretendard:wght@400;600;700&display=swap" rel="stylesheet">
 
@@ -214,12 +214,14 @@
     <div class="content-text">${board.b_content}</div>
 
     <div class="action-buttons">
-        <a href="/guest/list" class="btn btn-list">목록으로</a>
-        <c:if test="${loginId eq board.m_id}">
-            <a href="/user/edit?b_code=${board.b_code}" class="btn btn-edit">게시글 수정</a>
-            <button type="button" class="btn btn-delete" onclick="fnDelete('${board.b_code}')">게시글 삭제</button>
-        </c:if>
-    </div>
+    <a href="/guest/list" class="btn btn-list">목록으로</a>
+    
+    <%-- loginId 대신 sessionScope.m_id(또는 실제 세션 변수명)를 직접 사용 --%>
+    <c:if test="${not empty sessionScope.m_id and sessionScope.m_id eq board.m_id}">
+        <a href="/user/edit?b_code=${board.b_code}" class="btn btn-edit">게시글 수정</a>
+        <button type="button" class="btn btn-delete" onclick="fnDelete('${board.b_code}')">게시글 삭제</button>
+    </c:if>
+</div>
 </div>
 
 <script>

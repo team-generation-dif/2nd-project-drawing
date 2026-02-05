@@ -7,169 +7,217 @@
     <title>그리다 | 인테리어 둘러보기</title>
     <link href="https://fonts.googleapis.com/css2?family=Nanum+Myeongjo&family=Pretendard:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
-        /* 1. 디자인 시스템 일관성 유지 */
-        body {
-            background-color: #fffaf5;
-            font-family: 'Pretendard', sans-serif;
-            color: #5d5a58;
-            margin: 0;
-            padding: 0;
-        }
+       /* 1. 디자인 시스템 일관성 및 여백 최적화 */
+body { 
+    background-color: #fffaf5; 
+    font-family: 'Pretendard', sans-serif; 
+    margin: 0; 
+    color: #4a3f35; 
+}
 
-        .container { 
-            max-width: 1200px; /* 가로 폭을 살짝 늘려 더 시원하게 변경 */
-            margin: 0 auto; 
-            padding: 80px 20px; /* 상하 여백 대폭 확대 */
-        }
+.container { 
+    max-width: 1200px; /* 매거진 비율을 위해 살짝 조정 */
+    margin: 0 auto; 
+   padding: 60px 20px 100px; 
+}
 
-        /* 2. 상단 타이틀 영역 여백 확장 */
-        .page-title-area { 
-            display: flex; 
-            justify-content: space-between; 
-            align-items: flex-end; /* 하단 정렬로 변경하여 안정감 부여 */
-            margin-bottom: 60px; /* 그리드와의 간격 확대 */
-        }
+/* 2. 상단 타이틀 영역 (감성적인 자간과 라인 높이) */
+.page-title-area { 
+        display: flex; 
+        justify-content: space-between; 
+        border-bottom: 1px solid #f7ede2; /* <- 바로 이 부분! */
+        align-items: flex-end; 
+        margin-bottom: 60px; /* 게시글과의 간격을 위해 대폭 줄임 */
+        padding-bottom: 30px;
+    }
 
-        .page-title-area h2 { 
-            font-family: 'Nanum Myeongjo', serif; 
-            font-size: 2.2rem; /* 폰트 크기 확대 */
-            color: #3d342c; 
-            margin: 0;
-            letter-spacing: -0.02em;
-        }
+    .page-title-area h2 { 
+        font-family: 'Nanum Myeongjo', serif; 
+        font-size: 2.2rem; /* 관리자 페이지와 통일감을 위해 살짝 조절 */
+        color: #3d342c; 
+        margin: 0;
+        letter-spacing: -0.03em;
+    }
 
-        /* 3. 버튼 스타일 고도화 */
-        .btn-write { 
-            padding: 16px 35px; /* 버튼 크기 확대 */
-            background: #8b7e74; 
-            color: white; 
-            border: none; 
-            border-radius: 30px; /* 더 둥글게 */
-            cursor: pointer; 
-            font-weight: 700; 
-            font-size: 1rem;
-            transition: 0.3s;
-            box-shadow: 0 8px 20px rgba(139, 126, 116, 0.15);
-        }
+.page-title-area p {
+    font-size: 1.05rem;
+    color: #8b7e74;
+    margin-top: 12px;
+    font-weight: 500;
+}
 
-        .btn-write:hover { 
-            background: #4a3f35;
-            transform: translateY(-3px);
-            box-shadow: 0 12px 25px rgba(139, 126, 116, 0.25);
-        }
+/* 3. 사진 올리기 버튼 (상세 페이지의 btn-edit/delete 느낌 계승) */
+.btn-write { 
+    padding: 16px 32px;
+    background: #8b7e74; 
+    color: white; 
+    border: none; 
+    border-radius: 20px; /* 상세 페이지 버튼 곡률과 통일 */
+    cursor: pointer; 
+    font-weight: 700; 
+    font-size: 0.95rem;
+    transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+    box-shadow: 0 10px 20px rgba(139, 126, 116, 0.12);
+}
 
-        /* 4. 카드 그리드 간격 확대 */
-        .board-grid { 
-            display: grid; 
-            grid-template-columns: repeat(3, 1fr); 
-            gap: 45px; /* 카드 사이 간격을 45px로 늘림 */
-        }
+.btn-write:hover { 
+    background: #4a3f35;
+    transform: translateY(-3px);
+    box-shadow: 0 15px 30px rgba(139, 126, 116, 0.2);
+}
 
-        .board-card { 
-            background: #fff;
-            border-radius: 35px; /* 대시보드와 동일한 곡률 */
-            overflow: hidden; 
-            box-shadow: 0 15px 35px rgba(139, 126, 116, 0.06); 
-            transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
-            cursor: pointer;
-            border: 1px solid #f7ede2;
-        }
+/* 4. 보드 그리드 시스템 */
+/* 그리드 상단 여백 제거 */
+    .board-grid { 
+        display: grid; 
+        grid-template-columns: repeat(3, 1fr); 
+        gap: 40px; 
+        margin-top: 0; 
+    }
 
-        .board-card:hover { 
-            transform: translateY(-15px); /* 호버 시 더 높게 점프 */
-            box-shadow: 0 25px 50px rgba(139, 126, 116, 0.12);
-        }
+/* 5. 카드 디자인 (상세 페이지 카드와 패밀리 룩) */
+.board-card { 
+    background: #fff;
+    border-radius: 30px; /* 상세 페이지 이미지 곡률과 통일 */
+    overflow: hidden; 
+    box-shadow: 0 10px 30px rgba(139, 126, 116, 0.05); 
+    transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+    cursor: pointer;
+    border: 1px solid #f7ede2;
+    position: relative;
+}
 
-        /* 5. 이미지 영역 비율 및 여백 */
-        .img-wrapper { 
-            width: 100%; 
-            height: 340px; /* 높이를 더 키워 시원하게 배치 */
-            overflow: hidden; 
-            position: relative;
-            background-color: #fcfcfc;
-        }
+.board-card:hover { 
+    transform: translateY(-12px);
+    box-shadow: 0 20px 45px rgba(139, 126, 116, 0.12);
+}
 
-        .img-wrapper img { 
-            width: 100%; height: 100%; object-fit: cover; 
-            transition: transform 0.6s ease;
-        }
+/* 6. 이미지 영역 */
+.img-wrapper { 
+    width: 100%; 
+    height: 320px; 
+    overflow: hidden; 
+    position: relative;
+}
 
-        .board-card:hover .img-wrapper img {
-            transform: scale(1.08); /* 호버 시 이미지 살짝 확대 */
-        }
+.img-wrapper img { 
+    width: 100%; height: 100%; object-fit: cover; 
+    transition: transform 0.8s cubic-bezier(0.2, 0, 0.2, 1);
+}
 
-        .tag-count {
-            position: absolute; top: 20px; right: 20px;
-            background: rgba(255, 255, 255, 0.9); 
-            backdrop-filter: blur(5px);
-            color: #8b7e74;
-            padding: 8px 15px; border-radius: 15px; 
-            font-size: 12px; font-weight: 800;
-            letter-spacing: 0.05em;
-        }
+.board-card:hover .img-wrapper img {
+    transform: scale(1.05);
+}
 
-        /* 6. 정보 텍스트 영역 여백 확대 */
-        .info-wrapper { 
-            padding: 30px 35px; /* 내부 패딩을 넉넉하게 */
-        }
+.tag-count {
+    position: absolute; top: 20px; left: 20px; /* 왼쪽으로 이동하여 북마크와 대칭 */
+    background: rgba(255, 255, 255, 0.85); 
+    backdrop-filter: blur(8px);
+    color: #8b7e74;
+    padding: 6px 14px; border-radius: 12px; 
+    font-size: 11px; font-weight: 800;
+    text-transform: uppercase;
+}
 
-        .info-wrapper .title { 
-            font-size: 1.2rem; /* 제목 크기 확대 */
-            font-weight: 700; 
-            color: #4a3f35; 
-            margin-bottom: 12px; 
-            white-space: nowrap; 
-            overflow: hidden; 
-            text-overflow: ellipsis; 
-        }
+/* 7. 북마크 버튼 (감성 디테일 업그레이드) */
+.bookmark-btn {
+    position: absolute;
+    bottom: 20px;
+    right: 20px;
+    z-index: 10;
+    background: rgba(255, 255, 255, 0.85);
+    backdrop-filter: blur(8px);
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border: 1px solid rgba(231, 211, 191, 0.3);
+}
 
-        .info-wrapper .author { 
-            color: #a39485; 
-            font-size: 0.9rem; 
-            display: flex; 
-            align-items: center; 
-        }
+.heart-icon {
+    font-size: 1.2rem;
+    color: #d1cdc7;
+    transition: all 0.3s ease;
+}
 
-        .info-wrapper .author::before { 
-            content: ''; 
-            width: 18px; height: 1px; 
-            background: #dcd0c5; 
-            margin-right: 8px; 
-        }
-        /* 페이지네이션 스타일 */
+.bookmark-btn.active {
+    background: #fff;
+    border-color: #ffccbb;
+}
+
+.bookmark-btn.active .heart-icon {
+    color: #e76f51 !important; /* 상세페이지 수정버튼과 동일한 포인트 컬러 */
+    filter: none;
+    opacity: 1;
+}
+
+/* 8. 정보 텍스트 (타이포그래피 정돈) */
+.info-wrapper { 
+    padding: 25px 30px; 
+}
+
+.info-wrapper .title { 
+    font-size: 1.15rem; 
+    font-weight: 700; 
+    color: #4a3f35; 
+    margin-bottom: 10px; 
+    letter-spacing: -0.01em;
+}
+
+.info-wrapper .author { 
+    color: #bcaaa4; 
+    font-size: 0.88rem; 
+    font-weight: 500;
+    display: flex; 
+    align-items: center; 
+}
+
+.info-wrapper .author::before { 
+    content: ''; 
+    width: 15px; height: 1px; 
+    background: #f7ede2; 
+    margin-right: 10px; 
+}
+
+/* 9. 페이지네이션 (둥글고 차분한 감성) */
 .pagination {
     display: flex;
     justify-content: center;
     align-items: center;
-    margin-top: 60px;
-    gap: 10px;
+    margin-top: 80px;
+    gap: 8px;
 }
 
 .page-link {
-    display: inline-flex;
-    justify-content: center;
-    align-items: center;
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
+    width: 44px;
+    height: 44px;
+    border-radius: 14px; /* 살짝 둥근 사각형으로 변경하여 현대적 느낌 */
     background: #fff;
     color: #8b7e74;
     text-decoration: none;
     font-weight: 600;
     border: 1px solid #f7ede2;
-    transition: 0.3s;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition: all 0.3s ease;
 }
 
-.page-link:hover {
-    background: #fcf6f0;
+.page-link:hover:not(.active) {
+    background: #fdfbf9;
     border-color: #8b7e74;
+    transform: translateY(-2px);
 }
 
-/* 페이지네이션 스타일 수정 */
 .page-link.active {
-    background: #8b7e74; /* 베이지 브라운 배경 */
-    color: #ffffff !important; /* 숫자가 흰색으로 잘 보이게 설정 */
+    background: #8b7e74;
+    color: #fff !important;
     border-color: #8b7e74;
+    box-shadow: 0 5px 15px rgba(139, 126, 116, 0.2);
 }
 /* 북마크 버튼 스타일 */
 .bookmark-btn {
@@ -240,10 +288,12 @@
     <div class="page-title-area">
         <div class="title-text">
             <h2>취향을 그리다.</h2>
-            <p style="color: #8b7e74; margin-top: 10px;">다른 이들의 소중한 공간을 만나보세요</p>
+            <p style="color: #8b7e74; margin-top: 8px;">다른 이들의 소중한 공간을 만나보세요</p>
         </div>
         <button class="btn-write" onclick="location.href='/user/write'">+ 사진 올리기</button>
     </div>
+
+
 
     <div class="board-grid">
         <c:forEach items="${list}" var="b">

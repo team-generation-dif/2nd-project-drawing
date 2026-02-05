@@ -3,7 +3,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>게시글 수정</title>
+<title>그리다 | 게시글 수정</title>
 <style>
 /* 1. 기본 배경 및 폰트 (목록 페이지와 동일) */
 body {
@@ -137,7 +137,8 @@ button:hover {
 </style>
 </head>
 <body>
-    <form action="/user/boardUpdate" method="post" enctype="multipart/form-data" id="combinedForm">
+    <form action="${pageContext.request.contextPath}/user/boardUpdate" method="post" enctype="multipart/form-data" id="combinedForm">
+    <input type="hidden" name="b_image" value="${board.b_image}">
     <h2>게시글 수정</h2>
     
     <input type="hidden" name="b_code" value="${board.b_code}">
@@ -153,7 +154,7 @@ button:hover {
     </div>
     
     <label>이미지 교체</label>
-    <input type="file" name="file">
+<input type="file" name="file" id="file-input" onchange="previewImage(this)">
     
     <label>내용</label>
     <textarea name="b_content" rows="5">${board.b_content}</textarea>
@@ -234,7 +235,30 @@ button:hover {
         document.getElementById('combinedForm').submit();
     } // <-- 여기서 불필요한 중괄호가 하나 더 있었던 것을 지웠습니다.
 
-    drawTags(); 
+    drawTags();
+ // 이미지 미리보기 함수
+    function previewImage(input) {
+        if (input.files && input.files[0]) {
+            const reader = new FileReader();
+
+            reader.onload = function(e) {
+                // 1. 이미지 소스를 선택한 파일의 데이터로 변경
+                const targetImage = document.getElementById('target-image');
+                targetImage.src = e.target.result;
+                
+                // 2. (선택사항) 사진이 바뀌면 태그 위치가 맞지 않을 수 있으므로 
+                // 태그를 초기화하고 싶다면 아래 주석을 해제하세요.
+                /*
+                if(confirm("새 이미지를 선택하면 기존 태그가 초기화됩니다. 계속하시겠습니까?")) {
+                    tagList = [];
+                    drawTags();
+                }
+                */
+            };
+
+            reader.readAsDataURL(input.files[0]);
+        }
+    }
 </script>
 </body>
 </html>

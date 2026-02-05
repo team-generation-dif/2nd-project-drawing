@@ -4,7 +4,7 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>그리다 어드민 | 시나리오 수정</title>
+    <title>그리다 관리자 | 시나리오 수정</title>
     <link href="https://fonts.googleapis.com/css2?family=Nanum+Myeongjo&family=Pretendard:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
         /* 1. 전체 배경 및 초기화 */
@@ -20,7 +20,7 @@
         .admin-write-wrap {
             background: #ffffff;
             width: 90%;
-            max-width: 1100px;
+            max-width: 1200px;
             margin: 60px auto 120px;
             padding: 80px 60px;
             border-radius: 20px;
@@ -162,7 +162,7 @@
 
     <div class="admin-write-wrap">
         <h2>✏️ 시나리오 수정</h2>
-        <hr>
+ 
 
         <form action="/admin/chatbot_update" method="post" enctype="multipart/form-data">
             <input type="hidden" name="q_code" value="${dto.q_code}">

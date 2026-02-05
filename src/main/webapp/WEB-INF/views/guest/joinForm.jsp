@@ -4,7 +4,7 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>그리다 | 취향을 그리다</title>
+    <title>그리다 | 회원가입</title>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     
     <style>

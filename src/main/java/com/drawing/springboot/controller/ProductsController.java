@@ -178,7 +178,7 @@ public class ProductsController {
         System.out.println("찜 목록 조회 - 세션 m_code = " + m_code); // ✅ 로그 찍기
 
         if (m_code == null) {
-            return "redirect:/guest/loginForm";
+        	return "redirect:/products/favorites"; // 앞에 /products/ 가 반드시 붙어있어야 함
         }
 
         List<ProductsDTO> favorites = favoritesService.getFavoritesByMember(m_code);

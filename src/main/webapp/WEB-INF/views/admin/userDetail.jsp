@@ -4,7 +4,7 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>그리다 어드민 | 작가 상세 정보</title>
+    <title>그리다 관리자 | 작가 상세 정보</title>
     <link href="https://fonts.googleapis.com/css2?family=Nanum+Myeongjo&family=Pretendard:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
         /* 1. 디자인 시스템 통일 */
