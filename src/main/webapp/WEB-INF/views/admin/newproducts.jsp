@@ -1,50 +1,121 @@
-<%@ page language="java" contentType="text/html; charset=UTF-8"
-    pageEncoding="UTF-8"%>
+
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
 <!DOCTYPE html>
 <html>
 <head>
-<meta charset="UTF-8">
-<title>상품 등록</title>
-<style>
-    body {
-        font-family: '맑은 고딕', sans-serif;
-        background-color: #f9f9f9;
-        padding: 30px;
-    }
-    h2 {
-        color: #333;
-        margin-bottom: 20px;
-    }
-    form {
-        background: #fff;
-        padding: 20px;
-        border-radius: 10px;
-        border: 1px solid #ddd;
-        width: 450px;
-    }
-    label {
-        display: block;
-        margin-top: 10px;
-        font-weight: bold;
-    }
-    input, select {
-        width: 100%;
-        padding: 8px;
-        margin-top: 5px;
-        border: 1px solid #ccc;
-        border-radius: 5px;
-    }
-    button {
-        margin-top: 20px;
-        padding: 10px 15px;
-        background-color: #2196F3;
-        color: white;
-        border: none;
-        border-radius: 5px;
-        cursor: pointer;
-    }
-</style>
+    <meta charset="UTF-8">
+    <title>그리다 | 상품 등록</title>
+    <link href="https://fonts.googleapis.com/css2?family=Nanum+Myeongjo&family=Pretendard:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* 1. 전체 배경 및 초기화 (공지사항 페이지 스타일) */
+        body {
+            background-color: #fdfbf9; /* 웜 화이트 */
+            font-family: 'Pretendard', -apple-system, sans-serif;
+            color: #4a3f35;
+            margin: 0;
+            padding: 0;
+        }
+
+        /* 2. 메인 컨테이너 (공지사항 .admin-write-wrap 스타일) */
+        .form-container {
+            background: #ffffff;
+            width: 90%;
+            max-width: 800px; /* 폼에 적당한 너비 */
+            margin: 60px auto 120px;
+            padding: 80px 60px;
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(139, 126, 116, 0.05);
+            border: 1px solid rgba(231, 224, 217, 0.5);
+            box-sizing: border-box;
+        }
+
+        h2 {
+            font-family: 'Nanum Myeongjo', serif;
+            font-weight: 700;
+            color: #3d342c;
+            text-align: center;
+            margin-bottom: 60px;
+            font-size: 2.2rem;
+            letter-spacing: -0.02em;
+        }
+
+        hr {
+            border: 0;
+            height: 1px;
+            background: #f0eeec;
+            margin: -20px 0 50px;
+        }
+
+        /* 3. 입력 폼 스타일 */
+        .form-group {
+            margin-bottom: 30px;
+            max-width: 100%;
+        }
+
+        label {
+            display: block;
+            font-weight: 600;
+            font-size: 0.95rem;
+            color: #8b7e74; /* 토프 브라운 */
+            margin-bottom: 12px;
+            padding-left: 5px;
+        }
+        
+        input[type="text"], select {
+            width: 100%;
+            padding: 20px 25px;
+            border: 1px solid #f0eeec;
+            border-radius: 12px;
+            background-color: #fff;
+            font-size: 1rem;
+            box-sizing: border-box;
+            transition: all 0.3s;
+            color: #4a3f35;
+            font-family: inherit;
+        }
+
+        input:focus, select:focus {
+            outline: none;
+            border-color: #8b7e74;
+            box-shadow: 0 0 0 4px rgba(139, 126, 116, 0.05);
+            background-color: #fffdfb;
+        }
+
+        /* 4. 하단 버튼 (공지사항 버튼 스타일) */
+        .submit-btn {
+            width: 100%;
+            padding: 20px;
+            margin-top: 40px;
+            background-color: #8b7e74; /* 공지사항 수정완료 버튼색 */
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-weight: 700;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-family: inherit;
+        }
+
+        .submit-btn:hover {
+            background-color: #766b62;
+            transform: translateY(-2px);
+        }
+
+        .submit-btn:active {
+            transform: scale(0.98);
+        }
+
+        /* 사이즈/색상 나란히 배치 */
+        .flex-row {
+            display: flex;
+            gap: 20px;
+        }
+        .flex-row .form-group {
+            flex: 1;
+        }
+    </style>
 <script>
     function validateForm() {
         const form = document.forms["newForm"];
@@ -100,57 +171,78 @@
 </head>
 <body>
     <jsp:include page="../guest/Header.jsp" />
-<h2>상품 등록</h2>
 
-<form name="newForm" action="${pageContext.request.contextPath}/products/admin/new" 
-      method="post" onsubmit="return validateForm()">
+    <div class="form-container">
+        <h2>📦 새 상품 등록</h2>
 
-    <label for="p_code">상품 코드</label>
-    <input type="text" name="p_code" required />
+        <form name="newForm" action="${pageContext.request.contextPath}/products/admin/new" 
+              method="post" onsubmit="return validateForm()">
 
-    <label for="p_name">상품명</label>
-    <input type="text" name="p_name" required />
+            <div class="form-group">
+                <label for="p_code">상품 코드</label>
+                <input type="text" name="p_code" placeholder="숫자만 입력하세요" required />
+            </div>
 
-    <label for="p_color">색상</label>
-    <input type="text" name="p_color" />
+            <div class="form-group">
+                <label for="p_name">상품명</label>
+                <input type="text" name="p_name" placeholder="상품 이름을 입력하세요" required />
+            </div>
 
-    <label for="p_width">사이즈/폭</label>
-    <input type="text" name="p_width" />
+            <div class="form-group" style="display: flex; gap: 15px;">
+                <div style="flex: 1;">
+                    <label for="p_color">색상</label>
+                    <input type="text" name="p_color" placeholder="예: 화이트" />
+                </div>
+                <div style="flex: 1;">
+                    <label for="p_width">사이즈/폭</label>
+                    <input type="text" name="p_width" placeholder="예: 120x60" />
+                </div>
+            </div>
 
-    <label for="p_price">가격</label>
-    <input type="text" name="p_price" required />
+            <div class="form-group">
+                <label for="p_price">가격 (원)</label>
+                <input type="text" name="p_price" placeholder="예: 45000" required />
+            </div>
 
-    <label for="p_image">이미지 URL</label>
-    <input type="text" name="p_image" />
+            <div class="form-group">
+                <label for="p_image">이미지 URL</label>
+                <input type="text" name="p_image" placeholder="http://..." />
+            </div>
 
-    <label for="p_rating">평점</label>
-    <input type="text" name="p_rating" />
+            <div class="form-group">
+                <label for="p_rating">평점 (0.0 ~ 5.0)</label>
+                <input type="text" name="p_rating" placeholder="예: 4.5" />
+            </div>
 
-    <!-- ✅ 상위 카테고리 선택 -->
-    <label for="categoryId">상위 카테고리</label>
-    <select id="categoryId" name="categoryId" onchange="filterSubcategories()" required>
-        <c:forEach var="cat" items="${categories}">
-            <option value="${cat.categoryId}">${cat.name}</option>
-        </c:forEach>
-    </select>
+            <div class="form-group">
+                <label for="categoryId">상위 카테고리</label>
+                <select id="categoryId" name="categoryId" onchange="filterSubcategories()" required>
+                    <option value="" disabled selected>상위 카테고리 선택</option>
+                    <c:forEach var="cat" items="${categories}">
+                        <option value="${cat.categoryId}">${cat.name}</option>
+                    </c:forEach>
+                </select>
+            </div>
 
-    <!-- ✅ 서브카테고리 선택 (data-category로 상위 카테고리 연결) -->
-    <label for="subcategoryId">서브카테고리</label>
-    <select id="subcategoryId" name="subcategoryId" required>
-        <c:forEach var="sub" items="${subcategories}">
-            <option value="${sub.subcategoryId}" data-category="${sub.categoryId}">
-                ${sub.name}
-            </option>
-        </c:forEach>
-    </select>
+            <div class="form-group">
+                <label for="subcategoryId">서브카테고리</label>
+                <select id="subcategoryId" name="subcategoryId" required>
+                    <option value="" disabled selected>먼저 상위 카테고리를 선택하세요</option>
+                    <c:forEach var="sub" items="${subcategories}">
+                        <option value="${sub.subcategoryId}" data-category="${sub.categoryId}">
+                            ${sub.name}
+                        </option>
+                    </c:forEach>
+                </select>
+            </div>
 
+            <div class="form-group">
+                <label for="externalUrl">외부 상품 URL</label>
+                <input type="text" name="externalUrl" placeholder="이케아 공식 홈페이지 링크 등" />
+            </div>
 
-    <!-- ✅ 외부 URL (상품 상세 페이지 연결) -->
-    <label for="externalUrl">외부 상품 URL</label>
-    <input type="text" name="externalUrl" placeholder="예: https://www.ikea.com/kr/ko/p/..." />
-
-    <button type="submit">등록 완료</button>
-</form>
-
+            <button type="submit" class="submit-btn">등록 완료</button>
+        </form>
+    </div>
 </body>
 </html>

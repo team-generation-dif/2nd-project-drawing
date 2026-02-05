@@ -4,83 +4,169 @@
 <head>
     <meta charset="UTF-8">
     <title>3D 인테리어 에디터</title>
-    <style>
-        body { margin: 0; overflow: hidden; font-family: 'Malgun Gothic', sans-serif; user-select: none; }
-        
-        .panel {
-            background: rgba(255, 255, 255, 0.95);
-            border-radius: 8px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.15);
-            backdrop-filter: blur(5px);
-        }
+<style>
+    /* 1. 기본 테마 설정 */
+    :root {
+        --grida-bg: #fdfbf9;
+        --grida-taupe: #8b7e74;
+        --grida-dark: #3d342c;
+        --grida-border: #f0eeec;
+        --grida-accent: #d97d6a; /* 테라코타 포인트 */
+    }
 
-        /* [NEW] 사이드바 레이아웃 */
-        #sidebar {
-            position: absolute; top: 20px; left: 20px; z-index: 100;
-            display: flex; gap: 10px;
-        }
-        
-        #tab-bar {
-            display: flex; flex-direction: column; gap: 5px;
-        }
-        
-        .tab-btn {
-            width: 50px; height: 50px; padding: 0;
-            font-size: 20px; border-radius: 8px;
-            background: #fff; border: 1px solid #ddd;
-            cursor: pointer; color: #666;
-        }
-        .tab-btn.active-tab {
-            background: #4CAF50; color: white; border-color: #4CAF50;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-        }
+    body { 
+        margin: 0; 
+        overflow: hidden; 
+        font-family: 'Pretendard', -apple-system, sans-serif; 
+        background-color: var(--grida-bg);
+        color: var(--grida-dark);
+        user-select: none; 
+    }
 
-        #controls { 
-            width: 220px; padding: 15px;
-        }
-        
-        /* 공통 버튼 스타일 */
-        button {
-            display: block; width: 100%; margin-bottom: 8px; padding: 10px;
-            cursor: pointer; background: #fff; border: 1px solid #ddd; border-radius: 6px;
-            font-weight: 600; color: #444; transition: all 0.2s;
-        }
-        button:hover { background: #f5f5f5; border-color: #bbb; }
-        button.active { background: #4CAF50; color: white; border-color: #4CAF50; box-shadow: 0 2px 5px rgba(76,175,80,0.3); }
-        
-        .btn-group { display: flex; gap: 5px; margin-bottom: 8px; }
-        .btn-group button { margin-bottom: 0; font-size: 13px; }
-        .view-switch { background: #e3f2fd; color: #1565c0; border: 1px solid #90caf9; }
-        
-        .input-group { margin-bottom: 10px; }
-        .input-label { font-size: 12px; color: #666; margin-bottom: 4px; display: block; font-weight: bold; }
-        .input-field { width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px; box-sizing: border-box; }
+    /* 2. 패널 스타일 (공지사항 카드 스타일 계승) */
+    .panel {
+        background: rgba(255, 255, 255, 0.98);
+        border-radius: 16px;
+        box-shadow: 0 10px 30px rgba(139, 126, 116, 0.1);
+        border: 1px solid rgba(231, 224, 217, 0.5);
+        backdrop-filter: blur(10px);
+    }
 
-        /* 우측 속성 패널 */
-        #propertyPanel {
-            position: absolute; top: 20px; right: -320px;
-            width: 280px; padding: 20px; z-index: 100;
-            transition: right 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-        }
-        #propertyPanel.open { right: 20px; }
-        
-        .prop-header { font-size: 18px; font-weight: bold; margin-bottom: 15px; border-bottom: 2px solid #eee; padding-bottom: 10px; }
-        .prop-group { margin-bottom: 15px; }
-        .prop-label { font-size: 13px; color: #666; display: block; margin-bottom: 5px; font-weight: bold; }
-        .prop-input { width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px; box-sizing: border-box; font-size: 14px; }
-        
-        #lengthInput {
-            position: absolute; display: none; z-index: 99;
-            width: 100px; padding: 8px; text-align: center; font-weight: bold;
-            border: 2px solid #4CAF50; border-radius: 20px;
-            background: rgba(255, 255, 255, 0.9); box-shadow: 0 4px 10px rgba(0,0,0,0.2); font-size: 14px;
-        }
-        #infoTooltip {
-            position: absolute; display: none; pointer-events: none;
-            background: rgba(0, 0, 0, 0.8); color: white;
-            padding: 6px 10px; border-radius: 4px; font-size: 12px; white-space: nowrap; z-index: 98;
-        }
-    </style>
+   #sidebar {
+    position: absolute; 
+    top: 15px; /* 25px -> 15px */
+    left: 20px; 
+    z-index: 100;
+    display: flex; 
+    gap: 12px;
+}
+    #tab-bar {
+        display: flex; flex-direction: column; gap: 8px;
+    }
+    
+    /* 탭 버튼 스타일 */
+    .tab-btn {
+        width: 55px; height: 55px; padding: 0;
+        font-size: 22px; border-radius: 12px;
+        background: #fff; border: 1px solid var(--grida-border);
+        cursor: pointer; color: var(--grida-taupe);
+        transition: all 0.3s;
+    }
+    .tab-btn.active-tab {
+        background: var(--grida-taupe); color: white; border-color: var(--grida-taupe);
+        box-shadow: 0 4px 12px rgba(139, 126, 116, 0.2);
+    }
+
+#controls { 
+    width: 250px; 
+    padding: 20px;
+    /* 화면 높이에서 더 여유있게 차감 (90vh 정도가 적당합니다) */
+    max-height: 90vh; 
+    overflow-y: auto; 
+    display: flex;
+    flex-direction: column;
+}
+/* 스크롤바를 조금 더 얇고 예쁘게 만들기 (선택사항) */
+#controls::-webkit-scrollbar {
+    width: 4px;
+}
+#controls::-webkit-scrollbar-thumb {
+    background: var(--grida-border);
+    border-radius: 10px;
+}
+    
+    h3 {
+        font-family: 'Nanum Myeongjo', serif;
+        font-size: 1.4rem;
+        margin-bottom: 25px;
+        color: var(--grida-dark);
+        border-bottom: 1px solid var(--grida-border);
+        padding-bottom: 15px;
+    }
+    hr { margin: 8px 0 !important; }
+h3 { margin-bottom: 15px; padding-bottom: 10px; }
+
+    /* 3. 버튼 및 입력 필드 (공지사항/상품등록 스타일) */
+    button {
+        display: block; width: 100%; margin-bottom: 6px; padding: 10px;
+        cursor: pointer; background: #fff; border: 1px solid var(--grida-border); 
+        border-radius: 10px; font-weight: 600; color: var(--grida-taupe); 
+        transition: all 0.2s; font-family: inherit;
+    }
+    button:hover { 
+        background: var(--grida-bg); 
+        border-color: var(--grida-taupe);
+        transform: translateY(-1px);
+    }
+    button.active { 
+        background: var(--grida-taupe); color: white; 
+        border-color: var(--grida-taupe); 
+    }
+    
+    .view-switch { 
+        background: #fff; 
+        color: var(--grida-taupe); 
+        border: 1px solid var(--grida-border); 
+    }
+    .view-switch:first-child { border-radius: 10px 0 0 10px; }
+    .view-switch:last-child { border-radius: 0 10px 10px 0; border-left: none; }
+
+    .input-label { 
+        font-size: 0.85rem; color: var(--grida-taupe); 
+        margin-bottom: 8px; display: block; font-weight: bold; 
+    }
+    .input-field, select { 
+        width: 100%; padding: 12px; border: 1px solid var(--grida-border); 
+        border-radius: 8px; background-color: #fff; color: var(--grida-dark);
+        font-family: inherit;
+    }
+    .input-field:focus, select:focus {
+        outline: none; border-color: var(--grida-taupe);
+        box-shadow: 0 0 0 3px rgba(139, 126, 116, 0.05);
+    }
+
+    /* 4. 가구 목록 영역 */
+#furniture-list {
+    height: auto !important; /* HTML에 박힌 스타일 무시 */
+    max-height: 250px !important; /* 최대 높이를 줄여 하단 버튼 공간 확보 */
+    overflow-y: auto; 
+    border: 1px solid var(--grida-border); 
+    border-radius: 10px; 
+    padding: 10px;
+    background: #fafafa;
+}
+    /* 스크롤바 커스텀 */
+    #furniture-list::-webkit-scrollbar { width: 5px; }
+    #furniture-list::-webkit-scrollbar-thumb { background: var(--grida-border); border-radius: 10px; }
+
+    /* 5. 우측 속성 패널 */
+    #propertyPanel {
+        position: absolute; top: 25px; right: -350px;
+        width: 300px; padding: 30px; z-index: 100;
+        transition: right 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.1);
+    }
+    #propertyPanel.open { right: 25px; }
+    
+    .prop-header { 
+        font-family: 'Nanum Myeongjo', serif;
+        font-size: 1.3rem; font-weight: bold; margin-bottom: 20px; 
+        border-bottom: 1px solid var(--grida-border); padding-bottom: 15px; 
+    }
+
+    /* 6. 특수 요소 (길이 입력창 등) */
+    #lengthInput {
+        position: absolute; display: none; z-index: 99;
+        width: 110px; padding: 10px; text-align: center; font-weight: bold;
+        border: 1px solid var(--grida-taupe); border-radius: 25px;
+        background: rgba(255, 255, 255, 0.95); box-shadow: 0 4px 15px rgba(0,0,0,0.1); 
+        font-size: 14px; color: var(--grida-dark);
+    }
+
+    /* 하단 주요 액션 버튼 */
+    .save-btn { background: var(--grida-taupe) !important; color: white !important; }
+    .template-btn { background: #fff !important; color: var(--grida-taupe) !important; border: 1px solid var(--grida-taupe) !important; }
+    .back-btn { background: #fff !important; color: var(--grida-accent) !important; border: 1px solid #f9e8e4 !important; }
+</style>
 </head>
 <body>
 	
@@ -137,9 +223,9 @@
 
             <button onclick="setMode('delete')" id="btn-delete" style="color:#d32f2f; border-color:#ffcdd2; margin-top:10px;">🗑️ 삭제</button>
             <hr style="margin: 10px 0;">
-   			<button onclick="saveInterior()" style="background: #2196F3; color: white;">💾 저장하기</button>
-   			<button onclick="saveAsFloorplan()" style="background: #FF9800; color: white;">📐 평면도 템플릿 저장</button>
-   			<button onclick="history.back()" style="background: #ff9d8a; color: white;">뒤로 가기</button>
+   			<button onclick="saveInterior()" class="save-btn">💾 저장하기</button>
+<button onclick="saveAsFloorplan()" class="template-btn">📐 평면도 템플릿 저장</button>
+<button onclick="history.back()" class="back-btn">뒤로 가기</button>
         </div>
     </div>
     

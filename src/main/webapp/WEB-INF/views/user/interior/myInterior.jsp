@@ -8,132 +8,237 @@
 <title>그리다 | 내 아뜰리에</title>
 </head>
 <body>
-	<%@ include file="../../guest/Header.jsp" %>
-	<div class="container">
-		<h2>내 라이브러리</h2>
-		<div>
-			<button class="" onclick="openNewModal()">새 인테리어</button>
-		</div>
-		<div class="">
-			<c:forEach var="list" items="${dto}">
-				<div class="card">
-					<a href="/user/interior/draw?i_code=${list.i_code}">
-						<div class="thumb-img"><img src="${list.i_image}"></div>
-						<p>${list.i_title}
-					</a>
-					<p><small>${list.i_date}</small>
-					<a href="/user/interior/delete?i_code=${list.i_code}" onclick="return confirm('정말 삭제하시겠습니까?')">삭제</a>
-				</div>
-			</c:forEach>
-		</div>
-	</div>
-	<div id="newProjectModal" class="modal-overlay" style="display: none;">
-	    <div class="modal-content">
-	        <div class="modal-header">
-	            <h3>새 인테리어 시작하기</h3>
-	            <span class="close-btn" onclick="closeModal()">×</span>
-	        </div>
-	        
-	        <div id="step-select" class="modal-body">
-	            <div class="option-grid">
-	                <div class="option-card" onclick="goToEmptyDraw()">
-	                    <div class="icon">📄</div>
-	                    <div class="title">빈 도면으로 시작</div>
-	                    <div class="desc">처음부터 자유롭게 그립니다.</div>
-	                </div>
-	                
-	                <div class="option-card" onclick="loadFloorplanList('my')">
-	                    <div class="icon">🏠</div>
-	                    <div class="title">내 평면도에서</div>
-	                    <div class="desc">저장해둔 평면도를 불러옵니다.</div>
-	                </div>
-	                
-	                <div class="option-card" onclick="loadFloorplanList('template')">
-	                    <div class="icon">🏢</div>
-	                    <div class="title">추천 템플릿</div>
-	                    <div class="desc">일반적인 방의 구조를 사용합니다.</div>
-	                </div>
-	                
-	                <div class="option-card" onclick="triggerImageUpload()">
-	                    <div class="icon">📷</div>
-	                    <div class="title">이미지로 만들기</div>
-	                    <div class="desc">평면도 이미지로 방의 구조를 분석합니다.(정확하지 않을 수 있습니다.)</div>
-	                </div>
-	                <input type="file" id="fp-image-upload" accept="images/*" style="display:none;" onchange="uploadAndAnalyze(this)">
-	            </div>
-	        </div>
-	
-	        <div id="step-list" class="modal-body" style="display: none;">
-	            <button onclick="backToStep1()" style="margin-bottom:10px; cursor:pointer;">⬅ 뒤로가기</button>
-	            <div id="fp-list-container" class="list-grid">
-	                </div>
-	        </div>
-	    </div>
-	</div>
+    <%@ include file="../../guest/Header.jsp" %>
+    
+    <div class="container">
+        <h2>내 아뜰리에</h2>
+        
+        <div class="action-bar">
+            <button class="btn-new" onclick="openNewModal()">+ 새 인테리어 기록하기</button>
+        </div>
+
+        <div class="library-grid">
+            <c:forEach var="list" items="${dto}">
+                <div class="card">
+                    <button class="btn-delete-card" onclick="location.href='/user/interior/delete?i_code=${list.i_code}'" title="삭제">×</button>
+                    <a href="/user/interior/draw?i_code=${list.i_code}">
+                        <div class="thumb-img">
+                            <img src="${list.i_image}" onerror="this.src='https://placehold.co/400x300/fdfbf9/8b7e74?text=Interior'">
+                        </div>
+                        <div class="card-info">
+                            <span class="title">${list.i_title}</span>
+                            <span class="date">${list.i_date}</span>
+                        </div>
+                    </a>
+                </div>
+            </c:forEach>
+        </div>
+    </div>
+
+    <div id="newProjectModal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div style="display:flex; justify-content: space-between; align-items: center;">
+                    <h3>새로운 공간 기록</h3>
+                    <span class="close-btn" style="cursor:pointer; font-size: 30px; color:#b7ada6;" onclick="closeModal()">×</span>
+                </div>
+            </div>
+            
+            <div id="step-select" class="modal-body">
+                <div class="option-grid">
+                    <div class="option-card" onclick="goToEmptyDraw()">
+                        <div class="icon">✨</div>
+                        <div class="title">빈 캔버스로 시작</div>
+                        <div class="desc">아무것도 없는 빈 공간에서<br>자유롭게 설계를 시작합니다.</div>
+                    </div>
+                    
+                    <div class="option-card" onclick="loadFloorplanList('my')">
+                        <div class="icon">📁</div>
+                        <div class="title">나의 도면 라이브러리</div>
+                        <div class="desc">이전에 저장해둔 나만의<br>평면도 템플릿을 불러옵니다.</div>
+                    </div>
+                    
+                    <div class="option-card" onclick="loadFloorplanList('template')">
+                        <div class="icon">🏛️</div>
+                        <div class="title">전문가 템플릿</div>
+                        <div class="desc">그리다가 제공하는 표준형<br>공간 구조로 빠르게 시작합니다.</div>
+                    </div>
+                    
+                    <div class="option-card" onclick="triggerImageUpload()">
+                        <div class="icon">🖼️</div>
+                        <div class="title">사진으로 자동 생성</div>
+                        <div class="desc">종이 도면이나 평면도 사진을 분석하여<br>3D 벽면을 자동으로 세워드립니다.</div>
+                    </div>
+                </div>
+                <input type="file" id="fp-image-upload" accept="images/*" style="display:none;" onchange="uploadAndAnalyze(this)">
+            </div>
+
+            <div id="step-list" class="modal-body" style="display: none;">
+                <button class="btn-back" onclick="backToStep1()">← 이전으로</button>
+                <div id="fp-list-container" class="list-grid">
+                    </div>
+            </div>
+        </div>
+    </div>
 	
 	<style>
-	    .modal-overlay {
-	        position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-	        background: rgba(0,0,0,0.5); z-index: 1000;
-	        display: flex; justify-content: center; align-items: center;
-	    }
-	    .modal-content {
-	        background: white; width: 800px; max-width: 90%; 
-	        border-radius: 12px; box-shadow: 0 5px 20px rgba(0,0,0,0.2);
-	        overflow: hidden; animation: slideDown 0.3s ease;
-	    }
-	    .modal-header {
-	        padding: 15px 20px; border-bottom: 1px solid #eee;
-	        display: flex; justify-content: space-between; align-items: center;
-	    }
-	    .close-btn { font-size: 24px; cursor: pointer; color: #666; }
-	    
-	    .modal-body { padding: 30px; }
-	    
-	    .option-grid {
-	        display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px;
-	    }
-	    .option-card {
-	        border: 1px solid #ddd; border-radius: 8px; padding: 20px;
-	        cursor: pointer; transition: all 0.2s; text-align: center;
-	    }
-	    .option-card:hover {
-	        border-color: #2196F3; background: #f0f9ff; transform: translateY(-3px);
-	    }
-	    .option-card .icon { font-size: 40px; margin-bottom: 10px; }
-	    .option-card .title { font-weight: bold; font-size: 18px; margin-bottom: 5px; }
-	    .option-card .desc { font-size: 13px; color: #888; }
-	
-	    /* 리스트 스타일 */
-	    .list-grid {
-	        display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px;
-	        max-height: 400px; overflow-y: auto;
-	    }
-	    .btn-delete-fp {
-		    position: absolute;
-		    bottom: 10px;
-		    right: 10px;
-		    background: #ff5252;
-		    color: white;
-		    border: none;
-		    border-radius: 4px;
-		    padding: 4px 8px;
-		    font-size: 12px;
-		    cursor: pointer;
-		    z-index: 10; /* 부모보다 위에 위치 */
-		}
-		.btn-delete-fp:hover {
-		    background: #d32f2f;
-		}
-	    .fp-item {
-	        position: relative; border: 1px solid #eee; border-radius: 6px; overflow: hidden; cursor: pointer;
-	    }
-	    .fp-item img { width: 100%; height: 150px; object-fit: cover; }
-	    .fp-item p { padding: 10px; margin: 0; font-size: 14px; text-align: center; }
-	    .fp-item:hover { border-color: #2196F3; }
-	
-	    @keyframes slideDown { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
-	</style>
+    /* 1. 전체 배경 및 초기화 */
+    body {
+        background-color: #fdfbf9;
+        font-family: 'Pretendard', -apple-system, sans-serif;
+        color: #4a3f35;
+        margin: 0; padding: 0;
+    }
+
+    .container {
+        max-width: 1100px;
+        margin: 60px auto 120px;
+        padding: 0 20px;
+    }
+
+   h2 {
+        font-family: 'Nanum Myeongjo', serif;
+        font-weight: 700;
+        color: #3d342c;
+        font-size: 2.2rem;
+        margin-bottom: 10px; /* 아래 설명글이나 버튼과의 간격을 위해 조절 */
+        text-align: left;    /* 왼쪽 정렬로 변경 */
+    }
+
+    /* 2. 상단 액션 바 */
+    .action-bar {
+        display: flex;
+        justify-content: flex-end;
+        margin-bottom: 40px;
+    }
+
+    .title-area {
+        border-bottom: 1px solid #f0eeec;
+        margin-bottom: 40px;
+        padding-bottom: 20px;
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-end; /* 제목과 버튼을 바닥선에 맞춤 */
+    }
+
+    .btn-new {
+        background-color: #8b7e74;
+        color: white;
+        padding: 12px 24px;
+        border-radius: 10px;
+        border: none;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s;
+    }
+    .btn-new:hover {
+        background-color: #766b62;
+        transform: translateY(-2px);
+    }
+
+    /* 3. 인테리어 리스트 (카드 레이아웃) */
+    .library-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+        gap: 30px;
+    }
+
+    .card {
+        background: #fff;
+        border-radius: 20px;
+        overflow: hidden;
+        border: 1px solid rgba(231, 224, 217, 0.5);
+        transition: all 0.3s ease;
+        position: relative;
+    }
+    .card:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 15px 40px rgba(139, 126, 116, 0.1);
+    }
+
+    .thumb-img {
+        width: 100%;
+        height: 180px;
+        background-color: #f5f5f5;
+        overflow: hidden;
+    }
+    .thumb-img img {
+        width: 100%; height: 100%; object-fit: cover;
+        transition: transform 0.5s;
+    }
+    .card:hover .thumb-img img { transform: scale(1.05); }
+
+    .card-info { padding: 20px; }
+    .card-info a { text-decoration: none; color: inherit; }
+    .card-info .title {
+        font-family: 'Nanum Myeongjo', serif;
+        font-weight: 700; font-size: 1.15rem;
+        margin-bottom: 8px; color: #3d342c;
+        display: block;
+    }
+    .card-info .date { font-size: 0.85rem; color: #b7ada6; }
+
+    .btn-delete-card {
+        position: absolute; top: 15px; right: 15px;
+        background: rgba(255, 255, 255, 0.9);
+        color: #d97d6a; border: none; width: 32px; height: 32px;
+        border-radius: 50%; cursor: pointer; display: flex;
+        align-items: center; justify-content: center;
+        opacity: 0; transition: opacity 0.3s;
+    }
+    .card:hover .btn-delete-card { opacity: 1; }
+
+    /* 4. 모달 스타일 정제 */
+    .modal-overlay {
+        position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+        background: rgba(61, 52, 44, 0.6); z-index: 1000;
+        backdrop-filter: blur(5px);
+        display: none; justify-content: center; align-items: center;
+    }
+    .modal-content {
+        background: #fff; width: 850px; max-width: 90%; 
+        border-radius: 25px; padding: 40px;
+        box-shadow: 0 20px 60px rgba(0,0,0,0.15);
+    }
+    .modal-header h3 {
+        font-family: 'Nanum Myeongjo', serif;
+        font-size: 1.6rem; color: #3d342c; margin-top: 0;
+    }
+    
+    .option-grid {
+        display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px;
+        margin-top: 30px;
+    }
+    .option-card {
+        background: #fdfbf9; border: 1px solid #f0eeec; border-radius: 18px;
+        padding: 35px 25px; cursor: pointer; transition: all 0.3s; text-align: center;
+    }
+    .option-card:hover {
+        border-color: #8b7e74; background: #fff;
+        transform: translateY(-5px); box-shadow: 0 10px 25px rgba(139, 126, 116, 0.08);
+    }
+    .option-card .icon { font-size: 36px; margin-bottom: 15px; }
+    .option-card .title { font-weight: 700; color: #3d342c; margin-bottom: 8px; }
+    .option-card .desc { font-size: 0.85rem; color: #8b7e74; line-height: 1.5; }
+
+    /* 5. 평면도 리스트 모달 내 그리드 */
+    .list-grid {
+        display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px;
+        max-height: 450px; overflow-y: auto; padding: 10px;
+    }
+    .fp-item {
+        background: #fff; border: 1px solid #f0eeec; border-radius: 12px;
+        overflow: hidden; cursor: pointer; transition: 0.3s;
+    }
+    .fp-item:hover { border-color: #8b7e74; }
+    .fp-item img { width: 100%; height: 120px; object-fit: cover; }
+    .fp-item p { padding: 12px; margin: 0; font-size: 0.9rem; text-align: center; }
+
+    .btn-back {
+        background: none; border: 1px solid #f0eeec; color: #8b7e74;
+        padding: 8px 16px; border-radius: 8px; cursor: pointer; margin-bottom: 20px;
+    }
+</style>
 	
 	<script>
 	    // 1. 모달 열기/닫기
