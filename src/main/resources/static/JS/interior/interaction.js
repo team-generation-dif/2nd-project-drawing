@@ -80,7 +80,22 @@ export function onFurniturePropChange(key, val) {
 
 // ... (resetDrawing, setupEventListeners 등 나머지 함수 모두 기존 유지) ...
 export function resetDrawing() { state.isDrawing = false; state.startPillar = null; state.draggingPillar = null; state.draggingFurniture = null; resetUI(); if (state.previewObject) { scene.remove(state.previewObject); if (state.previewObject.geometry) state.previewObject.geometry.dispose(); if (state.previewObject.material) state.previewObject.material.dispose(); state.previewObject = null; } restoreHighlight(); }
-export function setupEventListeners() { if(inputEl) { inputEl.addEventListener('input', () => state.isUserTyping = true); inputEl.addEventListener('keydown', onInputKeydown); } window.addEventListener('keydown', onWindowKeydown); window.addEventListener('wheel', (e) => e.preventDefault(), { passive: false }); window.addEventListener('contextmenu', (e) => e.preventDefault()); window.addEventListener('mousedown', onMouseDown); window.addEventListener('mousemove', onMouseMove); window.addEventListener('mouseup', onMouseUp); }
+export function setupEventListeners() { 
+	if(inputEl) { 
+		inputEl.addEventListener('input', () => state.isUserTyping = true); 
+		inputEl.addEventListener('keydown', onInputKeydown); 
+	} 
+	window.addEventListener('keydown', onWindowKeydown); 
+	window.addEventListener('wheel', (e) => {
+		if (checkUIBlocking(e)){
+			return;
+		}
+		e.preventDefault()
+	}, { passive: false });
+	window.addEventListener('contextmenu', (e) => e.preventDefault()); 
+	window.addEventListener('mousedown', onMouseDown); 
+	window.addEventListener('mousemove', onMouseMove); 
+	window.addEventListener('mouseup', onMouseUp); }
 function onWindowKeydown(e) { if (state.mode === 'furniture') { if (state.previewObject) { if (e.key.toLowerCase() === 'q') state.previewObject.rotation.y += ROTATION_STEP; if (e.key.toLowerCase() === 'e') state.previewObject.rotation.y -= ROTATION_STEP; } if (state.draggingFurniture) { if (e.key.toLowerCase() === 'q') state.draggingFurniture.mesh.rotation.y += ROTATION_STEP; if (e.key.toLowerCase() === 'e') state.draggingFurniture.mesh.rotation.y -= ROTATION_STEP; } } }
 function onInputKeydown(e) { if (e.key === 'Enter' && state.isDrawing && state.mode === 'draw') { const val = parseFloat(inputEl.value); if (!val || val <= 0) return; const rawTarget = getGroundPoint(state.lastMouseEvent); if (!rawTarget) return; const startPos = state.startPillar.position; let direction = new THREE.Vector3().subVectors(rawTarget, startPos).normalize(); if (state.lastMouseEvent && state.lastMouseEvent.shiftKey) { const angle = Math.round(Math.atan2(rawTarget.z - startPos.z, rawTarget.x - startPos.x) / (Math.PI / 4)) * (Math.PI / 4); direction.set(Math.cos(angle), 0, Math.sin(angle)); } const targetPos = startPos.clone().add(direction.multiplyScalar(val)); const endPillar = handleWallSplit(getSnappedData(targetPos, false)); finishWallDrawing(endPillar); saveState(); inputEl.value = '0'; state.isUserTyping = false; setTimeout(() => { inputEl.focus(); inputEl.select(); }, 10); state.previewObject.position.copy(state.startPillar.position); state.previewObject.scale.x = 0; } }
 function checkUIBlocking(e) { return e.target.closest('.panel') || e.target.closest('#sidebar') || e.target === inputEl; }

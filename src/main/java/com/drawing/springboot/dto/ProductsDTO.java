@@ -16,4 +16,7 @@ public class ProductsDTO {
     private double p_width;
     private double p_depth;
     private double p_height;
+    
+    private String subcatName;
+    private String catName;
 }

@@ -204,7 +204,7 @@ export function loadFurnitureList(categoryId) {
                     <img src="${img}" style="width:50px; height:50px; object-fit:cover;">
                     <div>
                         <div style="font-size:12px; font-weight:bold;">${prod.p_name}</div>
-                        <div style="font-size:11px; color:#666;">${w}x${d}x${h}</div>
+                        <div style="font-size:11px; color:#666;">${w/10}x${d/10}x${h/10} (cm)</div>
                     </div>
                 `;
 
