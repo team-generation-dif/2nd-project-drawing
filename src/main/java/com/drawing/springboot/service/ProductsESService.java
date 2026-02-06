@@ -63,8 +63,7 @@ public class ProductsESService {
 		SearchSourceBuilder builder = new SearchSourceBuilder();
 		
 		// 엘라스틱 서치 검색 결과문 빌더 저장
-		builder.fetchSource(new String[]{"p_name","subcategoryname","categoryname"}, null);
-		builder.query(QueryBuilders.multiMatchQuery(keyword, "p_name","subcategoryname","categoryname"));
+		builder.query(QueryBuilders.multiMatchQuery(keyword, "p_name.search","subcategoryname","categoryname"));
 		request.source(builder);
 		SearchResponse response = client.search(request, RequestOptions.DEFAULT);
 		
@@ -73,11 +72,11 @@ public class ProductsESService {
 		for(SearchHit hit:response.getHits().getHits()) {
 			Map<String, Object> map = hit.getSourceAsMap();
 			ProductsDTO dto = new ProductsDTO();
-			dto.setP_code(Integer.parseInt(String.valueOf(map.get("p_code"))));
+			dto.setP_code(Integer.parseInt(map.get("p_code").toString()));
 			dto.setP_name(map.get("p_name").toString());
 			dto.setP_color(map.get("p_color").toString());
 			dto.setP_size(map.get("p_size").toString());
-			dto.setP_rating(Double.parseDouble(String.valueOf(map.get("p_rating"))));
+			dto.setP_rating(Double.parseDouble(map.get("p_rating").toString()));
 			dto.setP_image(map.get("p_image").toString());
 			dto.setP_url(map.get("p_url").toString());
 			dto.setP_price(map.get("p_price").toString());
