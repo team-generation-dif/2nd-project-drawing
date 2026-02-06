@@ -144,5 +144,19 @@
     JOIN subcategories s ON p.subcategory_id = s.subcategory_id
     WHERE s.category_id = #{categoryId}
 </select>
+<select id="getProductsBySubcategoryIdPaged" resultType="com.drawing.springboot.dto.ProductsDTO">
+        SELECT p.p_code, p.p_name, p.p_color, p.p_size, p.p_price, p.p_image, 
+               p.p_rating, p.p_url, p.subcategory_id AS subcategoryId
+        FROM products p
+        WHERE p.subcategory_id = #{subcategoryId}
+        ORDER BY p.p_code DESC
+        OFFSET #{offset} ROWS FETCH NEXT #{size} ROWS ONLY
+    </select>
+
+    <select id="countProductsBySubcategoryId" resultType="int">
+        SELECT COUNT(*) 
+        FROM products 
+        WHERE subcategory_id = #{subcategoryId}
+    </select>
 </mapper>
 
