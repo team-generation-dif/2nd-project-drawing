@@ -21,7 +21,7 @@
 <!-- 찜 추가 -->
 <insert id="addFavorite" parameterType="map">
     INSERT INTO FAVORITES (A_CODE, M_CODE, P_CODE)
-    VALUES (SYS_GUID(), #{m_code}, #{p_code})
+    VALUES ('FV' || LPAD(SEQ_FAVORITES.NEXTVAL, 5, '0'), #{m_code}, #{p_code})
 </insert>
 
 

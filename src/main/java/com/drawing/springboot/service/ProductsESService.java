@@ -14,9 +14,11 @@ import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import com.drawing.springboot.dto.ProductsDTO;
 
+@Service
 public class ProductsESService {
 
 	@Autowired
@@ -34,6 +36,7 @@ public class ProductsESService {
 		map.put("p_rating", dto.getP_rating());
 		map.put("p_image", dto.getP_image());
 		map.put("p_url", dto.getP_url());
+		map.put("p_price", dto.getP_price());
 		map.put("subcategoryName", dto.getSubcategoryName());
 		map.put("categoryName", dto.getCategoryName());
 		
@@ -75,8 +78,9 @@ public class ProductsESService {
 			dto.setP_rating(Double.parseDouble(String.valueOf(map.get("p_rating"))));
 			dto.setP_image(map.get("p_image").toString());
 			dto.setP_url(map.get("p_url").toString());
-			dto.setSubcategoryName(map.get("subcategoryName").toString());
-			dto.setCategoryName(map.get("categoryName").toString());
+			dto.setP_price(map.get("p_price").toString());
+			dto.setSubcategoryName(map.get("subcategoryname").toString());
+			dto.setCategoryName(map.get("categoryname").toString());
 			
 			list.add(dto);
 		}

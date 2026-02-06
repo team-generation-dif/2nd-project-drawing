@@ -29,17 +29,57 @@
     </c:if>
 
     <!-- 일반 사용자 + 게스트 메뉴 -->
-   <c:if test="${!fn:contains(pageContext.request.requestURI, '/admin/')}">
-    <li><a href="/guest/list">게시판</a></li>
-    <li><a href="/notice/list">공지사항</a></li>
-    <li><a href="/user/interior/myDraw" class="need-login">3D인테리어</a></li>
-    <li><a href="/products/favorites" class="need-login">찜목록</a></li>
-    <li><a href="/user/myBookmarks" class="need-login">북마크</a></li>
-</c:if>
+    <c:if test="${!fn:contains(pageContext.request.requestURI, '/admin/')}">
+	    <li><a href="/guest/list">게시판</a></li>
+	    <li><a href="/notice/list">공지사항</a></li>
+	    <li><a href="/user/interior/myDraw" class="need-login">3D인테리어</a></li>
+	    <li><a href="/products/favorites" class="need-login">찜목록</a></li>
+	    <li><a href="/user/myBookmarks" class="need-login">북마크</a></li>
+	    <form name="search" method="get" action="/products/search">
+			<input type="text" name="keyword" id="keyword" placeholder="검색어 입력" autocomplete="off">
+			<input type="submit" value="검색">
+			<div id="suggestions" style="border:1px solid #ccc; position:absolute; background:white; width:170px; z-index:10"></div>
+		</form>
+	</c:if>
 
 
 </ul>
 </nav>
+<!-- 자동완성 박스 ajax 스크립트 
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+	$("#keyword").on("keyup", function(){
+	    let q = $(this).val();
+	
+	    if(q.length < 1){
+	        $("#suggestions").empty();
+	        return;
+	    }
+	
+	    $.ajax({
+	        url: "/autocomplete",
+	        data: { keyword: q },
+	        success: function(list){
+	            let html = "";
+	            list.forEach(function(item){
+	                // highlight 필드 사용
+	                html += "<div class='item'>" + item.highlight + "</div>";
+	            });
+	            $("#suggestions").html(html);
+	        },
+	        error: function(){
+	            console.log("autocomplete error");
+	        }
+	    });
+	});
+	
+	// 추천어 클릭 시 검색창에 채움
+	$(document).on("click",".item",function(){
+	    // <em> 태그 제거 후 input에 넣기
+	    $("#keyword").val($(this).text());
+	    $("#suggestions").empty();
+	});
+</script>-->
 
 <!-- 로그인 사용자 영역 -->
 <sec:authorize access="isAuthenticated()">

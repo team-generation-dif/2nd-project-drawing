@@ -19,6 +19,7 @@ import com.drawing.springboot.dto.CategoryDTO;
 import com.drawing.springboot.dto.ProductsDTO;
 import com.drawing.springboot.dto.SubcategoryDTO;
 import com.drawing.springboot.service.FavoritesService;
+import com.drawing.springboot.service.ProductsESService;
 import com.drawing.springboot.service.ProductsService;
 
 import jakarta.servlet.http.HttpSession;
@@ -33,6 +34,7 @@ public class ProductsController {
     @Autowired private ISubcategoryDAO subcategoryDAO;
     @Autowired private ProductsService productsService;
     @Autowired private FavoritesService favoritesService;
+    @Autowired private ProductsESService ESService;
 
     // 카테고리 목록
     @GetMapping("/categories")
@@ -56,6 +58,17 @@ public class ProductsController {
         return "guest/products";
     }
 
+    // 엘라스틱서치 검색창 상품 조회
+    @RequestMapping("/search")
+    public String searchbox(@RequestParam("keyword") String keyword, Model model) throws Exception {
+    	
+    	List<ProductsDTO> products = ESService.search(keyword);
+    	
+    	model.addAttribute("products", products);
+    	
+    	return "guest/products";
+    }
+    
     // 상품 상세 (로그인 체크 후 IKEA URL로 리다이렉트)
     @GetMapping("/{productId}")
     public String productDetail(@PathVariable("productId") Long p_code, HttpSession session) {
