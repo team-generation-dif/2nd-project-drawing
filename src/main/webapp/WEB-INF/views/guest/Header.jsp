@@ -35,42 +35,50 @@
 	    <li><a href="/user/interior/myDraw" class="need-login">3D인테리어</a></li>
 	    <li><a href="/products/favorites" class="need-login">찜목록</a></li>
 	    <li><a href="/user/myBookmarks" class="need-login">북마크</a></li>
-	    <form name="search" method="get" action="/products/search">
-			<input type="text" name="keyword" id="keyword" placeholder="검색어 입력" autocomplete="off">
-			<input type="submit" value="검색">
-			<div id="suggestions" style="border:1px solid #ccc; position:absolute; background:white; width:170px; z-index:10"></div>
-		</form>
+
 	</c:if>
 
 
 </ul>
+	<div class="search-container">
+	    <form name="search" method="get" action="/products/search" class="search-form">
+			<input type="text" name="keyword" id="keyword" placeholder="검색어 입력" autocomplete="off">
+			<input type="submit" value="검색">
+			<div id="suggestions" style="border:1px solid #ccc; position:absolute; background:white; width:170px; z-index:10"></div>
+		</form>
+	</div>
 </nav>
-<!-- 자동완성 박스 ajax 스크립트 
+<!-- 자동완성 박스 ajax 스크립트 --> 
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script>
+	let timer;
 	$("#keyword").on("keyup", function(){
 	    let q = $(this).val();
 	
-	    if(q.length < 1){
+	    if (timer) {
+	        clearTimeout(timer);
+	    }
+	    
+	    if(q.length < 2){
 	        $("#suggestions").empty();
 	        return;
 	    }
-	
-	    $.ajax({
-	        url: "/autocomplete",
-	        data: { keyword: q },
-	        success: function(list){
-	            let html = "";
-	            list.forEach(function(item){
-	                // highlight 필드 사용
-	                html += "<div class='item'>" + item.highlight + "</div>";
-	            });
-	            $("#suggestions").html(html);
-	        },
-	        error: function(){
-	            console.log("autocomplete error");
-	        }
-	    });
+	    timer = setTimeout(function() {
+		    $.ajax({
+		        url: "/products/autocomplete",
+		        data: { keyword: q },
+		        success: function(list){
+		            let html = "";
+		            list.forEach(function(item){
+		                html += "<div class='item'>"+item.p_name+"</div>";
+		            });
+		            $("#suggestions").html(html);
+		        },
+		        error: function(){
+		            console.log("autocomplete error");
+		        }
+		    });
+	    }, 300);
 	});
 	
 	// 추천어 클릭 시 검색창에 채움
@@ -79,7 +87,7 @@
 	    $("#keyword").val($(this).text());
 	    $("#suggestions").empty();
 	});
-</script>-->
+</script>
 
 <!-- 로그인 사용자 영역 -->
 <sec:authorize access="isAuthenticated()">

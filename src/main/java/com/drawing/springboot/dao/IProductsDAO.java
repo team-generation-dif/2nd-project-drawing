@@ -10,9 +10,9 @@ import com.drawing.springboot.dto.ProductsDTO;
 @Mapper
 public interface IProductsDAO {
 	List<ProductsDTO> getAllProducts();
-    ProductsDTO getProductById(Long p_code);
-    List<ProductsDTO> getProductsByCategoryId(Long categoryId);
-    List<ProductsDTO> getProductsBySubcategoryId(Long subcategoryId);
+    ProductsDTO getProductById(int p_code);
+    List<ProductsDTO> getProductsByCategoryId(int categoryId);
+    List<ProductsDTO> getProductsBySubcategoryId(int subcategoryId);
     void insertProduct(ProductsDTO product);
     void updateProduct(ProductsDTO product);
     void deleteProduct(int p_code);
