@@ -21,7 +21,7 @@
     .container {
         max-width: 1200px;
         margin: 0 auto;
-        padding: 40px 20px 100px; /* 상단 여백 40px, 좌우 20px, 하단 100px */
+        padding: 20px 20px 10px; /* 상단 여백 40px, 좌우 20px, 하단 100px */
         box-sizing: border-box;
     }
 
@@ -35,7 +35,7 @@
     h3 {
         font-size: 1.2rem;
         font-weight: 700;
-        margin: 40px 0 20px;
+        margin: 20px 0 20px;
         color: #8b7e74;
     }
 
@@ -44,7 +44,7 @@
         display: flex;
         flex-wrap: wrap;
         gap: 15px;
-        margin-bottom: 50px;
+        margin-bottom: 20px;
     }
 
     .subcategory-card {
@@ -185,6 +185,40 @@
         background: #fff0ed;
         color: #e76f51;
     }
+    /* 페이징 스타일 */
+.pagination {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    margin: 50px 0;
+}
+
+.pagination a {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border-radius: 8px;
+    background: #fff;
+    border: 1px solid #dee2e6;
+    color: #4a3f35;
+    text-decoration: none;
+    font-weight: 600;
+    transition: 0.3s;
+}
+
+.pagination a:hover {
+    background-color: #fff0ed;
+    border-color: #e76f51;
+    color: #e76f51;
+}
+
+.pagination a.active {
+    background-color: #e76f51;
+    border-color: #e76f51;
+    color: white;
+}
 </style>
 </head>
 <body>
@@ -211,34 +245,98 @@
 	</div>
 
 	<!-- 상품 목록 -->
-	<h3>상품 목록</h3>
-	<div class="product-grid">
-	    <c:forEach var="product" items="${products}">
-		    <div class="product-card">
-		        <c:choose>
-		            <c:when test="${not empty product.p_url}">
-		                <!-- ✅ 이미지+상품명 클릭 시 외부 URL 이동 -->
-		                <a href="${product.p_url}" target="_blank" class="product-link">
-		                    <img src="${pageContext.request.contextPath}${product.p_image}" alt="${product.p_name}" />
-		                    <h4>${product.p_name}</h4>
-		                </a>
-		            </c:when>
-		            <c:otherwise>
-		                <img src="${pageContext.request.contextPath}${product.p_image}" alt="${product.p_name}" />
-		                <h4>${product.p_name}</h4>
-		            </c:otherwise>
-		        </c:choose>
-		
-		        <p class="price-tag">${product.p_price} 원</p>
-		        <p class="rating-tag">⭐ ${product.p_rating}</p>
-		
-		        <!-- 찜하기 버튼 -->
-		        <form action="/products/favorites/add" method="post">
-		            <input type="hidden" name="p_code" value="${product.p_code}" />
-		            <button type="submit" class="wishlist-btn">♡ 찜하기</button>
-		        </form>
-		    </div>
-		</c:forEach>
-	</div>
+	<div class="container">
+    <h3>상품 목록</h3>
+    <div class="product-grid">
+        <c:forEach var="product" items="${products}">
+            <div class="product-card">
+                <c:choose>
+                    <c:when test="${not empty product.p_url}">
+                        <a href="${product.p_url}" target="_blank" class="product-link">
+                            <img src="${pageContext.request.contextPath}${product.p_image}" alt="${product.p_name}" />
+                            <h4>${product.p_name}</h4>
+                        </a>
+                    </c:when>
+                    <c:otherwise>
+                        <img src="${pageContext.request.contextPath}${product.p_image}" alt="${product.p_name}" />
+                        <h4>${product.p_name}</h4>
+                    </c:otherwise>
+                </c:choose>
+
+                <p class="price-tag">${product.p_price} 원</p>
+                <p class="rating-tag">⭐ ${product.p_rating}</p>
+
+                <form action="/products/favorites/add" method="post">
+                    <input type="hidden" name="p_code" value="${product.p_code}" />
+                    <button type="submit" class="wishlist-btn">♡ 찜하기</button>
+                </form>
+            </div>
+        </c:forEach>
+    </div>
+
+<div class="pagination-container" style="margin-top: 80px; text-align: center; margin-bottom: 100px;">
+    <div class="pagination-grida">
+        
+        <c:if test="${currentPage > 1}">
+            <a href="?page=${currentPage - 1}" class="grida-page-link">&lt;</a>
+        </c:if>
+
+        <c:set var="startPage" value="${currentPage - 2 > 0 ? currentPage - 2 : 1}" />
+        <c:set var="endPage" value="${startPage + 4 > totalPages ? totalPages : startPage + 4}" />
+        
+        <c:if test="${endPage == totalPages && endPage - 4 > 0}">
+            <c:set var="startPage" value="${endPage - 4}" />
+        </c:if>
+
+        <c:forEach var="i" begin="${startPage}" end="${endPage}">
+            <a href="?page=${i}" class="grida-page-link ${i == currentPage ? 'active' : ''}">
+                ${i}
+            </a>
+        </c:forEach>
+
+        <c:if test="${currentPage < totalPages}">
+            <a href="?page=${currentPage + 1}" class="grida-page-link">&gt;</a>
+        </c:if>
+        
+    </div>
+</div>
+
+<style>
+/* 클래스명을 'grida-page-link'로 새로 정의해서 기존 스타일과 충돌을 방지합니다 */
+.pagination-grida {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+}
+
+.grida-page-link {
+    width: 44px;
+    height: 44px;
+    border-radius: 14px; /* 인테리어 페이지와 동일한 곡률 */
+    background: #fff;
+    color: #8b7e74; /* 차분한 브라운 */
+    text-decoration: none;
+    font-weight: 600;
+    border: 1px solid #f7ede2; /* 연한 베이지 테두리 */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition: all 0.3s ease;
+}
+
+.grida-page-link:hover:not(.active) {
+    background: #fdfbf9;
+    border-color: #8b7e74;
+    transform: translateY(-2px);
+}
+
+.grida-page-link.active {
+    background: #8b7e74; /* 활성화된 버튼 색상 */
+    color: #fff !important;
+    border-color: #8b7e74;
+    box-shadow: 0 5px 15px rgba(139, 126, 116, 0.2);
+}
+</style>
 </body>
 </html>

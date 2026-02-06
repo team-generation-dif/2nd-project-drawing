@@ -124,6 +124,22 @@
    		ORDER BY p.p_code DESC
     	OFFSET #{offset} ROWS FETCH NEXT #{size} ROWS ONLY
 	</select>
-   
+   <select id="getProductsByCategoryIdPaged" resultType="com.drawing.springboot.dto.ProductsDTO">
+    SELECT p.p_code, p.p_name, p.p_color, p.p_size, p.p_price, p.p_image, 
+           p.p_rating, p.p_url, p.subcategory_id AS subcategoryId,
+           s.category_id AS categoryId
+    FROM products p
+    JOIN subcategories s ON p.subcategory_id = s.subcategory_id
+    WHERE s.category_id = #{categoryId}
+    ORDER BY p.p_code DESC
+    OFFSET #{offset} ROWS FETCH NEXT #{size} ROWS ONLY
+</select>
+
+<select id="countProductsByCategoryId" resultType="int">
+    SELECT COUNT(*) 
+    FROM products p
+    JOIN subcategories s ON p.subcategory_id = s.subcategory_id
+    WHERE s.category_id = #{categoryId}
+</select>
 </mapper>
 
