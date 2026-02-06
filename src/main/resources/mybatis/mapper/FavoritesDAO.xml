@@ -40,9 +40,10 @@
            p.p_price AS p_price,
            p.p_image AS p_image,
            p.p_rating AS p_rating,
+           p.p_url   AS p_url,          <!-- ✅ 외부 URL 추가 -->
            p.subcategory_id AS subcategoryId,
-           s.name AS subcategoryName,   -- ✅ 하위 카테고리명
-           c.name AS categoryName       -- ✅ 상위 카테고리명
+           s.name AS subcategoryName,   -- 하위 카테고리명
+           c.name AS categoryName       -- 상위 카테고리명
     FROM FAVORITES f
     JOIN products p ON f.p_code = p.p_code
     JOIN subcategories s ON p.subcategory_id = s.subcategory_id
@@ -58,11 +59,12 @@
            p.p_price  AS p_price,
            p.p_image  AS p_image,
            p.p_rating AS p_rating,
+           p.p_url    AS p_url,         <!-- ✅ 외부 URL 추가 -->
            p.subcategory_id AS subcategoryId
     FROM FAVORITES f
     JOIN products p ON f.p_code = p.p_code
     WHERE f.m_code = #{m_code}
-      AND p.subcategory_id = #{categoryId}  <!-- ✅ categoryId 대신 subcategoryId -->
-</select>    
+      AND p.subcategory_id = #{subcategoryId}
+</select>   
           
 </mapper>
