@@ -32,8 +32,10 @@ public class ProductsESService {
 		map.put("p_color", dto.getP_color());
 		map.put("p_size", dto.getP_size());
 		map.put("p_rating", dto.getP_rating());
-		map.put("subcategoryName", dto.getSubcatName());
-		map.put("categoryName", dto.getCatName());
+		map.put("p_image", dto.getP_image());
+		map.put("p_url", dto.getP_url());
+		map.put("subcategoryName", dto.getSubcategoryName());
+		map.put("categoryName", dto.getCategoryName());
 		
 		// products 인덱스를 지정하여 문서 저장
 		IndexRequest request = new IndexRequest("products")
@@ -71,8 +73,10 @@ public class ProductsESService {
 			dto.setP_color(map.get("p_color").toString());
 			dto.setP_size(map.get("p_size").toString());
 			dto.setP_rating(Double.parseDouble(String.valueOf(map.get("p_rating"))));
-			dto.setSubcatName(map.get("subcatName").toString());
-			dto.setCatName(map.get("catName").toString());
+			dto.setP_image(map.get("p_image").toString());
+			dto.setP_url(map.get("p_url").toString());
+			dto.setSubcategoryName(map.get("subcategoryName").toString());
+			dto.setCategoryName(map.get("categoryName").toString());
 			
 			list.add(dto);
 		}
