@@ -14,7 +14,7 @@
         <a href="/" class="logo">Drawing Home</a>
     </sec:authorize>
 
-<nav>
+<nav class="header-nav">
 <ul class="nav-menu">
 
     <!-- 관리자 전용 메뉴 -->
@@ -42,12 +42,14 @@
 </ul>
 	<div class="search-container">
 	    <form name="search" method="get" action="/products/search" class="search-form">
-			<input type="text" name="keyword" id="keyword" placeholder="검색어 입력" autocomplete="off">
-			<input type="submit" value="검색">
-			<div id="suggestions" style="border:1px solid #ccc; position:absolute; background:white; width:170px; z-index:10"></div>
+			<input type="text" name="keyword" id="keyword" placeholder="찾으시는 가구가 있나요?" autocomplete="off">
+			<button type="submit" class="search-btn">
+                <i class="fa fa-search"></i>
+            </button>
+			<div id="suggestions" class="suggestions-box"></div>
 		</form>
 	</div>
-</nav>
+
 <!-- 자동완성 박스 ajax 스크립트 --> 
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script>
@@ -113,7 +115,7 @@
 
 </div>
 </sec:authorize>
-
+</nav>
 </header>
 
 <!-- 게스트 로그인 차단 스크립트 -->
@@ -159,6 +161,15 @@ document.addEventListener("DOMContentLoaded", function() {
     top: 0;
     z-index: 1000;
     font-family: 'Pretendard', sans-serif;
+}
+
+/* 헤더 내비게이션 정렬 */
+.header-nav {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    flex-grow: 1;
+    justify-content: flex-end; /* 메뉴와 검색창을 우측으로 */
 }
 
 /* 로고 섹션 */
@@ -220,6 +231,98 @@ nav {
 .nav-menu li a:hover::after {
     width: 100%; /* 글자 너비만큼 100% 채움 */
 }
+
+/* 검색창 컨테이너 */
+.search-container {
+    position: relative;
+    width: 250px; /* 기본 너비 */
+    transition: width 0.3s ease;
+}
+
+.search-container:focus-within {
+    width: 280px; /* 클릭 시 약간 넓어짐 */
+}
+
+.search-form {
+    display: flex;
+    align-items: center;
+    background: #fff;
+    border: 1px solid #e2d7cc; /* main.jsp의 베이지 톤과 맞춤 */
+    border-radius: 20px;
+    padding: 4px 12px;
+    transition: all 0.3s ease;
+}
+
+.search-form:hover {
+    border-color: #d4a373; /* 강조색 */
+}
+
+.search-form:focus-within {
+    border-color: #d4a373;
+    box-shadow: 0 4px 12px rgba(212, 163, 115, 0.15);
+}
+
+.search-form input {
+    border: none;
+    outline: none;
+    padding: 6px 8px;
+    width: 100%;
+    font-family: 'Pretendard', sans-serif;
+    font-size: 0.9rem;
+    color: #4a3f35;
+    background: transparent;
+}
+
+.search-form input::placeholder {
+    color: #bcaaa4;
+}
+
+.search-btn {
+    background: none;
+    border: none;
+    color: #8b7e74;
+    cursor: pointer;
+    padding: 4px;
+    transition: color 0.2s;
+}
+
+.search-btn:hover {
+    color: #d4a373;
+}
+
+/* 자동완성 박스 (suggestions) */
+.suggestions-box {
+    position: absolute;
+    top: calc(100% + 8px);
+    left: 0;
+    width: 100%;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+    z-index: 1000;
+    overflow: hidden;
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+.suggestions-box .item {
+    padding: 12px 16px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    color: #4a3f35;
+    border-bottom: 1px solid #f9f5f0;
+    transition: background 0.2s;
+}
+
+.suggestions-box .item:last-child {
+    border-bottom: none;
+}
+
+.suggestions-box .item:hover {
+    background-color: #fffaf5; /* main.jsp 배경색과 동일 */
+    color: #d4a373;
+}
+
 
 /* 사용자 영역 섹션 */
 .user-area {
