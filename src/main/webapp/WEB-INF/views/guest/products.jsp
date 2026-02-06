@@ -122,6 +122,23 @@
         margin: 5px 0;
         font-size: 15px;
     }
+    .product-link {
+        text-decoration: none;
+        color: inherit;
+        cursor: pointer; /* ✅ 손 모양 커서 */
+    }
+/*    .wishlist-btn {
+        margin-top: 10px;
+        padding: 6px 12px;
+        background-color: #ff4081;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        font-size: 14px;
+        cursor: pointer;
+    }
+    .wishlist-btn:hover {
+        background-color: #e91e63; */
 
     .price-tag {
         color: #e76f51;
@@ -214,6 +231,40 @@
                 </div>
             </c:forEach>
         </div>
+    </c:forEach>
+</div>
+</c:if>
 
-    </div> </body>
+<!-- 상품 목록 -->
+<h3>상품 목록</h3>
+<div class="product-grid">
+    <c:forEach var="product" items="${products}">
+    <div class="product-card">
+        <c:choose>
+            <c:when test="${not empty product.p_url}">
+                <!-- ✅ 이미지+상품명 클릭 시 외부 URL 이동 -->
+                <a href="${product.p_url}" target="_blank" class="product-link">
+                    <img src="${pageContext.request.contextPath}${product.p_image}" alt="${product.p_name}" />
+                    <h4>${product.p_name}</h4>
+                </a>
+            </c:when>
+            <c:otherwise>
+                <img src="${pageContext.request.contextPath}${product.p_image}" alt="${product.p_name}" />
+                <h4>${product.p_name}</h4>
+            </c:otherwise>
+        </c:choose>
+
+        <p><strong>${product.p_price}</strong> 원</p>
+        <p>⭐ ${product.p_rating}</p>
+
+        <!-- 찜하기 버튼 -->
+        <form action="/products/favorites/add" method="post">
+            <input type="hidden" name="p_code" value="${product.p_code}" />
+            <button type="submit" class="wishlist-btn">♡ 찜하기</button>
+        </form>
+    </div>
+</c:forEach>
+
+
+</body>
 </html>

@@ -1,4 +1,3 @@
-
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
 <!DOCTYPE html>
@@ -177,15 +176,26 @@
 
         <form name="newForm" action="${pageContext.request.contextPath}/products/admin/new" 
               method="post" onsubmit="return validateForm()">
-
-            <div class="form-group">
-                <label for="p_code">상품 코드</label>
-                <input type="text" name="p_code" placeholder="숫자만 입력하세요" required />
-            </div>
-
+              
+			<!-- 서버단 중복검사 에러 메시지 -->				
+			<c:if test="${not empty errorMessage}">
+    			<div style="color:red; font-weight:bold; margin-bottom:20px;">
+        			${errorMessage}
+    				</div>
+				</c:if>
+				
+			<!-- Bean Validation 에러 메시지 -->			
+			<c:if test="${not empty org.springframework.validation.BindingResult.product}">
+    			<c:forEach var="error" items="${org.springframework.validation.BindingResult.product.allErrors}">
+        			<div style="color:red; font-weight:bold; margin-bottom:10px;">
+            			${error.defaultMessage}
+        			</div>
+    			</c:forEach>
+			</c:if>
+														
             <div class="form-group">
                 <label for="p_name">상품명</label>
-                <input type="text" name="p_name" placeholder="상품 이름을 입력하세요" required />
+                <input type="text" name="p_name" placeholder="상품 이름을 입력하세요" required />                           
             </div>
 
             <div class="form-group" style="display: flex; gap: 15px;">
@@ -195,13 +205,13 @@
                 </div>
                 <div style="flex: 1;">
                     <label for="p_width">사이즈/폭</label>
-                    <input type="text" name="p_width" placeholder="예: 120x60" />
+                    <input type="text" name="p_size" placeholder="예: 120x60x60" />
                 </div>
             </div>
 
             <div class="form-group">
                 <label for="p_price">가격 (원)</label>
-                <input type="text" name="p_price" placeholder="예: 45000" required />
+                <input type="text" name="p_price" placeholder="예: 45000" required />              
             </div>
 
             <div class="form-group">
@@ -211,7 +221,7 @@
 
             <div class="form-group">
                 <label for="p_rating">평점 (0.0 ~ 5.0)</label>
-                <input type="text" name="p_rating" placeholder="예: 4.5" />
+                <input type="text" name="p_rating" placeholder="예: 4.5" />           
             </div>
 
             <div class="form-group">
@@ -236,10 +246,10 @@
                 </select>
             </div>
 
-            <div class="form-group">
-                <label for="externalUrl">외부 상품 URL</label>
-                <input type="text" name="externalUrl" placeholder="이케아 공식 홈페이지 링크 등" />
-            </div>
+           <div class="form-group">
+    			<label for="p_url">외부 상품 URL</label>
+    			<input type="text" name="p_url" placeholder="이케아 공식 홈페이지 링크 등" />
+		   </div>
 
             <button type="submit" class="submit-btn">등록 완료</button>
         </form>

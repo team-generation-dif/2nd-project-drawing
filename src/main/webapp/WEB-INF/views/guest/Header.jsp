@@ -20,8 +20,9 @@
     <!-- 관리자 전용 메뉴 -->
     <c:if test="${fn:contains(pageContext.request.requestURI, '/admin/')}">
         <sec:authorize access="hasRole('ADMIN')">
+        	<li><a href="${pageContext.request.contextPath}/products/admin/list">상품 관리</a></li>      	
             <li><a href="${pageContext.request.contextPath}/products/admin/new">상품등록</a></li>
-            <li><a href="${pageContext.request.contextPath}/products/admin/products">CSV 업로드</a></li>
+            <li><a href="${pageContext.request.contextPath}/products/admin/upload-page">CSV 업로드</a></li>
             <li><a href="/notice/list">공지사항</a></li>
             <li class="divider"></li>
         </sec:authorize>
