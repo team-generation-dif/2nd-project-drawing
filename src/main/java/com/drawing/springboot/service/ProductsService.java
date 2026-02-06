@@ -20,13 +20,17 @@ public class ProductsService {
 
     @Autowired
     private IProductsDAO productsDAO;
+    @Autowired
+    private ProductsESService esService;
+    
     
     public boolean existsByName(String name) {
         return productsDAO.countByName(name) > 0;
     }
 
-    public void insertProduct(ProductsDTO product) {
+    public void insertProduct(ProductsDTO product) throws Exception {
         productsDAO.insertProduct(product);
+        esService.save(product);
     }
     
     @Transactional

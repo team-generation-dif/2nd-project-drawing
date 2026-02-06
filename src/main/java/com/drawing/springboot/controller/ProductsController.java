@@ -1,6 +1,7 @@
 package com.drawing.springboot.controller;
 
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -10,6 +11,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.drawing.springboot.dao.ICategoryDAO;
@@ -34,7 +36,7 @@ public class ProductsController {
     @Autowired private ISubcategoryDAO subcategoryDAO;
     @Autowired private ProductsService productsService;
     @Autowired private FavoritesService favoritesService;
-    @Autowired private ProductsESService ESService;
+    @Autowired private ProductsESService esService;
 
     // 카테고리 목록
     @GetMapping("/categories")
@@ -46,7 +48,7 @@ public class ProductsController {
 
     // 카테고리 상세
     @GetMapping("/categories/{categoryId}")
-    public String showCategoryDetail(@PathVariable("categoryId") Long categoryId, Model model) {
+    public String showCategoryDetail(@PathVariable("categoryId") int categoryId, Model model) {
         CategoryDTO category = categoryDAO.getCategoryById(categoryId);
         List<SubcategoryDTO> subcategories = subcategoryDAO.getSubcategoriesByCategoryId(categoryId);
         List<ProductsDTO> products = productsDAO.getProductsByCategoryId(categoryId);
@@ -62,16 +64,22 @@ public class ProductsController {
     @RequestMapping("/search")
     public String searchbox(@RequestParam("keyword") String keyword, Model model) throws Exception {
     	
-    	List<ProductsDTO> products = ESService.search(keyword);
-    	
+    	List<ProductsDTO> products = esService.search(keyword);
     	model.addAttribute("products", products);
     	
     	return "guest/products";
     }
     
+    // 엘라스틱서치 검색창 자동완성
+    @RequestMapping("/autocomplete")
+    @ResponseBody
+    public List<Map<String, String>> autocompletebox(@RequestParam("keyword") String keyword) throws Exception {
+    	return esService.autocomplete(keyword);
+    }
+    
     // 상품 상세 (로그인 체크 후 IKEA URL로 리다이렉트)
     @GetMapping("/{productId}")
-    public String productDetail(@PathVariable("productId") Long p_code, HttpSession session) {
+    public String productDetail(@PathVariable("productId") int p_code, HttpSession session) {
         if (session.getAttribute("role") == null) {
             return "redirect:/guest/loginForm?redirect=/products/" + p_code;
         }
@@ -91,11 +99,22 @@ public class ProductsController {
 
     // 관리자 상품 등록 처리 (유효성 검사 포함)
     @PostMapping("/admin/new")
-    public String createProduct(ProductsDTO product, Model model) {
+    public String createProduct(ProductsDTO product, Model model) throws Exception {
         if (productsService.existsByName(product.getP_name())) {
             model.addAttribute("errorMessage", "이미 존재하는 상품명입니다.");
             return "admin/newproducts"; // 등록 폼 JSP로 다시 이동
         }
+        
+        SubcategoryDTO subcategoryDTO = new SubcategoryDTO();
+        CategoryDTO categoryDTO = new CategoryDTO();
+        
+        int subcategoryid = product.getSubcategoryId();
+        subcategoryDTO = subcategoryDAO.getSubcategoryById(subcategoryid);
+        categoryDTO = categoryDAO.getCategoryById(subcategoryDTO.getCategoryId());
+        
+        product.setCategoryName(categoryDTO.getName());
+        product.setSubcategoryName(subcategoryDTO.getName());
+        
         productsService.insertProduct(product);
         return "redirect:/products/admin/list";
     }
@@ -103,7 +122,7 @@ public class ProductsController {
     // 관리자 상품 수정 폼
     @GetMapping("/admin/edit/{p_code}")
     public String editProductForm(@PathVariable("p_code") int p_code, Model model) {
-        ProductsDTO product = productsDAO.getProductById((long)p_code);
+        ProductsDTO product = productsDAO.getProductById(p_code);
         model.addAttribute("product", product);
         
         // ✅ 카테고리/서브카테고리 리스트도 모델에 추가
@@ -117,15 +136,28 @@ public class ProductsController {
 
     // 상품 수정 처리
     @PostMapping("/admin/update")
-    public String updateProduct(ProductsDTO product) {
+    public String updateProduct(ProductsDTO product) throws Exception {
+    	
+        SubcategoryDTO subcategoryDTO = new SubcategoryDTO();
+        CategoryDTO categoryDTO = new CategoryDTO();
+        
+        int subcategoryid = product.getSubcategoryId();
+        subcategoryDTO = subcategoryDAO.getSubcategoryById(subcategoryid);
+        categoryDTO = categoryDAO.getCategoryById(subcategoryDTO.getCategoryId());
+        
+        product.setCategoryName(categoryDTO.getName());
+        product.setSubcategoryName(subcategoryDTO.getName());
+    	
+        esService.save(product);
         productsDAO.updateProduct(product); // DB 업데이트
         return "redirect:/products/admin/list"; // 수정 후 목록으로 이동
     }
 
     // 관리자 상품 삭제
     @GetMapping("/admin/delete/{p_code}")
-    public String deleteProduct(@PathVariable("p_code") int p_code) {
+    public String deleteProduct(@PathVariable("p_code") int p_code) throws Exception {
         productsDAO.deleteProduct(p_code);
+        esService.delete(p_code);
         return "redirect:/products/admin/list"; // 삭제 후 목록으로 이동
     }
 
@@ -167,7 +199,7 @@ public class ProductsController {
 
     // 서브카테고리 상품 조회
     @GetMapping("/subcategories/{subcategoryId}")
-    public String showProductsBySubcategory(@PathVariable("subcategoryId") Long subcategoryId, Model model) {
+    public String showProductsBySubcategory(@PathVariable("subcategoryId") int subcategoryId, Model model) {
         List<ProductsDTO> products = productsDAO.getProductsBySubcategoryId(subcategoryId);
         SubcategoryDTO subcategory = subcategoryDAO.getSubcategoryById(subcategoryId);
         model.addAttribute("products", products);
