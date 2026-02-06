@@ -26,17 +26,17 @@ public interface IProductsDAO {
 
     // 4. [유저용] 특정 카테고리 내 상품 페이징 (새로 추가한 부분)
     List<ProductsDTO> getProductsByCategoryIdPaged(
-        @Param("categoryId") Long categoryId, 
+        @Param("categoryId") int categoryId, 
         @Param("size") int size, 
         @Param("offset") int offset
     );
     List<ProductsDTO> getProductsBySubcategoryIdPaged(
-    	    @Param("subcategoryId") Long subcategoryId, 
+    	    @Param("subcategoryId") int subcategoryId, 
     	    @Param("size") int size, 
     	    @Param("offset") int offset
     	);
 
-    	int countProductsBySubcategoryId(@Param("subcategoryId") Long subcategoryId);
+    	int countProductsBySubcategoryId(@Param("subcategoryId") int subcategoryId);
     // 5. [유저용] 특정 카테고리 전체 개수
-    int countProductsByCategoryId(@Param("categoryId") Long categoryId);
+    int countProductsByCategoryId(@Param("categoryId") int categoryId);
 }

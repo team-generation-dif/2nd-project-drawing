@@ -72,7 +72,7 @@ public class ProductsController {
     // [중요] 서브카테고리 상세 (페이징 적용 - 중복 제거됨)
     @GetMapping("/subcategories/{subcategoryId}")
     public String showProductsBySubcategory(
-            @PathVariable("subcategoryId") Long subcategoryId, 
+            @PathVariable("subcategoryId") int subcategoryId, 
             @RequestParam(name = "page", defaultValue = "1") int page, 
             Model model) {
         
