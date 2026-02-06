@@ -3,7 +3,7 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>그리다 어드민 | 공지사항 작성</title>
+    <title>그리다 관리자 | 공지사항 작성</title>
     <link href="https://fonts.googleapis.com/css2?family=Nanum+Myeongjo&family=Pretendard:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
         /* 1. 전체 배경 및 초기화 (통일성 유지) */
@@ -19,7 +19,7 @@
         .admin-write-wrap {
             background: #ffffff;
             width: 90%;
-            max-width: 1100px;
+            max-width: 1200px;
             margin: 60px auto 120px;
             padding: 80px 60px;
             border-radius: 20px;
@@ -140,7 +140,7 @@
 
     <div class="admin-write-wrap">
         <h2>📢 새 공지사항 작성</h2>
-        <hr>
+
 
         <form action="/admin/notice_insert" method="post">
             <div class="form-group">

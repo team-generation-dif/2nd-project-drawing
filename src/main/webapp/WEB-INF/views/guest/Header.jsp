@@ -33,7 +33,7 @@
     <li><a href="/guest/list">게시판</a></li>
     <li><a href="/notice/list">공지사항</a></li>
     <li><a href="/user/interior/myDraw" class="need-login">3D인테리어</a></li>
-    <li><a href="#" class="need-login">찜목록</a></li>
+    <li><a href="/products/favorites" class="need-login">찜목록</a></li>
     <li><a href="/user/myBookmarks" class="need-login">북마크</a></li>
 </c:if>
 

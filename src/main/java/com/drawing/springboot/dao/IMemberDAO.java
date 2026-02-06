@@ -21,6 +21,7 @@ public interface IMemberDAO {
     void updatePassword(@Param("m_email") String m_email, @Param("m_passwd") String m_passwd);
 int updateMemberInfo(MemberDTO memberDTO);
 int getTotalUserCount();
+int getNewUsersToday();
     
     // 3. 본인 인증용: ID로 회원 정보 가져오기
     MemberDTO findMemberById(String m_id);

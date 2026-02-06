@@ -4,7 +4,7 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title>그리다 | 상품 수정</title>
+<title>그리다 관리자 | 상품 수정</title>
 <link href="https://fonts.googleapis.com/css2?family=Nanum+Myeongjo&family=Pretendard:wght@400;600;700&display=swap" rel="stylesheet">
 <style>
     body { background-color: #fdfbf9; font-family: 'Pretendard', -apple-system, sans-serif; color: #4a3f35; margin: 0; padding: 0; }

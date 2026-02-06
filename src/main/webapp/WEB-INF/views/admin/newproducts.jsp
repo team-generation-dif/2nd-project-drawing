@@ -4,7 +4,7 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>그리다 | 상품 등록</title>
+    <title>그리다 관리자 | 상품 등록</title>
     <link href="https://fonts.googleapis.com/css2?family=Nanum+Myeongjo&family=Pretendard:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
         /* 1. 전체 배경 및 초기화 (공지사항 페이지 스타일) */
@@ -20,7 +20,7 @@
         .form-container {
             background: #ffffff;
             width: 90%;
-            max-width: 800px; /* 폼에 적당한 너비 */
+            max-width: 1200px; /* 폼에 적당한 너비 */
             margin: 60px auto 120px;
             padding: 80px 60px;
             border-radius: 20px;

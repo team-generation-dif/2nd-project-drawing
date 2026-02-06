@@ -1,227 +1,254 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
-<%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags" %>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <!DOCTYPE html>
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>그리다 어드민 | 관리 센터</title>
-<style>
-/* 헤더와 폰트 통일 및 추가 가독성 확보 */
-@import url('https://fonts.googleapis.com/css2?family=Nanum+Myeongjo:wght@700;800&family=Pretendard:wght@400;600;700&display=swap');
+    <title>그리다 관리자 | 데이터 분석 센터</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Nanum+Myeongjo:wght@800&family=Pretendard:wght@400;600;700&display=swap');
 
-:root {
-    --primary-color: #332d26;    /* 헤더 딥 브라운 */
-    --secondary-color: #6d625b;  /* 보조 브라운 */
-    --bg-warm: #fcfaf8;          /* 은은한 크림 베이지 */
-    --card-white: #ffffff;
-    --accent-coral: #d98d73;     /* 포인트 테라코타 */
-    --border-soft: #f0ede9;
-}
+        :root {
+            --sidebar-width: 260px; /* 사이드바 너비 살짝 조절 */
+            --primary-brown: #332d26;
+            --accent-coral: #e76f51;
+            --bg-warm: #fdfbf9;
+            --border-color: #f0ede9;
+        }
 
-body {
-    background-color: var(--card-white);
-    font-family: 'Pretendard', sans-serif;
-    margin: 0;
-    color: var(--primary-color);
-    -webkit-font-smoothing: antialiased;
-}
+        body { background: var(--bg-warm); font-family: 'Pretendard', sans-serif; margin: 0; padding-top: 80px; }
 
-/* 본문 영역 - 윈도우 창을 가득 채우면서도 아늑하게 */
-.admin-wrapper {
-    background: radial-gradient(circle at top right, #fffdfb 0%, #f7f3ef 100%);
-    min-height: calc(100vh - 85px);
-    padding: 60px 0 100px 0;
-}
+        /* 1. 상단 헤더 */
+        .header-container { position: fixed; top: 0; left: 0; width: 100%; height: 80px; background: #fff; border-bottom: 1px solid var(--border-color); z-index: 1000; }
 
-.admin-container {
-    max-width: 1560px; /* 창 크기에 맞춰 조금 더 넓게 */
-    margin: 0 auto;
-    padding: 0 32px;
-}
+        /* 2. 사이드바 (여백 확보) */
+        .sidebar { 
+            width: var(--sidebar-width); 
+            position: fixed; top: 80px; left: 0; bottom: 0; 
+            background: #fff; border-right: 1px solid var(--border-color); 
+            padding: 30px 15px; /* 내부 패딩 증가 */
+            box-sizing: border-box;
+        }
+        .nav-link { 
+            text-decoration: none; color: #6d625b; font-weight: 600; padding: 16px 20px; 
+            display: flex; align-items: center; border-radius: 14px; margin-bottom: 8px; transition: 0.3s; 
+        }
+        .nav-link:hover, .nav-link.active { background: #fff1f0; color: var(--accent-coral); box-shadow: 0 4px 10px rgba(231, 111, 81, 0.1); }
 
-/* 상단 요약 섹션 - 여백과 폰트 상향 */
-.summary-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-end;
-    margin-bottom: 60px;
-    padding-bottom: 30px;
-    border-bottom: 2px solid var(--border-soft);
-}
+        /* 3. 메인 콘텐츠 (사이드바와의 간격 대폭 확보) */
+        .main-content { 
+            margin-left: calc(var(--sidebar-width) + 40px); /* 사이드바 너비 + 40px 추가 간격 */
+            padding: 40px 60px 40px 20px; /* 오른쪽과 상단 여백 넉넉히 */
+            max-width: 1400px;
+        }
 
-.summary-header h1 {
-    font-family: 'Nanum Myeongjo', serif;
-    font-size: 2.8rem; /* 더 크게 상향 */
-    font-weight: 800;
-    margin: 0;
-    letter-spacing: -1px;
-}
+        /* 4. 상단 통계 카드 */
+        .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 25px; margin-bottom: 40px; }
+        .stat-card { background: #fff; padding: 28px; border-radius: 24px; border: 1px solid var(--border-color); box-shadow: 0 8px 20px rgba(0,0,0,0.02); }
+        .stat-val { font-size: 2.2rem; font-weight: 800; color: var(--primary-brown); margin: 12px 0; }
 
-.summary-header p {
-    font-size: 1.2rem; /* 환영 인사 크기 상향 */
-    margin-top: 15px;
-    color: var(--secondary-color);
-}
+        /* 5. 분석 섹션 레이아웃 */
+        .dashboard-row { display: grid; grid-template-columns: 1.5fr 1fr; gap: 35px; align-items: start; }
+        .card { background: #fff; border-radius: 28px; padding: 35px; border: 1px solid var(--border-color); box-shadow: 0 10px 30px rgba(0,0,0,0.03); }
 
-/* 카드 그리드 - 2열로 배치하여 공간을 꽉 채움 */
-.admin-grid {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 40px; /* 살짝 넉넉하게 */
-}
-
-/* 데스크톱 큰 화면용 */
-@media (min-width: 1600px) {
-    .admin-grid {
-        grid-template-columns: repeat(3, 1fr);
-    }
-}
-
-
-.admin-card {
-    background: var(--card-white);
-    padding: 45px;
-    border-radius: 40px; /* 더 둥글고 부드럽게 */
-    border: 1px solid var(--border-soft);
-    text-decoration: none;
-    color: inherit;
-    transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    position: relative;
-    overflow: hidden;
-}
-
-/* 카드 호버 효과 - 가구처럼 묵직한 입체감 */
-.admin-card:hover {
-    transform: translateY(-12px);
-    box-shadow: 0 30px 60px rgba(74, 63, 53, 0.08);
-    border-color: var(--secondary-color);
-}
-
-.admin-card h3 {
-    font-family: 'Nanum Myeongjo', serif;
-    font-size: 1.8rem; /* 제목 크기 상향 */
-    margin: 0 0 20px 0;
-    color: var(--primary-color);
-}
-
-.admin-card p {
-    font-size: 1.05rem; /* 설명 글자 상향 */
-    color: var(--secondary-color);
-    margin: 0;
-    line-height: 1.7;
-    word-break: keep-all;
-}
-
-/* 카드 하단 정보 섹션 */
-.card-footer {
-    margin-top: 35px;
-    text-align: right;
-    font-weight: 700;
-    font-size: 1rem;
-    color: var(--accent-coral);
-    letter-spacing: 0.5px;
-}
-
-/* 이동 버튼 커스텀 */
-.btn-notice {
-    display: inline-block;
-    margin-top: 25px;
-    padding: 12px 28px;
-    background-color: var(--bg-warm);
-    color: var(--secondary-color);
-    border-radius: 50px;
-    text-decoration: none;
-    font-size: 0.95rem;
-    font-weight: 700;
-    transition: 0.3s;
-    border: 1px solid var(--border-soft);
-}
-
-.btn-notice:hover {
-    background-color: var(--primary-color);
-    color: #fff;
-    border-color: var(--primary-color);
-}
-
-/* 상단 유저페이지 이동 버튼 */
-.nav-to-user {
-    text-decoration: none;
-    display: inline-block;
-    padding: 12px 24px;
-    background-color: var(--primary-color);
-    color: white !important;
-    border-radius: 50px;
-    font-size: 1rem;
-    font-weight: 600;
-    transition: 0.3s;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-}
-
-.nav-to-user:hover {
-    background-color: #000;
-    transform: scale(1.05);
-}
-</style>
+        /* 6. 격자형 달력 디자인 보정 (숫자 노출 보장) */
+        .cal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; border-bottom: 2px solid var(--accent-coral); padding-bottom: 15px; }
+        .cal-grid { 
+            display: grid; 
+            grid-template-columns: repeat(7, 1fr); 
+            border-top: 1px solid #f0f0f0; 
+            border-left: 1px solid #f0f0f0; 
+        }
+        .cal-cell {
+            height: 75px; /* 높이 증가 */
+            padding: 12px; 
+            border-right: 1px solid #f0f0f0; 
+            border-bottom: 1px solid #f0f0f0;
+            font-size: 1.1rem; /* 숫자 크기 키움 */
+            color: #333;
+            font-weight: 500;
+            display: flex;
+            align-items: flex-start;
+            justify-content: flex-start;
+            position: relative;
+            background: #fff;
+        }
+        .cal-day-label { 
+            height: 45px; background: #faf8f6; font-weight: 700; color: var(--accent-coral); 
+            align-items: center; justify-content: center; font-size: 0.9rem;
+        }
+        .cal-cell.today { background: #fff1f0; color: var(--accent-coral); font-weight: 800; }
+        .cal-cell.today::after { 
+            content: 'Today'; position: absolute; bottom: 8px; right: 10px; 
+            font-size: 0.75rem; background: var(--accent-coral); color: #fff; 
+            padding: 3px 7px; border-radius: 6px; 
+        }
+    </style>
 </head>
 <body>
-    <jsp:include page="../guest/Header.jsp" />
 
-    <div class="admin-wrapper">
-        <div class="admin-container">
-            <div class="summary-header">
-    <div>
-        <h1>관리자 아뜰리에</h1>
-        <p style="color: #8b7e74; margin-top: 10px;">환영합니다, 마스터님.</p>
-    </div>
-    <div style="text-align: right;">
-        <a href="/" style="text-decoration: none; display: inline-block; padding: 10px 18px; background-color: #8b7e74; color: white; border-radius: 25px; font-size: 0.9rem; margin-bottom: 10px;">
-            유저 페이지로 이동
-        </a>
-        <br>
-        <span style="font-size: 0.8rem; color: #ccc;">마지막 접속: 2026.01.26</span>
-    </div>
-</div>
+    <header class="header-container">
+        <jsp:include page="../guest/Header.jsp" />
+    </header>
 
-            <div class="admin-grid">
-                <div class="admin-card">
-                    <div>
-                        <h3>📢 공지사항 작성</h3>
-                        <p>중요한 소식을 작가님들에게 전달하세요. <br>이벤트, 점검, 가이드라인 변경 내용을 공지할 수 있습니다.</p>
-                    </div>
-                    <div>
-                        <a href="/admin/notice_write" class="btn-notice">새 공지 등록</a>
-                    </div>
-                </div>
+    <nav class="sidebar">
+        <ul style="list-style: none; padding: 0; margin: 0;">
+            <li><a href="#" class="nav-link active">🏠 대시보드 센터</a></li>
+            <li><a href="/admin/notice_write" class="nav-link">📢 공지사항 관리</a></li>
+            <li><a href="/admin/userManage" class="nav-link">👥 회원 정보 관리</a></li>
+            <li><a href="/guest/list" class="nav-link">🖼 콘텐츠 모니터링</a></li>
+            <li><a href="/admin/chatbot_mgmt" class="nav-link">🤖 AI 챗봇 학습</a></li>
+        </ul>
+    </nav>
 
-                <a href="/admin/userManage" class="admin-card">
-                    <div>
-                        <h3>👥 회원 관리</h3>
-                        <p>가입된 모든 사용자 정보를 조회하고 권한을 설정합니다.<br>블랙리스트 관리 및 활동 내역을 확인하세요.</p>
-                    </div>
-                    <div class="card-footer">총 ${totalUsers}명 활동 중</div>
-                </a>
+    <main class="main-content">
+        <h1 style="font-family: 'Nanum Myeongjo'; font-size: 2.2rem; margin-bottom: 40px; color: var(--primary-brown);">데이터 분석 센터</h1>
 
-                <a href="/guest/list" class="admin-card">
-                    <div>
-                        <h3>🖼 작품 모니터링</h3>
-                        <p>업로드된 3D 인테리어 및 게시글을 관리합니다.<br>서비스 규정에 어긋나는 콘텐츠를 관리하세요.</p>
-                    </div>
-                    <div class="card-footer">오늘 ${todayWorks}건 업로드</div>
-                </a>
-
-                <a href="/admin/chatbot_mgmt" class="admin-card">
-    <div>
-        <h3>🤖 챗봇 관리</h3>
-        <p>사용자의 궁금증을 실시간으로 해결합니다.<br>고객의 질문 데이터를 분석하고 학습시킵니다.</p>
-    </div>
-   <div class="card-footer" style="color: #e76f51;">
-    오늘 총 ${todayChatCount}회 사용됨</div>
-</a>
+        <div class="stats-grid">
+            <div class="stat-card">
+                <span style="color:#8b7e74; font-weight:600; font-size: 0.95rem;">전체 회원수</span>
+                <div class="stat-val">${totalUsers}명</div>
+                <span style="color: #2ecc71; font-size: 0.85rem; font-weight: 700;">● 실시간 누적</span>
+            </div>
+            <div class="stat-card">
+                <span style="color:#8b7e74; font-weight:600; font-size: 0.95rem;">신규 회원 (오늘)</span>
+                <div class="stat-val">${newUsersToday}명</div>
+                <span style="color: var(--accent-coral); font-size: 0.85rem; font-weight: 700;">▲ 갱신 완료</span>
+            </div>
+            <div class="stat-card">
+                <span style="color:#8b7e74; font-weight:600; font-size: 0.95rem;">오늘의 게시글</span>
+                <div class="stat-val">${todayWorks}건</div>
+                <span style="color: #2ecc71; font-size: 0.85rem; font-weight: 700;">▲ NEW</span>
+            </div>
+            <div class="stat-card">
+                <span style="color:#8b7e74; font-weight:600; font-size: 0.95rem;">챗봇 이용 횟수</span>
+                <div class="stat-val">${todayChatCount}회</div>
+                <span style="color: var(--accent-coral); font-size: 0.85rem; font-weight: 700;">Active</span>
             </div>
         </div>
-    </div>
+
+        <div class="dashboard-row">
+            <div class="card">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:30px;">
+                    <span style="font-weight:700; font-size: 1.2rem;">📊 실시간 가구 조회 트렌드</span>
+                    <button onclick="location.reload()" style="padding:8px 16px; border-radius:10px; border:1px solid #ddd; background:#fff; cursor:pointer; font-weight: 600;">새로고침</button>
+                </div>
+                <div style="height: 420px;"><canvas id="trendChart"></canvas></div>
+            </div>
+
+            <div class="card">
+                <div class="cal-header">
+                    <button onclick="moveMonth(-1)" style="border:none; background:none; cursor:pointer; font-size:1.4rem;">◀</button>
+                    <span id="monthDisplay" style="font-weight: 800; font-size: 1.4rem; letter-spacing: -0.5px;"></span>
+                    <button onclick="moveMonth(1)" style="border:none; background:none; cursor:pointer; font-size:1.4rem;">▶</button>
+                </div>
+                <div class="cal-grid" id="calendarBody">
+                    </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+    /* 차트 초기화 */
+    const ctx = document.getElementById('trendChart').getContext('2d');
+    let trendChart;
+
+    // 실시간 데이터 가져오기
+    function loadFurnitureTrends() {
+        fetch('/admin/furnitureTrends')
+            .then(response => response.json())
+            .then(data => {
+                const labels = Object.keys(data);   // ["소파", "침대", "테이블"...]
+                const values = Object.values(data); // [15000, 12000, 9000...]
+
+                // 차트가 이미 있으면 업데이트, 없으면 생성
+                if (trendChart) {
+                    trendChart.data.labels = labels;
+                    trendChart.data.datasets[0].data = values;
+                    trendChart.update();
+                } else {
+                    trendChart = new Chart(ctx, {
+                        type: 'bar', // 막대 그래프로 변경 (선 그래프는 'line')
+                        data: {
+                            labels: labels,
+                            datasets: [{
+                                label: '검색량',
+                                data: values,
+                                backgroundColor: 'rgba(231, 111, 81, 0.6)',
+                                borderColor: '#e76f51',
+                                borderWidth: 2
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            scales: {
+                                y: { beginAtZero: true }
+                            }
+                        }
+                    });
+                }
+            })
+            .catch(err => console.error('API 오류:', err));
+    }
+
+    // 페이지 로드 시 실행
+    loadFurnitureTrends();
+
+    // 10초마다 자동 갱신
+    setInterval(loadFurnitureTrends, 10000);
+
+        /* 2. 달력 숫자 렌더링 로직 (수정됨) */
+        let currDate = new Date();
+
+        function renderCalendar() {
+            const y = currDate.getFullYear();
+            const m = currDate.getMonth();
+            
+            document.getElementById('monthDisplay').innerText = y + "." + String(m + 1).padStart(2, '0');
+
+            const body = document.getElementById('calendarBody');
+            body.innerHTML = ''; // 초기화
+
+            // 요일 출력
+            ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].forEach(d => {
+                const dayCell = document.createElement('div');
+                dayCell.className = 'cal-cell cal-day-label';
+                dayCell.textContent = d;
+                body.appendChild(dayCell);
+            });
+
+            const firstDay = new Date(y, m, 1).getDay();
+            const lastDate = new Date(y, m + 1, 0).getDate();
+
+            // 이전 달 공백
+            for (let i = 0; i < firstDay; i++) {
+                const emptyCell = document.createElement('div');
+                emptyCell.className = 'cal-cell';
+                emptyCell.style.background = '#fcfcfc';
+                body.appendChild(emptyCell);
+            }
+
+            // 이번 달 날짜 숫자 삽입
+            const today = new Date();
+            for (let i = 1; i <= lastDate; i++) {
+                const dateCell = document.createElement('div');
+                const isToday = (i === today.getDate() && m === today.getMonth() && y === today.getFullYear());
+                
+                dateCell.className = isToday ? 'cal-cell today' : 'cal-cell';
+                dateCell.textContent = i;
+                body.appendChild(dateCell);
+            }
+        }
+
+        function moveMonth(v) {
+            currDate.setMonth(currDate.getMonth() + v);
+            renderCalendar();
+        }
+
+        // DOM이 로드된 후 즉시 실행하도록 보장
+        document.addEventListener('DOMContentLoaded', renderCalendar);
+    </script>
 </body>
 </html>

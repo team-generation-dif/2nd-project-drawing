@@ -4,85 +4,99 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title>그리다 | 취향 기록하기</title>
+<title>그리다 | 인테리어 기록하기</title>
 <link href="https://fonts.googleapis.com/css2?family=Nanum+Myeongjo&family=Pretendard:wght@400;600;700&display=swap" rel="stylesheet">
 <style>
     /* 1. 전체 배경 및 초기화 */
     body {
-        background-color: #fdfbf9; /* 헤더 배경과 어울리는 웜 화이트 */
-        font-family: 'Pretendard', -apple-system, sans-serif;
+        background-color: #fffaf5; /* 마이페이지와 통일된 웜 화이트 */
+        font-family: 'Pretendard', sans-serif;
         color: #4a3f35;
         margin: 0;
-        padding: 0;
-        display: block; /* 흐름을 위해 block으로 변경 */
     }
 
-    /* 2. 메인 컨테이너 (헤더 가로폭과 동기화) */
+    /* 2. 메인 컨테이너 (대시보드 스타일 확장) */
     .write-wrapper {
         background: #ffffff;
-        width: 90%;           /* 모바일 대응 */
-        max-width: 1100px;    /* ★ 헤더의 가로 너비와 똑같이 맞추세요 (예: 1000px, 1100px, 1200px) */
-        margin: 60px auto 120px; /* 좌우 auto로 중앙 정렬 */
-        padding: 80px 60px;   /* 내부 여백을 넓혀서 여유롭게 */
-        border-radius: 20px;  /* 헤더 스타일과 어울리는 곡률 */
-        box-shadow: 0 10px 40px rgba(139, 126, 116, 0.05);
-        border: 1px solid rgba(231, 224, 217, 0.5);
+        width: 90%;
+        max-width: 900px;    /* 너무 넓으면 가독성이 떨어지므로 900px로 조절 */
+        margin: 60px auto 120px;
+        padding: 60px 50px;
+        border-radius: 40px; /* 시그니처 곡률 */
+        box-shadow: 0 15px 35px rgba(139, 126, 116, 0.08);
+        border: 1px solid #f7ede2;
         box-sizing: border-box;
     }
 
     h2 {
         font-family: 'Nanum Myeongjo', serif;
-        font-weight: 700;
-        color: #3d342c;
+        font-size: 2rem;
+        color: #4a3f35;
         text-align: center;
-        margin-bottom: 60px;
-        font-size: 2.2rem;
+        margin-bottom: 50px;
         letter-spacing: -0.02em;
     }
 
-    /* 3. 사진 업로드 영역 (너비 100% 활용) */
+    /* 3. 사진 업로드 영역 (반응형 유지) */
     .file-upload-box {
-        margin-bottom: 50px;
+        margin-bottom: 40px;
         text-align: center;
     }
 
     #image-wrapper { 
         position: relative; 
-        border: 1px solid #f0e9e2; 
-        border-radius: 16px;
-        display: block;      /* 가로를 꽉 채우기 위해 block으로 변경 */
+        border: 2px dashed #eee1d5; /* 업로드 영역임을 강조하는 대시 보더 */
+        border-radius: 25px;
+        display: inline-block; /* 이미지 크기에 맞게 조절 */
         cursor: crosshair; 
-        background: #fafafa; 
-        width: 100%;         /* 부모 너비에 꽉 참 */
-        min-height: 500px;   /* 높이 확보 */
+        background: #fdfbf9; 
+        width: 100%;         
+        min-height: 400px;
+        max-height: 700px;   /* 너무 길어짐 방지 */
         overflow: hidden;
-        transition: all 0.4s ease;
+        transition: all 0.3s ease;
     }
 
-    #preview-img { width: 100%; display: block; }
+    #image-wrapper:hover {
+        border-color: #8b7e74;
+    }
 
-    /* 4. 감성 태그 포인트 */
+    #preview-img { 
+        width: 100%; 
+        height: auto; 
+        display: block; 
+        border-radius: 23px;
+    }
+
+    /* 4. 감성 태그 포인트 (더 세련되게) */
     .tag-dot { 
         position: absolute; 
-        width: 16px; height: 16px; 
-        background: #8b7e74;
+        width: 14px; height: 14px; 
+        background: #e76f51; /* 포인트 컬러인 코랄 사용 */
         border: 3px solid #fff; 
         border-radius: 50%; 
         transform: translate(-50%, -50%); 
         z-index: 10; 
-        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+        animation: pulse 2s infinite; /* 시각적 효과 추가 */
     }
 
-    /* 5. 입력 폼 (전체 너비 일치) */
-    .input-group { margin-bottom: 30px; }
+    @keyframes pulse {
+        0% { transform: translate(-50%, -50%) scale(1); }
+        50% { transform: translate(-50%, -50%) scale(1.2); }
+        100% { transform: translate(-50%, -50%) scale(1); }
+    }
+
+    /* 5. 입력 폼 디자인 */
+    .input-group { margin-bottom: 25px; }
     
     input[type="text"], textarea {
         width: 100%;
-        padding: 22px 28px;
-        border: 1px solid #f0eeec;
-        border-radius: 12px;
-        background-color: #fff;
-        font-size: 1.1rem;
+        padding: 18px 22px;
+        border: 1.5px solid #f2e8df;
+        border-radius: 18px;
+        background-color: #fdfbf9;
+        font-size: 1rem;
         box-sizing: border-box;
         transition: all 0.3s;
         color: #4a3f35;
@@ -91,54 +105,87 @@
     input:focus, textarea:focus {
         outline: none;
         border-color: #8b7e74;
+        background-color: #fff;
         box-shadow: 0 0 0 4px rgba(139, 126, 116, 0.05);
     }
 
-    /* 6. 하단 버튼 (중앙 정렬) */
+    /* 6. 하단 버튼 디자인 */
     .action-buttons {
         display: flex;
         justify-content: center;
-        gap: 20px;
-        margin-top: 60px;
+        gap: 15px;
+        margin-top: 50px;
     }
 
     .btn {
-        width: 200px;      /* 버튼이 너무 넓어지지 않게 고정폭 */
-        padding: 20px;
-        border-radius: 12px;
+        width: 180px;
+        padding: 18px;
+        border-radius: 20px;
         font-weight: 700;
         font-size: 1rem;
         cursor: pointer;
-        transition: all 0.3s;
+        transition: all 0.3s ease;
         border: none;
         text-align: center;
         text-decoration: none;
     }
 
-    .btn-submit { background-color: #8b7e74; color: white; }
-    .btn-cancel { background-color: #fff; color: #8b7e74; border: 1px solid #8b7e74; }
-
-    /* 7. 사진 선택 버튼 (알약 모양) */
-    .file-label {
-        display: inline-block;
-        padding: 14px 30px;
-        background: #8b7e74;
-        color: #fff;
-        border-radius: 50px;
-        cursor: pointer;
-        margin-bottom: 25px;
-        font-size: 0.95rem;
-        transition: 0.3s;
+    .btn-submit { 
+        background-color: #8b7e74; 
+        color: white; 
     }
-    #file-input {
-    display: none; /* 실제 기능은 작동하지만 화면에서는 숨깁니다 */
+    
+    .btn-cancel { 
+        background-color: #eeeae7; 
+        color: #8b7e74; 
+    }
+
+    .btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(139, 126, 116, 0.1);
+    }
+
+  /* 실제 파일 선택 버튼을 완전히 숨깁니다 */
+#file-input {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    border: 0;
 }
+
+/* 기존 디자인된 라벨 버튼 스타일 (이미 잘 되어 있으므로 유지) */
+.file-label {
+    display: inline-block;
+    padding: 14px 30px;
+    background: #8b7e74;
+    color: #fff;
+    border-radius: 50px;
+    cursor: pointer;
+    margin-bottom: 25px;
+    font-size: 0.95rem;
+    transition: 0.3s;
+    font-weight: 600;
+}
+
+.file-label:hover {
+    background: #4a3f35; /* 마우스 올렸을 때 색상 변화 추가 */
+}
+    .info-text {
+        display: block;
+        margin-top: 15px;
+        font-size: 0.85rem;
+        color: #bcaaa4;
+    }
 </style>
 </head>
 <body>
 <jsp:include page="/WEB-INF/views/guest/Header.jsp" />
 <div class="write-wrapper">
-    <h2>🎨 취향을 그리다</h2>
+    <h2>🎨 나의 인테리어</h2>
 
     <form action="/user/insert?${_csrf.parameterName}=${_csrf.token}" method="post" id="writeForm" enctype="multipart/form-data">
         <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}" />
