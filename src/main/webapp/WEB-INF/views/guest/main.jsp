@@ -55,14 +55,14 @@ body {
 		url('https://www.transparenttextures.com/patterns/paper-fibers.png');
 	text-align: left;
 }
-.hero-canvas h1,
-.dashboard-text h2,
-.section-header h2,
-.header-text h2 {
-    font-family: 'Nanum Myeongjo', serif !important;
-    font-weight: 700 !important;
-    color: #4a3f35;
+
+.hero-canvas h1, .dashboard-text h2, .section-header h2, .header-text h2
+	{
+	font-family: 'Nanum Myeongjo', serif !important;
+	font-weight: 700 !important;
+	color: #4a3f35;
 }
+
 .hero-canvas h1 {
 	font-family: 'Nanum Myeongjo', serif;
 	font-size: 3rem;
@@ -117,12 +117,12 @@ body {
 
 /* 2. 섹션 스타일 */
 .section-box {
-	max-width: 1200px;
-	margin: 0 auto;
-	padding: 0 40px;
-	box-sizing: border-box;
+    width: 100%;
+    max-width: 1200px; /* 전체 최대 너비 고정 */
+    margin: 0 auto !important; /* 무조건 브라우저 중앙 정렬 */
+    padding: 0 60px; /* 좌우 여백 60px로 통일 */
+    box-sizing: border-box;
 }
-
 .section-header {
 	margin-bottom: 35px;
 }
@@ -361,22 +361,21 @@ to {
 }
 /* 새로운 대시보드 레이아웃 여백 보강 */
 .dashboard-layout {
-    margin-top: 20px !important;
-    margin-bottom: 40px !important; /* 기존 100px에서 40px로 줄여 게시글을 위로 끌어올림 */
-    position: relative;
-    z-index: 10;
+	margin-top: 20px !important;
+	margin-bottom: 40px !important; /* 기존 100px에서 40px로 줄여 게시글을 위로 끌어올림 */
+	position: relative;
+	z-index: 10;
 }
-
 .dashboard-container {
     width: 100%;
     display: flex;
     justify-content: space-between;
     align-items: center;
     background: #ffffff;
-    /* 상하 패딩을 기존 60px -> 30px로 반토막 */
-    padding: 30px 60px; 
+    padding: 30px 40px; /* 내부 여백 */
     border-radius: 30px;
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.04);
+    box-sizing: border-box;
 }
 
 /* 왼쪽 텍스트 영역 */
@@ -395,14 +394,14 @@ to {
 }
 
 .dashboard-text h2 {
-    font-size: 40px; /* 폰트 크기를 살짝 줄여서 콤팩트하게 */
-    line-height: 1.2;
-    margin-bottom: 8px;
+	font-size: 40px; /* 폰트 크기를 살짝 줄여서 콤팩트하게 */
+	line-height: 1.2;
+	margin-bottom: 8px;
 }
 
 .dashboard-text p {
-    font-size: 20px;
-    margin: 0;
+	font-size: 20px;
+	margin: 0;
 }
 
 .explore-hint {
@@ -413,11 +412,11 @@ to {
 
 /* 오른쪽 비주얼 영역 */
 .dashboard-visual {
-    flex: 1;
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 15px;
-    margin-left: 50px;
+	flex: 1;
+	display: grid;
+	grid-template-columns: repeat(3, 1fr);
+	gap: 15px;
+	margin-left: 50px;
 }
 
 .dash-item {
@@ -427,17 +426,17 @@ to {
 }
 
 .dash-img-wrapper {
-    width: 100%;
-    /* aspect-ratio를 1:1이 아닌 가로가 긴 4:3 또는 16:9 느낌으로 설정 */
-    aspect-ratio: 4 / 3; 
-    border-radius: 15px;
-    overflow: hidden;
+	width: 100%;
+	/* aspect-ratio를 1:1이 아닌 가로가 긴 4:3 또는 16:9 느낌으로 설정 */
+	aspect-ratio: 4/3;
+	border-radius: 15px;
+	overflow: hidden;
 }
 
 .dash-img-wrapper img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
 }
 
 .dash-item-overlay {
@@ -472,29 +471,24 @@ to {
 
 /* 카테고리 이름 (거실, 다이닝, 주방 등) 스타일 수정 */
 .dash-item-name {
-    display: block;
-    text-align: center;
-    
-    /* 1. 폰트를 다시 나눔명조로 고정 */
-    font-family: 'Nanum Myeongjo', serif !important;
-    
-    /* 2. 보라색을 지우고 테마 색상(짙은 갈색)으로 변경 */
-    color: #4a3f35 !important;
-    
-    /* 3. 크기와 굵기 조절 */
-    font-size: 15px; 
-    font-weight: 700;
-    
-    /* 4. 이미지와의 간격 */
-    margin-top: 10px;
-    
-    /* 5. 링크 밑줄 제거 */
-    text-decoration: none !important;
+	display: block;
+	text-align: center;
+	/* 1. 폰트를 다시 나눔명조로 고정 */
+	font-family: 'Nanum Myeongjo', serif !important;
+	/* 2. 보라색을 지우고 테마 색상(짙은 갈색)으로 변경 */
+	color: #4a3f35 !important;
+	/* 3. 크기와 굵기 조절 */
+	font-size: 15px;
+	font-weight: 700;
+	/* 4. 이미지와의 간격 */
+	margin-top: 10px;
+	/* 5. 링크 밑줄 제거 */
+	text-decoration: none !important;
 }
 
 /* 마우스 올렸을 때 색상 변화 (선택사항) */
 .dash-item:hover .dash-item-name {
-    color: #e76f51 !important; /* 주황색 포인트 */
+	color: #e76f51 !important; /* 주황색 포인트 */
 }
 
 /* 반응형 처리 */
@@ -515,97 +509,244 @@ to {
     display: flex;
     justify-content: space-between;
     align-items: flex-end;
-    margin-bottom: 25px;
+    margin-bottom: 30px;
+    width: 100%;
+    padding: 0; /* 좌측 정렬 선을 맞추기 위해 0으로 설정 */
 }
-.header-text h2 { font-size: 20px; font-weight: 700; margin: 0; color: #2f3438; }
-.header-text p { font-size: 14px; color: #828c94; margin: 5px 0 0; }
-.text-more-link { font-size: 14px; font-weight: 700; color: #35c5f0; text-decoration: none; }
+.header-text h2 {
+	font-size: 20px;
+	font-weight: 700;
+	margin: 0;
+	color: #2f3438;
+}
+
+.header-text p {
+	font-size: 14px;
+	color: #828c94;
+	margin: 5px 0 0;
+}
+
+.text-more-link {
+	font-size: 14px;
+	font-weight: 700;
+	color: #35c5f0;
+	text-decoration: none;
+}
 
 /* 가로 스크롤 컨테이너 */
 .photo-scroll-container {
-    display: flex;
-    gap: 15px;
-    overflow-x: auto;
-    padding-bottom: 10px;
-    scrollbar-width: none; /* 파이어폭스 */
+	display: flex;
+	gap: 15px;
+	overflow-x: auto;
+	padding-bottom: 10px;
+	scrollbar-width: none; /* 파이어폭스 */
 }
-.photo-scroll-container::-webkit-scrollbar { display: none; } /* 크롬, 사파리 */
+
+.photo-scroll-container::-webkit-scrollbar {
+	display: none;
+} /* 크롬, 사파리 */
 
 /* 사진 카드 디자인 */
 .photo-card {
-    flex: 0 0 calc(20% - 12px); /* 한 화면에 5개 노출 기준 */
-    min-width: 200px;
-    cursor: pointer;
+	flex: 0 0 calc(20% - 12px); /* 한 화면에 5개 노출 기준 */
+	min-width: 200px;
+	cursor: pointer;
 }
 
 .photo-img-wrap {
-    position: relative;
-    width: 100%;
-    aspect-ratio: 3 / 4; /* 오늘의 집 특유의 세로 비율 */
-    border-radius: 8px;
-    overflow: hidden;
+	position: relative;
+	width: 100%;
+	aspect-ratio: 3/4; /* 오늘의 집 특유의 세로 비율 */
+	border-radius: 8px;
+	overflow: hidden;
 }
 
 .photo-img-wrap img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    transition: transform 0.3s;
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
+	transition: transform 0.3s;
 }
 
-.photo-card:hover img { transform: scale(1.05); }
+.photo-card:hover img {
+	transform: scale(1.05);
+}
 
 /* 사진 위 유저 정보 */
 .photo-overlay-top {
-    position: absolute;
-    bottom: 15px;
-    left: 15px;
-    z-index: 2;
+	position: absolute;
+	bottom: 15px;
+	left: 15px;
+	z-index: 2;
 }
+
 .photo-recommend-section {
-    margin-top: 0; /* 위에서 대시보드가 밀어주는 여백만 사용 */
-    padding-bottom: 120px; /* 게시글 아래 공간을 충분히 확보해 바닥에 붙는 현상 해결 */
+    width: 100%;
+    max-width: 1200px;
+    margin: 40px auto 120px !important; /* 대시보드와의 간격 확보 및 하단 여백 */
+    padding: 0 60px; /* 대시보드와 동일하게 60px 설정 */
+    box-sizing: border-box;
 }
-.user-info { display: flex; align-items: center; gap: 8px; }
-.user-thumb { 
-    width: 24px; height: 24px; 
-    border-radius: 50%; background: #ddd; 
-    border: 1.5px solid white;
+.user-info {
+	display: flex;
+	align-items: center;
+	gap: 8px;
 }
-.user-nick { color: white; font-size: 13px; font-weight: 700; text-shadow: 0 1px 4px rgba(0,0,0,0.4); }
+
+.user-thumb {
+	width: 24px;
+	height: 24px;
+	border-radius: 50%;
+	background: #ddd;
+	border: 1.5px solid white;
+}
+
+.user-nick {
+	color: white;
+	font-size: 13px;
+	font-weight: 700;
+	text-shadow: 0 1px 4px rgba(0, 0, 0, 0.4);
+}
 
 /* 북마크 버튼 */
 .btn-bookmark {
-    position: absolute;
-    bottom: 15px;
-    right: 15px;
-    background: none;
-    border: none;
-    cursor: pointer;
-    filter: drop-shadow(0 1px 4px rgba(0,0,0,0.4));
+	position: absolute;
+	bottom: 15px;
+	right: 15px;
+	background: none;
+	border: none;
+	cursor: pointer;
+	filter: drop-shadow(0 1px 4px rgba(0, 0, 0, 0.4));
 }
 
 /* 더보기 카드 */
 .more-card {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    background: #f7f9fa;
-    border-radius: 8px;
-    aspect-ratio: 3 / 4;
-    color: #828c94;
-    font-weight: 700;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	background: #f7f9fa;
+	border-radius: 8px;
+	aspect-ratio: 3/4;
+	color: #828c94;
+	font-weight: 700;
 }
+
 .more-circle {
-    width: 40px; height: 40px;
-    border-radius: 50%;
-    background: white;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+	width: 40px;
+	height: 40px;
+	border-radius: 50%;
+	background: white;
+	box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	margin-bottom: 10px;
+}
+
+.magazine-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr); /* 4열 구조 */
+    grid-auto-rows: 280px; /* 게시물 높이를 살짝 키워 시원하게 배치 */
+    gap: 24px;
+    width: 100%; /* 부모(section-box) 너비를 100% 채움 */
+    margin: 30px 0 0;
+    padding: 0 !important; /* 여기 패딩이 있으면 오른쪽이 남으므로 반드시 0 */
+    box-sizing: border-box;
+}
+/* 4. 개별 아이템: 칸 안에서 꽉 차게 설정 */
+.magazine-item {
+    width: 100%;
+    height: 100%;
+    position: relative;
+    border-radius: 20px;
+    overflow: hidden;
+    background: #fff;
+}
+
+
+/* 1번 게시물: 좌측 상단 크게 강조 (2x2 차지) */
+.magazine-item.item-large {
+	grid-column: span 2;
+	grid-row: span 2;
+}
+
+/* 2번 게시물: 우측 세로로 길게 (1x2 차지) */
+.magazine-item.item-tall {
+	grid-row: span 2;
+}
+
+/* 3번 게시물: 가로로 길게 (2x1 차지) */
+.magazine-item.item-wide {
+	grid-column: span 2;
+}
+
+.magazine-item img {
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
+	transition: transform 0.6s cubic-bezier(0.165, 0.84, 0.44, 1);
+}
+
+.magazine-item:hover img {
+	transform: scale(1.08);
+}
+
+/* 텍스트 정보 레이어 */
+.magazine-info {
+	position: absolute;
+	bottom: 0;
+	left: 0;
+	width: 100%;
+	padding: 25px;
+	background: linear-gradient(transparent, rgba(0, 0, 0, 0.7));
+	color: white;
+	box-sizing: border-box;
+}
+
+.magazine-info .user-tag {
+	font-size: 12px;
+	font-weight: 600;
+	background: rgba(231, 111, 81, 0.9);
+	padding: 4px 10px;
+	border-radius: 10px;
+	margin-bottom: 8px;
+	display: inline-block;
+}
+
+.magazine-info .post-title {
+	font-size: 18px;
+	font-weight: 700;
+	margin: 5px 0;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+/* 북마크 버튼 위치 조정 */
+.magazine-item .btn-bookmark {
+    position: absolute;
+    bottom: 25px; /* 하단에서 25px 띄움 */
+    right: 20px;  /* 오른쪽에서 20px 띄움 */
+    top: auto;    /* 기존에 설정된 top 값을 초기화 */
+    z-index: 15;  /* 텍스트 정보 레이어(magazine-info)보다 위에 오도록 설정 */
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0;
     display: flex;
     align-items: center;
     justify-content: center;
-    margin-bottom: 10px;
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3)); /* 아이콘이 잘 보이도록 그림자 추가 */
+    transition: transform 0.2s ease;
+}
+.magazine-item .btn-bookmark:hover {
+    transform: scale(1.1); /* 호버 시 살짝 커지는 효과 */
+}
+
+/* 북마크 아이콘(SVG) 색상 보정 */
+.magazine-item .btn-bookmark svg {
+    filter: drop-shadow(0 0 2px rgba(0,0,0,0.5)); /* 흰색 테두리일 때 배경과 구분되도록 */
 }
 </style>
 </head>
@@ -638,53 +779,45 @@ to {
 			</div>
 		</div>
 	</section>
-
 	<section class="section-box photo-recommend-section">
 		<div class="section-header-flex">
 			<div class="header-text">
-				<h2>이런 인테리어 찾고 있나요?</h2>
-				<p>좋아하실 만한 인테리어 콘텐츠를 추천해드려요</p>
+				<h2>공간을 채우는 영감</h2>
+				<p>그리다 멤버들의 감각적인 홈 스타일링을 만나보세요.</p>
 			</div>
-			<a href="/guest/list" class="text-more-link">더보기</a>
+			<a href="/guest/list" class="text-more-link">전체보기</a>
 		</div>
 
-		<div class="photo-scroll-container">
+		<%-- 매거진 그리드 레이아웃 시작 --%>
+		<div class="magazine-grid">
 			<c:forEach var="post" items="${communityList}" varStatus="status">
-				<c:if test="${status.index < 5}">
-					<div class="photo-card" data-bcode="${post.b_code}" onclick="location.href='/user/detail?b_code=${post.b_code}'">
-						<div class="photo-img-wrap">
-							<img src="/upload/${post.b_image}" alt="${post.b_title}">
+				<c:if test="${status.index < 6}">
+					<div class="magazine-item 
+	                    ${status.index == 0 ? 'item-large' : ''} 
+	                    ${status.index == 2 ? 'item-tall' : ''} 
+	                    ${status.index == 5 ? 'item-wide' : ''}"
+						onclick="location.href='/user/detail?b_code=${post.b_code}'">
 
-							<div class="photo-overlay-top">
-								<div class="user-info">
-									<div class="user-thumb"></div>
-									<span class="user-nick">${post.m_nick}</span>
-								</div>
-							</div>
-<button class="btn-bookmark">
-    <svg width="24" height="24" viewBox="0 0 24 24" 
-         fill="${post.isBookmarked ? '#e76f51' : 'none'}" 
-         stroke="${post.isBookmarked ? '#e76f51' : 'white'}" 
-         stroke-width="2">
-        <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path>
-    </svg>
-</button>
+						<img src="/upload/${post.b_image}" alt="${post.b_title}">
+
+						<div class="magazine-info">
+							<span class="user-tag">@${post.m_nick}</span>
+							<div class="post-title">${post.b_title}</div>
 						</div>
+
+						<button class="btn-bookmark" data-bcode="${post.b_code}">
+							<svg width="24" height="24" viewBox="0 0 24 24"
+								fill="${post.isBookmarked ? '#e76f51' : 'none'}"
+								stroke="${post.isBookmarked ? '#e76f51' : 'white'}"
+								stroke-width="2">
+	                            <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path>
+	                        </svg>
+						</button>
 					</div>
 				</c:if>
 			</c:forEach>
-
-			<div class="photo-card more-card"
-				onclick="location.href='/guest/list'">
-				<div class="more-circle">
-					<svg width="24" height="24" viewBox="0 0 24 24" fill="none"
-						stroke="#666" stroke-width="2">
-                    <path d="M9 18l6-6-6-6"></path>
-                </svg>
-				</div>
-				<span>더보기</span>
-			</div>
 		</div>
+
 	</section>
 
 	<!-- 챗봇 버튼 & 창 -->
@@ -828,21 +961,28 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 document.querySelectorAll('.btn-bookmark').forEach(button => {
     button.addEventListener('click', function(e) {
-        e.stopPropagation(); 
+        e.stopPropagation(); // 카드 클릭 이벤트 전파 방지
         
         const svg = this.querySelector('svg');
-        const card = this.closest('.photo-card');
-        const b_code = card.getAttribute('data-bcode');
+        // [.photo-card]가 아닌 [.magazine-item]에서 b_code를 찾아야 합니다.
+        const item = this.closest('.magazine-item');
+        // 클릭한 버튼 자체의 data-bcode를 가져오는 것이 가장 정확합니다.
+        const b_code = this.getAttribute('data-bcode');
 
-        // 1. 로그인 체크 (세션 m_id 확인)
+        // 1. 로그인 체크 (JSP에서 세션 체크)
         const loginId = "${sessionScope.m_id}";
-        if (!loginId) {
+        if (!loginId || loginId === "") {
             alert("로그인이 필요한 서비스입니다.");
             location.href = "/guest/loginForm";
             return;
         }
 
-        // 2. 서버 전송 (URL을 /user/toggleBookmark로 통일)
+        if (!b_code) {
+            console.error("b_code를 찾을 수 없습니다.");
+            return;
+        }
+
+        // 2. 서버 전송
         const formData = new URLSearchParams();
         formData.append('b_code', b_code);
 
@@ -853,15 +993,13 @@ document.querySelectorAll('.btn-bookmark').forEach(button => {
         })
         .then(res => res.json())
         .then(status => {
-            // 서버 응답이 1(추가) 또는 0(삭제)인 경우
+            // status가 1이면 추가 성공, 0이면 삭제 성공
             if (status == 1) {
                 svg.setAttribute('fill', '#e76f51');
                 svg.setAttribute('stroke', '#e76f51');
-                // alert("🔖 북마크에 추가되었습니다."); // 취향에 따라 알림 추가
-            } else if (status == 0) {
+            } else {
                 svg.setAttribute('fill', 'none');
                 svg.setAttribute('stroke', 'white');
-                // alert("🔖 북마크가 해제되었습니다.");
             }
         })
         .catch(err => {
