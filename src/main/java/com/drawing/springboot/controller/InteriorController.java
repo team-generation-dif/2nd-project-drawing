@@ -142,15 +142,15 @@ public class InteriorController {
     
     @RequestMapping("/user/interior/prodlist")
     @ResponseBody
-    public List<ProductsDTO> getEditorProducts(@RequestParam(value="categoryId", required=false) Long categoryId,
-    										   @RequestParam(value="subcategoryId", required=false) Long subcategoryId) {
+    public List<ProductsDTO> getEditorProducts(@RequestParam(value="categoryId", required=false, defaultValue="0") int categoryId,
+    										   @RequestParam(value="subcategoryId", required=false, defaultValue="0") int subcategoryId) {
         
     	List<ProductsDTO> list = null;
     	
     	// 1. 데이터 조회
-        if (subcategoryId != null) {
+    	if (subcategoryId != 0) {
             list = productsDAO.getProductsBySubcategoryId(subcategoryId);
-        } else if (categoryId != null) {
+        } else if (categoryId != 0) {
             list = productsDAO.getProductsByCategoryId(categoryId);
         }
         

@@ -6,7 +6,7 @@
 <mapper namespace="com.drawing.springboot.dao.ISubcategoryDAO">
 
     <!-- 특정 카테고리의 하위 카테고리 조회 -->
-    <select id="getSubcategoriesByCategoryId" parameterType="long" resultType="com.drawing.springboot.dto.SubcategoryDTO">
+    <select id="getSubcategoriesByCategoryId" resultType="com.drawing.springboot.dto.SubcategoryDTO">
         SELECT subcategory_id AS subcategoryId,
                category_id AS categoryId,
                name,
@@ -17,7 +17,7 @@
     </select>
 
     <!-- 특정 서브카테고리 조회 -->
-    <select id="getSubcategoryById" parameterType="long" resultType="com.drawing.springboot.dto.SubcategoryDTO">
+    <select id="getSubcategoryById" resultType="com.drawing.springboot.dto.SubcategoryDTO">
         SELECT subcategory_id AS subcategoryId,
                category_id AS categoryId,
                name,

@@ -6,7 +6,7 @@
 <mapper namespace="com.drawing.springboot.dao.IProductsDAO">
 
     <!-- 카테고리별 상품 조회 -->
-    <select id="getProductsByCategoryId" parameterType="long" resultType="com.drawing.springboot.dto.ProductsDTO">
+    <select id="getProductsByCategoryId" resultType="com.drawing.springboot.dto.ProductsDTO">
         SELECT p.p_code,
                p.p_name,
                p.p_color,
@@ -23,7 +23,7 @@
     </select>
 
     <!-- 서브카테고리별 상품 조회 -->
-    <select id="getProductsBySubcategoryId" parameterType="long" resultType="com.drawing.springboot.dto.ProductsDTO">
+    <select id="getProductsBySubcategoryId" resultType="com.drawing.springboot.dto.ProductsDTO">
         SELECT p_code,
                p_name,
                p_color,
@@ -57,7 +57,7 @@
 	</select>
 
     <!-- 상품 단건 조회 -->
-	<select id="getProductById" parameterType="long" resultType="com.drawing.springboot.dto.ProductsDTO">
+	<select id="getProductById" resultType="com.drawing.springboot.dto.ProductsDTO">
     	SELECT p.p_code,
            p.p_name,
            p.p_color,
@@ -85,8 +85,11 @@
           
     <!-- 상품 등록 -->
     <insert id="insertProduct" parameterType="com.drawing.springboot.dto.ProductsDTO">
+    	<selectKey keyProperty="p_code" resultType="int" order="BEFORE">
+			select seq_products.nextval+1000 from dual
+		</selectKey>
         INSERT INTO products (p_code, p_name, p_color, p_size, p_price, p_image, p_rating, p_url, subcategory_id)
-        VALUES (seq_products.nextval+1000, #{p_name}, #{p_color}, #{p_size}, #{p_price}, #{p_image}, #{p_rating}, #{p_url}, #{subcategoryId})
+        VALUES (#{p_code}, #{p_name}, #{p_color}, #{p_size}, #{p_price}, #{p_image}, #{p_rating}, #{p_url}, #{subcategoryId})
     </insert>
 
     <!-- 상품 수정 -->

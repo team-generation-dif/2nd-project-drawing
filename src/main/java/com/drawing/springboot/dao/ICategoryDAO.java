@@ -9,5 +9,5 @@ import com.drawing.springboot.dto.CategoryDTO;
 @Mapper
 public interface ICategoryDAO {
 	List<CategoryDTO> getAllCategories(); // 전체 카테고리 목록
-    CategoryDTO getCategoryById(Long categoryId); // ID로 카테고리 조회
+    CategoryDTO getCategoryById(int categoryId); // ID로 카테고리 조회
 }

@@ -9,9 +9,9 @@ import com.drawing.springboot.dto.ProductsDTO;
 public interface IProductsDAO {
     // 1. 기본 조회
     List<ProductsDTO> getAllProducts();
-    ProductsDTO getProductById(Long p_code);
-    List<ProductsDTO> getProductsByCategoryId(Long categoryId);
-    List<ProductsDTO> getProductsBySubcategoryId(Long subcategoryId);
+    ProductsDTO getProductById(int p_code);
+    List<ProductsDTO> getProductsByCategoryId(int categoryId);
+    List<ProductsDTO> getProductsBySubcategoryId(int subcategoryId);
     
     // 2. 관리자용 CRUD
     void insertProduct(ProductsDTO product);

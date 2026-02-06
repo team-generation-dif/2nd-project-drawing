@@ -1,10 +1,17 @@
 package com.drawing.springboot.controller;
 
 import java.util.List;
+import java.util.Map;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 import com.drawing.springboot.dao.ICategoryDAO;
 import com.drawing.springboot.dao.IProductsDAO;
@@ -26,7 +33,7 @@ public class ProductsController {
     @Autowired private ISubcategoryDAO subcategoryDAO;
     @Autowired private ProductsService productsService;
     @Autowired private FavoritesService favoritesService;
-    @Autowired private ProductsESService ESService;
+    @Autowired private ProductsESService esService;
 
     // 카테고리 목록 (메인)
     @GetMapping("/categories")
@@ -39,7 +46,7 @@ public class ProductsController {
     // [중요] 카테고리 상세 (페이징 적용)
     @GetMapping("/categories/{categoryId}")
     public String showCategoryDetail(
-            @PathVariable("categoryId") Long categoryId, 
+            @PathVariable("categoryId") int categoryId, 
             @RequestParam(name = "page", defaultValue = "1") int page, 
             Model model) {
         
@@ -89,14 +96,23 @@ public class ProductsController {
     // 검색 (엘라스틱서치)
     @RequestMapping("/search")
     public String searchbox(@RequestParam("keyword") String keyword, Model model) throws Exception {
-        List<ProductsDTO> products = ESService.search(keyword);
-        model.addAttribute("products", products);
-        return "guest/products";
+    	
+    	List<ProductsDTO> products = esService.search(keyword);
+    	model.addAttribute("products", products);
+    	
+    	return "guest/products";
     }
     
-    // 상품 상세 리다이렉트
+    // 엘라스틱서치 검색창 자동완성
+    @RequestMapping("/autocomplete")
+    @ResponseBody
+    public List<Map<String, String>> autocompletebox(@RequestParam("keyword") String keyword) throws Exception {
+    	return esService.autocomplete(keyword);
+    }
+    
+    // 상품 상세 (로그인 체크 후 IKEA URL로 리다이렉트)
     @GetMapping("/{productId}")
-    public String productDetail(@PathVariable("productId") Long p_code, HttpSession session) {
+    public String productDetail(@PathVariable("productId") int p_code, HttpSession session) {
         if (session.getAttribute("role") == null) {
             return "redirect:/guest/loginForm?redirect=/products/" + p_code;
         }
@@ -115,18 +131,29 @@ public class ProductsController {
     }
 
     @PostMapping("/admin/new")
-    public String createProduct(ProductsDTO product, Model model) {
+    public String createProduct(ProductsDTO product, Model model) throws Exception {
         if (productsService.existsByName(product.getP_name())) {
             model.addAttribute("errorMessage", "이미 존재하는 상품명입니다.");
             return "admin/newproducts";
         }
+        
+        SubcategoryDTO subcategoryDTO = new SubcategoryDTO();
+        CategoryDTO categoryDTO = new CategoryDTO();
+        
+        int subcategoryid = product.getSubcategoryId();
+        subcategoryDTO = subcategoryDAO.getSubcategoryById(subcategoryid);
+        categoryDTO = categoryDAO.getCategoryById(subcategoryDTO.getCategoryId());
+        
+        product.setCategoryName(categoryDTO.getName());
+        product.setSubcategoryName(subcategoryDTO.getName());
+        
         productsService.insertProduct(product);
         return "redirect:/products/admin/list";
     }
 
     @GetMapping("/admin/edit/{p_code}")
     public String editProductForm(@PathVariable("p_code") int p_code, Model model) {
-        ProductsDTO product = productsDAO.getProductById((long)p_code);
+        ProductsDTO product = productsDAO.getProductById(p_code);
         model.addAttribute("product", product);
         model.addAttribute("categories", categoryDAO.getAllCategories());
         model.addAttribute("subcategories", subcategoryDAO.getAllSubcategories());
@@ -134,15 +161,28 @@ public class ProductsController {
     }
 
     @PostMapping("/admin/update")
-    public String updateProduct(ProductsDTO product) {
-        productsDAO.updateProduct(product);
-        return "redirect:/products/admin/list";
+    public String updateProduct(ProductsDTO product) throws Exception {
+    	
+        SubcategoryDTO subcategoryDTO = new SubcategoryDTO();
+        CategoryDTO categoryDTO = new CategoryDTO();
+        
+        int subcategoryid = product.getSubcategoryId();
+        subcategoryDTO = subcategoryDAO.getSubcategoryById(subcategoryid);
+        categoryDTO = categoryDAO.getCategoryById(subcategoryDTO.getCategoryId());
+        
+        product.setCategoryName(categoryDTO.getName());
+        product.setSubcategoryName(subcategoryDTO.getName());
+    	
+        esService.save(product);
+        productsDAO.updateProduct(product); // DB 업데이트
+        return "redirect:/products/admin/list"; // 수정 후 목록으로 이동
     }
 
     @GetMapping("/admin/delete/{p_code}")
-    public String deleteProduct(@PathVariable("p_code") int p_code) {
+    public String deleteProduct(@PathVariable("p_code") int p_code) throws Exception {
         productsDAO.deleteProduct(p_code);
-        return "redirect:/products/admin/list";
+        esService.delete(p_code);
+        return "redirect:/products/admin/list"; // 삭제 후 목록으로 이동
     }
 
     @PostMapping("/admin/upload")

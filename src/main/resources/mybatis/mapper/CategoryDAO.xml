@@ -16,7 +16,7 @@
   </select>
 
   <!-- ID로 카테고리 조회 -->
-  <select id="getCategoryById" parameterType="long" resultType="com.drawing.springboot.dto.CategoryDTO">
+  <select id="getCategoryById" resultType="com.drawing.springboot.dto.CategoryDTO">
     SELECT category_id AS categoryId,
            name,
            url,
