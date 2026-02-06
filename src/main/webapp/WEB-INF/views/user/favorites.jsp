@@ -90,15 +90,18 @@
 
         <!-- 상품 카드 -->
         <div class="product-card">
-            <img src="${product.p_image}" alt="${product.p_name}" />
-            <h4>${product.p_name}</h4>
-            <p><strong>${product.p_price}</strong> 원</p>
-            <p>⭐ ${product.p_rating}</p>
-            <form action="/products/favorites/remove" method="post">
-                <input type="hidden" name="p_code" value="${product.p_code}" />
-                <button type="submit" class="wishlist-btn">♥ 찜 해제</button>
-            </form>
-        </div>
+    		<a href="${product.p_url}" target="_blank">
+        	<img src="${product.p_image}" alt="${product.p_name}" />
+        	<h4>${product.p_name}</h4>
+        	<p><strong>${product.p_price}</strong> 원</p>
+        	<p>⭐ ${product.p_rating}</p>
+    	</a>
+    <form action="/products/favorites/remove" method="post">
+        <input type="hidden" name="p_code" value="${product.p_code}" />
+        <button type="submit" class="wishlist-btn">♥ 찜 해제</button>
+    </form>
+</div>
+
     </c:forEach>
 </div>
 
