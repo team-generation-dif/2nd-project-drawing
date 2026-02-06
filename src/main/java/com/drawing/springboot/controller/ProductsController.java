@@ -5,7 +5,6 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -23,7 +22,7 @@ import com.drawing.springboot.service.FavoritesService;
 import com.drawing.springboot.service.ProductsService;
 
 import jakarta.servlet.http.HttpSession;
-import jakarta.validation.Valid;
+
 
 @Controller
 @RequestMapping("/products")
@@ -79,18 +78,13 @@ public class ProductsController {
 
     // 관리자 상품 등록 처리 (유효성 검사 포함)
     @PostMapping("/admin/new")
-    public String createProduct(@Valid ProductsDTO product,
-                                BindingResult result,
-                                Model model) {
-        if (result.hasErrors()) {
-            return "admin/products_new"; // 유효성 실패 시 다시 등록 페이지
-        }
+    public String createProduct(ProductsDTO product, Model model) {
         if (productsService.existsByName(product.getP_name())) {
             model.addAttribute("errorMessage", "이미 존재하는 상품명입니다.");
-            return "admin/products_new"; // 중복 시 다시 등록 페이지
+            return "admin/newproducts"; // 등록 폼 JSP로 다시 이동
         }
         productsService.insertProduct(product);
-        return "redirect:/products/admin/list"; // 등록 후 목록으로 이동
+        return "redirect:/products/admin/list";
     }
 
     // 관리자 상품 수정 폼

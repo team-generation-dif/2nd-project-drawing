@@ -231,9 +231,7 @@
                 </div>
             </c:forEach>
         </div>
-    </c:forEach>
-</div>
-</c:if>
+	</div>
 
 <!-- 상품 목록 -->
 <h3>상품 목록</h3>

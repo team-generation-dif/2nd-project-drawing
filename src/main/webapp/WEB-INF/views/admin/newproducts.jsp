@@ -183,15 +183,6 @@
         			${errorMessage}
     				</div>
 				</c:if>
-				
-			<!-- Bean Validation 에러 메시지 -->			
-			<c:if test="${not empty org.springframework.validation.BindingResult.product}">
-    			<c:forEach var="error" items="${org.springframework.validation.BindingResult.product.allErrors}">
-        			<div style="color:red; font-weight:bold; margin-bottom:10px;">
-            			${error.defaultMessage}
-        			</div>
-    			</c:forEach>
-			</c:if>
 														
             <div class="form-group">
                 <label for="p_name">상품명</label>
