@@ -13,7 +13,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
-
 import com.drawing.springboot.dao.ICategoryDAO;
 import com.drawing.springboot.dao.IProductsDAO;
 import com.drawing.springboot.dao.ISubcategoryDAO;
@@ -23,9 +22,7 @@ import com.drawing.springboot.dto.SubcategoryDTO;
 import com.drawing.springboot.service.FavoritesService;
 import com.drawing.springboot.service.ProductsESService;
 import com.drawing.springboot.service.ProductsService;
-
 import jakarta.servlet.http.HttpSession;
-
 
 @Controller
 @RequestMapping("/products")
@@ -38,7 +35,7 @@ public class ProductsController {
     @Autowired private FavoritesService favoritesService;
     @Autowired private ProductsESService esService;
 
-    // 카테고리 목록
+    // 카테고리 목록 (메인)
     @GetMapping("/categories")
     public String showCategories(Model model) {
         List<CategoryDTO> categories = categoryDAO.getAllCategories();
@@ -46,21 +43,57 @@ public class ProductsController {
         return "guest/main";
     }
 
-    // 카테고리 상세
+    // [중요] 카테고리 상세 (페이징 적용)
     @GetMapping("/categories/{categoryId}")
-    public String showCategoryDetail(@PathVariable("categoryId") int categoryId, Model model) {
+    public String showCategoryDetail(
+            @PathVariable("categoryId") int categoryId, 
+            @RequestParam(name = "page", defaultValue = "1") int page, 
+            Model model) {
+        
+        int size = 12; 
+        int offset = (page - 1) * size;
+
         CategoryDTO category = categoryDAO.getCategoryById(categoryId);
         List<SubcategoryDTO> subcategories = subcategoryDAO.getSubcategoriesByCategoryId(categoryId);
-        List<ProductsDTO> products = productsDAO.getProductsByCategoryId(categoryId);
+        List<ProductsDTO> products = productsDAO.getProductsByCategoryIdPaged(categoryId, size, offset);
+        
+        int totalCount = productsDAO.countProductsByCategoryId(categoryId);
+        int totalPages = (int) Math.ceil((double) totalCount / size);
 
         model.addAttribute("category", category);
         model.addAttribute("subcategories", subcategories);
         model.addAttribute("products", products);
+        model.addAttribute("currentPage", page);
+        model.addAttribute("totalPages", totalPages);
 
         return "guest/products";
     }
 
-    // 엘라스틱서치 검색창 상품 조회
+    // [중요] 서브카테고리 상세 (페이징 적용 - 중복 제거됨)
+    @GetMapping("/subcategories/{subcategoryId}")
+    public String showProductsBySubcategory(
+            @PathVariable("subcategoryId") Long subcategoryId, 
+            @RequestParam(name = "page", defaultValue = "1") int page, 
+            Model model) {
+        
+        int size = 12; 
+        int offset = (page - 1) * size;
+
+        SubcategoryDTO subcategory = subcategoryDAO.getSubcategoryById(subcategoryId);
+        List<ProductsDTO> products = productsDAO.getProductsBySubcategoryIdPaged(subcategoryId, size, offset);
+        
+        int totalCount = productsDAO.countProductsBySubcategoryId(subcategoryId);
+        int totalPages = (int) Math.ceil((double) totalCount / size);
+
+        model.addAttribute("products", products);
+        model.addAttribute("subcategory", subcategory);
+        model.addAttribute("currentPage", page);
+        model.addAttribute("totalPages", totalPages);
+        
+        return "guest/products";
+    }
+
+    // 검색 (엘라스틱서치)
     @RequestMapping("/search")
     public String searchbox(@RequestParam("keyword") String keyword, Model model) throws Exception {
     	
@@ -88,21 +121,20 @@ public class ProductsController {
         return "redirect:" + ikeaUrl;
     }
 
- // 관리자 상품 등록 폼
+    // --- 관리자 기능 ---
     @GetMapping("/admin/new")
     public String newProductForm(Model model) {
         model.addAttribute("product", new ProductsDTO());
         model.addAttribute("categories", categoryDAO.getAllCategories());
         model.addAttribute("subcategories", subcategoryDAO.getAllSubcategories());
-        return "admin/newproducts"; // 등록 폼 JSP
+        return "admin/newproducts";
     }
 
-    // 관리자 상품 등록 처리 (유효성 검사 포함)
     @PostMapping("/admin/new")
     public String createProduct(ProductsDTO product, Model model) throws Exception {
         if (productsService.existsByName(product.getP_name())) {
             model.addAttribute("errorMessage", "이미 존재하는 상품명입니다.");
-            return "admin/newproducts"; // 등록 폼 JSP로 다시 이동
+            return "admin/newproducts";
         }
         
         SubcategoryDTO subcategoryDTO = new SubcategoryDTO();
@@ -119,22 +151,15 @@ public class ProductsController {
         return "redirect:/products/admin/list";
     }
 
-    // 관리자 상품 수정 폼
     @GetMapping("/admin/edit/{p_code}")
     public String editProductForm(@PathVariable("p_code") int p_code, Model model) {
         ProductsDTO product = productsDAO.getProductById(p_code);
         model.addAttribute("product", product);
-        
-        // ✅ 카테고리/서브카테고리 리스트도 모델에 추가
-        List<CategoryDTO> categories = categoryDAO.getAllCategories();
-        List<SubcategoryDTO> subcategories = subcategoryDAO.getAllSubcategories();
-        model.addAttribute("categories", categories);
-        model.addAttribute("subcategories", subcategories);
-              
-        return "admin/editproduct"; // 수정 폼 JSP
+        model.addAttribute("categories", categoryDAO.getAllCategories());
+        model.addAttribute("subcategories", subcategoryDAO.getAllSubcategories());
+        return "admin/editproduct";
     }
 
-    // 상품 수정 처리
     @PostMapping("/admin/update")
     public String updateProduct(ProductsDTO product) throws Exception {
     	
@@ -153,7 +178,6 @@ public class ProductsController {
         return "redirect:/products/admin/list"; // 수정 후 목록으로 이동
     }
 
-    // 관리자 상품 삭제
     @GetMapping("/admin/delete/{p_code}")
     public String deleteProduct(@PathVariable("p_code") int p_code) throws Exception {
         productsDAO.deleteProduct(p_code);
@@ -161,7 +185,6 @@ public class ProductsController {
         return "redirect:/products/admin/list"; // 삭제 후 목록으로 이동
     }
 
-    // CSV 업로드 처리
     @PostMapping("/admin/upload")
     public String uploadCsv(@RequestParam("file") MultipartFile file, Model model) {
         try {
@@ -170,16 +193,14 @@ public class ProductsController {
         } catch (Exception e) {
             model.addAttribute("errorMessage", "CSV 업로드 실패: " + e.getMessage());
         }
-        return "admin/products"; // 업로드 페이지 (products.jsp)
+        return "admin/products";
     }
 
-    // CSV 업로드 페이지 이동
     @GetMapping("/admin/upload-page")
     public String showUploadPage() {
-        return "admin/products"; // 업로드 전용 페이지
+        return "admin/products";
     }
 
-    // 관리자 상품 조회 (목록)
     @GetMapping("/admin/list")
     public String listProducts(@RequestParam(name = "page", defaultValue = "1") int page,
                                @RequestParam(name = "size", defaultValue = "10") int size,
@@ -197,17 +218,7 @@ public class ProductsController {
         return "admin/products_list";
     }
 
-    // 서브카테고리 상품 조회
-    @GetMapping("/subcategories/{subcategoryId}")
-    public String showProductsBySubcategory(@PathVariable("subcategoryId") int subcategoryId, Model model) {
-        List<ProductsDTO> products = productsDAO.getProductsBySubcategoryId(subcategoryId);
-        SubcategoryDTO subcategory = subcategoryDAO.getSubcategoryById(subcategoryId);
-        model.addAttribute("products", products);
-        model.addAttribute("subcategory", subcategory);
-        return "guest/products";	// ✅ 유저 페이지 JSP로 연결
-    }
-
-    // 찜 추가
+    // --- 찜 기능 ---
     @PostMapping("/favorites/add")
     public String addFavorite(@RequestParam("p_code") int p_code, HttpSession session) {
         String m_code = (String) session.getAttribute("m_code");
@@ -216,7 +227,6 @@ public class ProductsController {
         return "redirect:/products/favorites";
     }
 
-    // 찜 삭제
     @PostMapping("/favorites/remove")
     public String removeFavorite(@RequestParam("p_code") int p_code, HttpSession session) {
         String m_code = (String) session.getAttribute("m_code");
@@ -225,7 +235,6 @@ public class ProductsController {
         return "redirect:/products/favorites";
     }
 
-    // 찜 목록 조회
     @GetMapping("/favorites")
     public String favoritesPage(@RequestParam(value = "subcategoryId", required = false) Integer subcategoryId,
                                 HttpSession session, Model model) {

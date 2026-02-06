@@ -251,12 +251,6 @@ public class MemberController {
     /* =========================
      * 3. USER
      * ========================= */
-
-    @GetMapping("/guest/main")
-    public String guestMain() {
-        return "guest/main";
-    }
-
     @PostMapping("/user/verify-password")
     @ResponseBody
     public Map<String, Object> verifyPassword(
@@ -361,7 +355,6 @@ public class MemberController {
         // 3. /WEB-INF/views/admin/userDetail.jsp 파일을 찾아서 보여줍니다.
         return "admin/userDetail";
     }
-
 
     @GetMapping("/admin/forceDelete")
     public String forceDelete(@RequestParam(name = "m_id") String m_id) { // name="m_id" 추가

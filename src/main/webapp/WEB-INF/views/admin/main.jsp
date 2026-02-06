@@ -99,6 +99,7 @@
             <li><a href="/admin/userManage" class="nav-link">👥 회원 정보 관리</a></li>
             <li><a href="/guest/list" class="nav-link">🖼 콘텐츠 모니터링</a></li>
             <li><a href="/admin/chatbot_mgmt" class="nav-link">🤖 AI 챗봇 학습</a></li>
+            <li><a href="/" class="nav-link">🎨 회원페이지</a></li>
         </ul>
     </nav>
 

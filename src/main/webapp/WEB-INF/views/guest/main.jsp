@@ -5,7 +5,7 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title>그리다 | Home</title>
+<title>그리다 아뜰리에</title>
 <style>
 @import
 	url('https://fonts.googleapis.com/css2?family=Nanum+Myeongjo:wght@700&family=Pretendard:wght@300;400;600;700&display=swap')
@@ -22,7 +22,7 @@ body {
 /* 1. 상단 감성 배너 섹션 */
 .hero-section {
 	width: 100%;
-	padding: 60px auto 120px;
+	padding: 60px 0 100px;
 	display: flex;
 	flex-direction: column;
 	align-items: center;
@@ -46,8 +46,8 @@ body {
 	position: relative;
 	z-index: 5;
 	width: 90%;
-	max-width: 1200px;
-	padding: 50px 60px;
+	max-width: 1100px;
+	padding: 80px 60px;
 	background: white;
 	border-radius: 50px;
 	box-shadow: 0 20px 50px rgba(139, 126, 116, 0.1);
@@ -117,19 +117,15 @@ body {
 
 /* 2. 섹션 스타일 */
 .section-box {
-	max-width: 1300px;
+	max-width: 1200px;
 	margin: 0 auto;
 	padding: 0 40px;
 	box-sizing: border-box;
 }
 
 .section-header {
-    max-width: 360px;        /* 🔥 카드 폭과 동일하게 */
-    margin-left: 0;
-    display: flex;
-    justify-content: space-between;
+	margin-bottom: 35px;
 }
-
 
 .section-header h2 {
 	font-family: 'Nanum Myeongjo', serif;
@@ -365,32 +361,29 @@ to {
 }
 /* 새로운 대시보드 레이아웃 여백 보강 */
 .dashboard-layout {
-    width: 100% !important;
-    box-sizing: border-box !important;
-    display: block !important;    /* flex가 설정되어 있다면 해제 */
+    margin-top: 20px !important;
+    margin-bottom: 40px !important; /* 기존 100px에서 40px로 줄여 게시글을 위로 끌어올림 */
+    position: relative;
+    z-index: 10;
 }
 
 .dashboard-container {
     width: 100%;
     display: flex;
-    justify-content: center !important;
+    justify-content: space-between;
     align-items: center;
-
-    padding: 60px 60px;   /* 좌우 동일 */
-    box-sizing: border-box;
-	transform: translateX(-15px);
     background: #ffffff;
+    /* 상하 패딩을 기존 60px -> 30px로 반토막 */
+    padding: 30px 60px; 
     border-radius: 30px;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.04);
-    gap: 80px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.04);
 }
 
-
+/* 왼쪽 텍스트 영역 */
 .dashboard-text {
-    flex: 1 1 0 !important;
-    max-width: 420px;
-    border-left: 3px solid #e76f51;
-    padding-left: 40px;
+	flex: 0 0 350px;
+	border-left: 3px solid #e76f51;
+	padding-left: 40px;
 }
 
 .dashboard-text .tag {
@@ -418,17 +411,14 @@ to {
 	font-weight: 500;
 }
 
+/* 오른쪽 비주얼 영역 */
 .dashboard-visual {
-    flex: 1 1 0 !important;
-    max-width: 520px !important;  /* 🔥 600 → 520 */
-    margin-right: 20px;           /* 🔥 시각 중심 보정 */
-    
-    display: grid !important;
-    grid-template-columns: repeat(3, 1fr) !important;
-    gap: 15px !important;
+    flex: 1;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 15px;
+    margin-left: 50px;
 }
-
-
 
 .dash-item {
 	text-decoration: none;
@@ -525,8 +515,7 @@ to {
     display: flex;
     justify-content: space-between;
     align-items: flex-end;
-    margin-bottom: 30px;
-    /* 만약 제목도 너무 붙어 보인다면 여기서 추가 padding을 줄 수 있습니다 */
+    margin-bottom: 25px;
 }
 .header-text h2 { font-size: 20px; font-weight: 700; margin: 0; color: #2f3438; }
 .header-text p { font-size: 14px; color: #828c94; margin: 5px 0 0; }
@@ -535,10 +524,9 @@ to {
 /* 가로 스크롤 컨테이너 */
 .photo-scroll-container {
     display: flex;
-    gap: 20px;
+    gap: 15px;
     overflow-x: auto;
     padding-bottom: 10px;
-    justify-content: flex-start;
     scrollbar-width: none; /* 파이어폭스 */
 }
 .photo-scroll-container::-webkit-scrollbar { display: none; } /* 크롬, 사파리 */
@@ -575,11 +563,8 @@ to {
     z-index: 2;
 }
 .photo-recommend-section {
-    width: 100% !important;
-    max-width: 1200px !important; /* 위 대시보드 박스(max-width)와 똑같은 값으로 설정 */
-    margin: 0 auto !important;    /* 화면 중앙 정렬 (이게 없어서 왼쪽에 붙는 것임) */
-    padding: 60px 40px 120px 40px !important; /* 좌우 패딩을 40px 정도로 주어 여유 확보 */
-    box-sizing: border-box !important;
+    margin-top: 0; /* 위에서 대시보드가 밀어주는 여백만 사용 */
+    padding-bottom: 120px; /* 게시글 아래 공간을 충분히 확보해 바닥에 붙는 현상 해결 */
 }
 .user-info { display: flex; align-items: center; gap: 8px; }
 .user-thumb { 
