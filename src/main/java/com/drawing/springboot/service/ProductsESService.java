@@ -37,7 +37,7 @@ public class ProductsESService {
 		map.put("p_rating", dto.getP_rating());
 		map.put("p_image", dto.getP_image());
 		map.put("p_url", dto.getP_url());
-		map.put("p_price", dto.getP_price());
+		map.put("p_price", Long.parseLong(dto.getP_price()));
 		map.put("subcategoryname", dto.getSubcategoryName());
 		map.put("categoryname", dto.getCategoryName());
 		

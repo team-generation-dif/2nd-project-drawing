@@ -44,7 +44,7 @@
 	    <form name="search" method="get" action="/products/search" class="search-form">
 			<input type="text" name="keyword" id="keyword" placeholder="찾으시는 가구가 있나요?" autocomplete="off">
 			<button type="submit" class="search-btn">
-                <i class="fa fa-search"></i>
+                <i>▼</i>
             </button>
 			<div id="suggestions" class="suggestions-box"></div>
 		</form>
