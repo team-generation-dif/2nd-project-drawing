@@ -149,7 +149,7 @@
                 <div class="message error">⚠️ ${errorMessage}</div>
             </c:if>
 
-            <form action="${pageContext.request.contextPath}/products/admin/upload" 
+            <form action="${pageContext.request.contextPath}/ products/admin/upload" 
                   method="post" enctype="multipart/form-data">
                 
                 <div class="file-input-wrapper">

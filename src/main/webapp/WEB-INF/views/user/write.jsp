@@ -9,20 +9,20 @@
 <style>
     /* 1. 전체 배경 및 초기화 */
     body {
-        background-color: #fffaf5; /* 마이페이지와 통일된 웜 화이트 */
+        background-color: #fffaf5;
         font-family: 'Pretendard', sans-serif;
         color: #4a3f35;
         margin: 0;
     }
 
-    /* 2. 메인 컨테이너 (대시보드 스타일 확장) */
+    /* 2. 메인 컨테이너 */
     .write-wrapper {
         background: #ffffff;
         width: 90%;
-        max-width: 900px;    /* 너무 넓으면 가독성이 떨어지므로 900px로 조절 */
+        max-width: 900px;
         margin: 60px auto 120px;
         padding: 60px 50px;
-        border-radius: 40px; /* 시그니처 곡률 */
+        border-radius: 40px;
         box-shadow: 0 15px 35px rgba(139, 126, 116, 0.08);
         border: 1px solid #f7ede2;
         box-sizing: border-box;
@@ -37,48 +37,53 @@
         letter-spacing: -0.02em;
     }
 
-    /* 3. 사진 업로드 영역 (반응형 유지) */
+    /* 3. 사진 업로드 영역 */
     .file-upload-box {
         margin-bottom: 40px;
         text-align: center;
     }
 
+    /* [수정] 이미지를 중앙 정렬하는 부모 박스 */
     #image-wrapper { 
         position: relative; 
-        border: 2px dashed #eee1d5; /* 업로드 영역임을 강조하는 대시 보더 */
+        border: 2px dashed #eee1d5; 
         border-radius: 25px;
-        display: inline-block; /* 이미지 크기에 맞게 조절 */
+        display: flex;
+        align-items: center;
+        justify-content: center;
         cursor: crosshair; 
         background: #fdfbf9; 
         width: 100%;         
         min-height: 400px;
-        max-height: 700px;   /* 너무 길어짐 방지 */
         overflow: hidden;
         transition: all 0.3s ease;
     }
 
-    #image-wrapper:hover {
-        border-color: #8b7e74;
+    /* [추가] 이미지와 태그가 동기화될 실제 영역 */
+    .img-container {
+        position: relative;
+        display: inline-block;
+        max-width: 100%;
     }
 
     #preview-img { 
-        width: 100%; 
+        max-width: 100%; 
         height: auto; 
         display: block; 
         border-radius: 23px;
     }
 
-    /* 4. 감성 태그 포인트 (더 세련되게) */
+    /* 4. 감성 태그 포인트 */
     .tag-dot { 
         position: absolute; 
         width: 14px; height: 14px; 
-        background: #e76f51; /* 포인트 컬러인 코랄 사용 */
+        background: #e76f51; 
         border: 3px solid #fff; 
         border-radius: 50%; 
         transform: translate(-50%, -50%); 
         z-index: 10; 
         box-shadow: 0 2px 8px rgba(0,0,0,0.2);
-        animation: pulse 2s infinite; /* 시각적 효과 추가 */
+        animation: pulse 2s infinite;
     }
 
     @keyframes pulse {
@@ -109,7 +114,7 @@
         box-shadow: 0 0 0 4px rgba(139, 126, 116, 0.05);
     }
 
-    /* 6. 하단 버튼 디자인 */
+    /* 6. 버튼 */
     .action-buttons {
         display: flex;
         justify-content: center;
@@ -130,56 +135,28 @@
         text-decoration: none;
     }
 
-    .btn-submit { 
-        background-color: #8b7e74; 
-        color: white; 
-    }
-    
-    .btn-cancel { 
-        background-color: #eeeae7; 
-        color: #8b7e74; 
+    .btn-submit { background-color: #8b7e74; color: white; }
+    .btn-cancel { background-color: #eeeae7; color: #8b7e74; }
+
+    #file-input {
+        position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+        overflow: hidden; clip: rect(0, 0, 0, 0); border: 0;
     }
 
-    .btn:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 5px 15px rgba(139, 126, 116, 0.1);
+    .file-label {
+        display: inline-block;
+        padding: 14px 30px;
+        background: #8b7e74;
+        color: #fff;
+        border-radius: 50px;
+        cursor: pointer;
+        margin-bottom: 25px;
+        font-size: 0.95rem;
+        transition: 0.3s;
+        font-weight: 600;
     }
 
-  /* 실제 파일 선택 버튼을 완전히 숨깁니다 */
-#file-input {
-    position: absolute;
-    width: 1px;
-    height: 1px;
-    padding: 0;
-    margin: -1px;
-    overflow: hidden;
-    clip: rect(0, 0, 0, 0);
-    border: 0;
-}
-
-/* 기존 디자인된 라벨 버튼 스타일 (이미 잘 되어 있으므로 유지) */
-.file-label {
-    display: inline-block;
-    padding: 14px 30px;
-    background: #8b7e74;
-    color: #fff;
-    border-radius: 50px;
-    cursor: pointer;
-    margin-bottom: 25px;
-    font-size: 0.95rem;
-    transition: 0.3s;
-    font-weight: 600;
-}
-
-.file-label:hover {
-    background: #4a3f35; /* 마우스 올렸을 때 색상 변화 추가 */
-}
-    .info-text {
-        display: block;
-        margin-top: 15px;
-        font-size: 0.85rem;
-        color: #bcaaa4;
-    }
+    .info-text { display: block; margin-top: 15px; font-size: 0.85rem; color: #bcaaa4; }
 </style>
 </head>
 <body>
@@ -192,12 +169,14 @@
         
         <div class="file-upload-box">
             <label for="file-input" class="file-label">✦ 사진 선택하기</label>
-<input type="file" id="file-input" name="file" onchange="loadImage(event)" required>
+            <input type="file" id="file-input" name="file" onchange="loadImage(event)" required>
             
-            <div id="image-wrapper" onclick="addTag(event)">
-                <img id="preview-img" src="">
-                <div id="placeholder-text" style="position:absolute; top:50%; left:50%; transform:translate(-50%, -50%); color:#bcaaa4; line-height: 1.6;">
-                    선택한 사진이 여기에 표시됩니다.<br>사진 클릭 시 상품 태그를 달 수 있어요.
+            <div id="image-wrapper">
+                <div class="img-container" id="img-container" onclick="addTag(event)">
+                    <img id="preview-img" src="">
+                    <div id="placeholder-text" style="position:absolute; top:50%; left:50%; transform:translate(-50%, -50%); color:#bcaaa4; line-height: 1.6; white-space:nowrap;">
+                        선택한 사진이 여기에 표시됩니다.<br>사진 클릭 시 상품 태그를 달 수 있어요.
+                    </div>
                 </div>
             </div>
             <span class="info-text">* 사진 속 사물을 클릭하여 정보를 남겨보세요.</span>
@@ -213,7 +192,6 @@
         
         <input type="hidden" name="tagData" id="tagJson">
 
-        
         <div class="action-buttons">
             <a href="/guest/list" class="btn btn-cancel">취소</a>
             <button type="button" class="btn btn-submit" onclick="submitFinal()">기록 완료</button>
@@ -233,7 +211,7 @@
                 preview.src = e.target.result;
                 document.getElementById('placeholder-text').style.display = 'none';
                 
-                // 새로운 이미지를 불러올 때 기존 태그 초기화
+                // 새로운 이미지 불러올 시 기존 태그 초기화
                 tagArray = [];
                 const dots = document.querySelectorAll('.tag-dot');
                 dots.forEach(dot => dot.remove());
@@ -244,12 +222,15 @@
 
     function addTag(event) {
         const img = document.getElementById('preview-img');
+        const container = document.getElementById('img-container');
+
         if (!img.src || img.getAttribute('src') === "") { 
             alert("먼저 사진을 선택해주세요!"); 
             return; 
         }
 
-        const rect = event.currentTarget.getBoundingClientRect();
+        // [수정] 기준점을 wrapper가 아닌 container(이미지 크기)로 변경
+        const rect = container.getBoundingClientRect();
         const x = ((event.clientX - rect.left) / rect.width) * 100;
         const y = ((event.clientY - rect.top) / rect.height) * 100;
         
@@ -269,7 +250,9 @@
             dot.style.left = x + '%'; 
             dot.style.top = y + '%';
             dot.title = name;
-            event.currentTarget.appendChild(dot);
+            
+            // [수정] 태그를 이미지 컨테이너에 추가 (이미지와 함께 움직임)
+            container.appendChild(dot);
         }
     }
 
@@ -283,5 +266,4 @@
     }
 </script>
 </body>
-
 </html>
