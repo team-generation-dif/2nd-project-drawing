@@ -748,6 +748,16 @@ to {
 .magazine-item .btn-bookmark svg {
     filter: drop-shadow(0 0 2px rgba(0,0,0,0.5)); /* 흰색 테두리일 때 배경과 구분되도록 */
 }
+
+/* iframe 영역 */
+.iframe-container {
+    width: 100%;
+    height: 600px;
+    border-radius: 30px;
+    overflow: hidden;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.04);
+    border: 1px solid #f7ede2;
+}
 </style>
 </head>
 <body>
@@ -777,6 +787,15 @@ to {
 
 				</c:forEach>
 			</div>
+		</div>
+	</section>
+	<section class="section-box">
+		<div class="iframe-container">
+			<iframe 
+				src="http://192.168.10.29:5601/app/dashboards#/view/67626ae0-0331-11f1-b422-b93de160e7f4?_g=(filters:!(),refreshInterval:(pause:!t,value:0),time:(from:now-15m,to:now))&_a=(description:'',filters:!(),fullScreenMode:!f,options:(hidePanelTitles:!f,useMargins:!t),query:(language:kuery,query:''),timeRestore:!f,title:drawing-project,viewMode:view)"
+				style="border: none; width: 100%; height: 100%; display: block"
+				allow="fullscreen"
+			></iframe>
 		</div>
 	</section>
 	<section class="section-box photo-recommend-section">
