@@ -242,10 +242,10 @@
                 </c:forEach>
             </div>
         </c:if>
-	</div>
+   </div>
 
-	<!-- 상품 목록 -->
-	<div class="container">
+   <!-- 상품 목록 -->
+   <div class="container">
     <h3>상품 목록</h3>
     <div class="product-grid">
         <c:forEach var="product" items="${products}">
@@ -338,5 +338,7 @@
     box-shadow: 0 5px 15px rgba(139, 126, 116, 0.2);
 }
 </style>
+
+<jsp:include page="/WEB-INF/views/guest/footer.jsp" />
 </body>
 </html>

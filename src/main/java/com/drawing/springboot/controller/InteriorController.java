@@ -33,41 +33,54 @@ import jakarta.servlet.http.HttpSession;
 @Controller
 public class InteriorController {
     
-	@Autowired
-	IInteriorDAO interiorDAO;
-	
-	@Autowired
-	IFloorplanDAO floorplanDAO;
-	
-	@Autowired
-	IMemberDAO memberDAO;
-	
-	@Autowired
-	IProductsDAO productsDAO;
-	
-	@Autowired
-	IFavoritesDAO favoritesDAO;
-	
-	private final String uploadDir = "C:/upload/interior/";
-	
+   @Autowired
+   IInteriorDAO interiorDAO;
+   
+   @Autowired
+   IFloorplanDAO floorplanDAO;
+   
+   @Autowired
+   IMemberDAO memberDAO;
+   
+   @Autowired
+   IProductsDAO productsDAO;
+   
+   @Autowired
+   IFavoritesDAO favoritesDAO;
+   
+   private final String uploadDir = "C:/upload/interior/";
+   
     @RequestMapping("/user/interior/draw")
     public String draw(Model model, 
-    		@RequestParam(value="i_code", required = false) String i_code,
-    		@RequestParam(value="f_code", required = false) String f_code) {
-    	if (i_code != null && !i_code.isEmpty()) {
-    		InteriorDTO dto = interiorDAO.selectDAOByICode(i_code);
-    		model.addAttribute("loaded", dto);
-    	} else if (f_code != null && !f_code.isEmpty()) {
-    		FloorplanDTO fp = floorplanDAO.selectDAOByFCode(f_code);
-    		
-    		InteriorDTO floordto = new InteriorDTO();
-    		floordto.setJson_data(fp.getJson_data());
-    		floordto.setF_code(fp.getF_code());
-    		
-    		model.addAttribute("loaded", floordto);
-    	}
-    	
-    	return "user/interior/interior_drawing";
+          @RequestParam(value="i_code", required = false) String i_code,
+          @RequestParam(value="f_code", required = false) String f_code) {
+       if (i_code != null && !i_code.isEmpty()) {
+          InteriorDTO dto = interiorDAO.selectDAOByICode(i_code);
+          model.addAttribute("loaded", dto);
+       } else if (f_code != null && !f_code.isEmpty()) {
+          FloorplanDTO fp = floorplanDAO.selectDAOByFCode(f_code);
+          
+          InteriorDTO floordto = new InteriorDTO();
+          floordto.setJson_data(fp.getJson_data());
+          floordto.setF_code(fp.getF_code());
+          
+          model.addAttribute("loaded", floordto);
+       }
+       
+       return "user/interior/interior_drawing";
+    }
+ // InteriorController (예시)
+    @GetMapping("/user/interior/atelier")
+    public String atelierList(HttpSession session, Model model) {
+        // 세션에서 로그인한 사용자의 m_code 확인
+        String m_code = (String) session.getAttribute("m_code");
+        
+        // 이 메서드가 실행될 때 DB에서 데이터를 제대로 가져오는지 로그를 찍어보세요
+        List<InteriorDTO> list = interiorDAO.selectDAOByMCode(m_code);
+        System.out.println("조회된 작품 개수: " + list.size()); // 0이 나오면 저장된 데이터가 없는 것임
+        
+        model.addAttribute("dto", list);
+        return "user/interior/atelier";
     }
  // InteriorController (예시)
     @GetMapping("/user/interior/atelier")
@@ -85,39 +98,39 @@ public class InteriorController {
     
     @RequestMapping("/user/interior/myDraw")
     public String myDraw(Authentication authentication, Model model) {
-    	String m_code = memberDAO.findByMid(authentication.getName()).getM_code();
-    	List<InteriorDTO> list = interiorDAO.selectDAOByMCode(m_code);
-    	
-    	if (list == null || list.isEmpty()) {
+       String m_code = memberDAO.findByMid(authentication.getName()).getM_code();
+       List<InteriorDTO> list = interiorDAO.selectDAOByMCode(m_code);
+       
+       if (list == null || list.isEmpty()) {
             System.out.println("저장된 인테리어가 없습니다 m_code: " + m_code);
         } else {
             System.out.println("조회 성공! 개수: " + list.size());
         }
-    	model.addAttribute("dto", list);
-    	return "user/interior/myInterior";
+       model.addAttribute("dto", list);
+       return "user/interior/myInterior";
     }
     
     // 인테리어 저장
     @RequestMapping("/user/interior/interiorsave")
     @ResponseBody
     public Map<String, String> interiorsave(InteriorDTO dto, @RequestParam(value = "file") MultipartFile file, HttpServletRequest request, Authentication authentication) {
-    	Map<String, String> response = new HashMap<>();
-    	
-    	String i_title = request.getParameter("i_title");
-    	String f_code = request.getParameter("f_code");
-    	String json_data = request.getParameter("json_data");
-    	MemberDTO memberDTO = memberDAO.findByMid(authentication.getName()); 
-    	
-		dto.setI_title(i_title);
-		dto.setJson_data(json_data);
-		dto.setF_code(f_code);
-		dto.setM_code(memberDTO.getM_code());
-		
-    	try {
-    		File dir = new File(uploadDir);
-    		if (!dir.exists()) dir.mkdirs();
-    		
-    		if (file != null && !file.isEmpty()) {
+       Map<String, String> response = new HashMap<>();
+       
+       String i_title = request.getParameter("i_title");
+       String f_code = request.getParameter("f_code");
+       String json_data = request.getParameter("json_data");
+       MemberDTO memberDTO = memberDAO.findByMid(authentication.getName()); 
+       
+      dto.setI_title(i_title);
+      dto.setJson_data(json_data);
+      dto.setF_code(f_code);
+      dto.setM_code(memberDTO.getM_code());
+      
+       try {
+          File dir = new File(uploadDir);
+          if (!dir.exists()) dir.mkdirs();
+          
+          if (file != null && !file.isEmpty()) {
                 String originalName = file.getOriginalFilename();
                 String saveName = UUID.randomUUID().toString() + "_" + originalName; // 이름 중복 방지
                 String fullPath = uploadDir + saveName;
@@ -126,52 +139,52 @@ public class InteriorController {
 
                 dto.setI_image("/upload/interior/" + saveName);
             }
-    		
-    		//  i_code 없을 경우 처음엔 생성, i_code 있을 경우 수정
-    		if (dto.getI_code() == null || dto.getI_code().isEmpty()) {
-    			interiorDAO.insertDAO(dto);
-    			response.put("status","ok");
-    			response.put("iCode",dto.getI_code());
-    			response.put("message", "신규 저장 성공");
-    		} else {
-    			interiorDAO.updateDAO(dto);
-    			response.put("status","ok");
-    			response.put("iCode",dto.getI_code());
-    			response.put("message", "수정 저장 성공");
-    		}
-    		return response;
-    		
-    	} catch (Exception e) {
-    		response.put("status", "fail");
+          
+          //  i_code 없을 경우 처음엔 생성, i_code 있을 경우 수정
+          if (dto.getI_code() == null || dto.getI_code().isEmpty()) {
+             interiorDAO.insertDAO(dto);
+             response.put("status","ok");
+             response.put("iCode",dto.getI_code());
+             response.put("message", "신규 저장 성공");
+          } else {
+             interiorDAO.updateDAO(dto);
+             response.put("status","ok");
+             response.put("iCode",dto.getI_code());
+             response.put("message", "수정 저장 성공");
+          }
+          return response;
+          
+       } catch (Exception e) {
+          response.put("status", "fail");
             response.put("message", e.getMessage());
             return response;
-    	}
+       }
     }
     
     // 인테리어 목록에서 삭제
     @RequestMapping("/user/interior/delete")
     public String interiordelete(@RequestParam(value="i_code") String i_code) {
-    	interiorDAO.deleteDAO(i_code);
-    	return "redirect:/user/interior/myDraw";
+       interiorDAO.deleteDAO(i_code);
+       return "redirect:/user/interior/myDraw";
     }
     
     @RequestMapping("/user/interior/prodlist")
     @ResponseBody
     public List<ProductsDTO> getEditorProducts(@RequestParam(value="categoryId", required=false, defaultValue="0") int categoryId,
-    										   @RequestParam(value="subcategoryId", required=false, defaultValue="0") int subcategoryId) {
+                                     @RequestParam(value="subcategoryId", required=false, defaultValue="0") int subcategoryId) {
         
-    	List<ProductsDTO> list = null;
-    	
-    	// 1. 데이터 조회
-    	if (subcategoryId != 0) {
+       List<ProductsDTO> list = null;
+       
+       // 1. 데이터 조회
+       if (subcategoryId != 0) {
             list = productsDAO.getProductsBySubcategoryId(subcategoryId);
         } else if (categoryId != 0) {
             list = productsDAO.getProductsByCategoryId(categoryId);
         }
         
         if (list == null) {
-        	return null;
-    	}
+           return null;
+       }
         Iterator<ProductsDTO> iterator = list.iterator();
         while (iterator.hasNext()) {
             ProductsDTO dto = iterator.next();
@@ -216,7 +229,7 @@ public class InteriorController {
     @RequestMapping("/user/interior/favlist")
     @ResponseBody
     public List<ProductsDTO> getFavoriteList(Authentication authentication) {
-    	String m_code = "";
+       String m_code = "";
         if (authentication != null) {
             try {
                 String m_id = authentication.getName();

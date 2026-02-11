@@ -155,9 +155,7 @@ h2.main-title {
     </div>
 </div>
 
-<footer style="text-align: center; padding: 60px 0; color: #bcaaa4; font-size: 0.9rem; background-color: #fffaf5;">
-    <p>&copy; 2026 그리다. 모든 권리가 보호됩니다.</p>
-</footer>
+<jsp:include page="/WEB-INF/views/guest/footer.jsp" />
 
 </body>
 </html>

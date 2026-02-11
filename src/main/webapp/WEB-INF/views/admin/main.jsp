@@ -251,5 +251,7 @@
         // DOM이 로드된 후 즉시 실행하도록 보장
         document.addEventListener('DOMContentLoaded', renderCalendar);
     </script>
+    
+    <jsp:include page="/WEB-INF/views/guest/footer.jsp" />
 </body>
 </html>
