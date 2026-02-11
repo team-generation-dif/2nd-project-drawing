@@ -174,9 +174,13 @@
             </div>
 
             <div class="btn-area">
-                <a href="javascript:history.back()" class="btn btn-back">목록으로</a>
-                <a href="/admin/userEdit?m_id=${user.m_id}" class="btn btn-edit">정보 수정</a>
-            </div>
+    <a href="/admin/userManage" class="btn btn-back">목록으로</a>
+    
+    <button type="button" class="btn btn-edit" style="background-color: #e76f51;"
+            onclick="if(confirm('${user.m_id}님을 정말 강제 탈퇴시키겠습니까?')) location.href='/admin/forceDelete?m_id=${user.m_id}'">
+        강제 탈퇴
+    </button>
+</div>
         </div>
     </div>
 </body>

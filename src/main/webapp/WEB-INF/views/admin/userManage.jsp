@@ -31,7 +31,7 @@
             align-items: center;
             margin-bottom: 30px;
             padding-bottom: 20px;
-            border-bottom: 2px solid #8b7e74; /* 상품 페이지와 통일 */
+            border-bottom: 2px solid #8b7e74;
         }
 
         .header-flex h2 {
@@ -41,7 +41,7 @@
             color: #4a3f35;
         }
 
-        /* 2. 테이블 스타일 최적화 */
+        /* 2. 테이블 및 링크 스타일 */
         table {
             width: 100%;
             border-collapse: separate;
@@ -65,6 +65,23 @@
             text-align: center;
             font-size: 0.95rem;
             vertical-align: middle;
+        }
+
+        /* [추가] 상세보기 링크 스타일 */
+        .user-link {
+            text-decoration: none;
+            color: #4a3f35;
+            font-weight: 600;
+            transition: all 0.2s ease;
+            cursor: pointer;
+            padding: 5px 10px;
+            border-radius: 8px;
+        }
+
+        .user-link:hover {
+            background-color: #fdfbf9;
+            color: #8b7e74;
+            text-decoration: underline;
         }
 
         tr:hover td { background-color: #fffdfb; }
@@ -91,7 +108,7 @@
             color: white;
         }
 
-        /* 3. [중요] 그리다 페이징 스타일 (통일) */
+        /* 3. 페이징 스타일 */
         .pagination-wrapper {
             margin-top: 50px;
             display: flex;
@@ -153,7 +170,11 @@
                 <c:forEach var="m" items="${userList}">
                     <tr>
                         <td>${m.m_id}</td>
-                        <td style="font-weight: 600;">${m.m_name} (${m.m_nick})</td>
+                        <td>
+                            <a href="/admin/userDetail?m_id=${m.m_id}" class="user-link" title="상세보기">
+                                ${m.m_name} (${m.m_nick})
+                            </a>
+                        </td>
                         <td style="color: #a39485;">${m.m_email}</td>
                         <td>
                             <c:choose>
@@ -183,17 +204,13 @@
 
         <div class="pagination-wrapper">
             <c:if test="${totalPages > 1}">
-                
                 <c:if test="${currentPage > 1}">
                     <a href="?page=${currentPage-1}" class="grida-page-link">&lt;</a>
                 </c:if>
 
                 <c:set var="startPage" value="${currentPage - 2 > 0 ? currentPage - 2 : 1}" />
                 <c:set var="endPage" value="${startPage + 4 > totalPages ? totalPages : startPage + 4}" />
-                <c:if test="${endPage == totalPages && endPage - 4 > 0}">
-                    <c:set var="startPage" value="${endPage - 4}" />
-                </c:if>
-
+                
                 <c:forEach var="i" begin="${startPage}" end="${endPage}">
                     <a href="?page=${i}" class="grida-page-link ${i == currentPage ? 'active' : ''}">${i}</a>
                 </c:forEach>
@@ -201,7 +218,6 @@
                 <c:if test="${currentPage < totalPages}">
                     <a href="?page=${currentPage+1}" class="grida-page-link">&gt;</a>
                 </c:if>
-                
             </c:if>
         </div>
     </div>
