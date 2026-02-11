@@ -132,7 +132,7 @@
         <div class="dashboard-row">
             <div class="card">
                 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:30px;">
-                    <span style="font-weight:700; font-size: 1.2rem;">📊 실시간 가구 조회 트렌드</span>
+                    <span style="font-weight:700; font-size: 1.2rem;">📊 실시간 가구 조회 트렌드(출처:네이버)</span>
                     <button onclick="location.reload()" style="padding:8px 16px; border-radius:10px; border:1px solid #ddd; background:#fff; cursor:pointer; font-weight: 600;">새로고침</button>
                 </div>
                 <div style="height: 420px;"><canvas id="trendChart"></canvas></div>
@@ -251,5 +251,7 @@
         // DOM이 로드된 후 즉시 실행하도록 보장
         document.addEventListener('DOMContentLoaded', renderCalendar);
     </script>
+    
+    <jsp:include page="/WEB-INF/views/guest/footer.jsp" />
 </body>
 </html>

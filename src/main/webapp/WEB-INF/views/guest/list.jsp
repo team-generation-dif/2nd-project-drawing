@@ -388,5 +388,7 @@ function handleBookmark(event, b_code, element) {
     });
 }
 </script>
+
+<jsp:include page="/WEB-INF/views/guest/footer.jsp" />
 </body>
 </html>

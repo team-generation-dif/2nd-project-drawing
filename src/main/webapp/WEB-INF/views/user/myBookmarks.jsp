@@ -247,5 +247,7 @@ body {
         });
     }
     </script>
+    
+    <jsp:include page="/WEB-INF/views/guest/footer.jsp" />
 </body>
 </html>

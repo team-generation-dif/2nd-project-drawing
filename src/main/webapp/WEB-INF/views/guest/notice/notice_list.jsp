@@ -172,5 +172,7 @@
             </tbody>
         </table>
     </div>
+    
+    <jsp:include page="/WEB-INF/views/guest/footer.jsp" />
 </body>
 </html>

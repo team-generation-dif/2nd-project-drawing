@@ -1029,6 +1029,7 @@ document.querySelectorAll('.btn-bookmark').forEach(button => {
 });
 </script>
 
+<jsp:include page="/WEB-INF/views/guest/footer.jsp" />
 
 </body>
 </html>

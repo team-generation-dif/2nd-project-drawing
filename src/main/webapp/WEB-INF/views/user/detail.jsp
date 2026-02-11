@@ -216,10 +216,16 @@
     <div class="action-buttons">
     <a href="/guest/list" class="btn btn-list">목록으로</a>
     
-    <%-- loginId 대신 sessionScope.m_id(또는 실제 세션 변수명)를 직접 사용 --%>
+    <%-- 1. 작성자인 경우: 수정과 삭제 모두 가능 --%>
     <c:if test="${not empty sessionScope.m_id and sessionScope.m_id eq board.m_id}">
         <a href="/user/edit?b_code=${board.b_code}" class="btn btn-edit">게시글 수정</a>
         <button type="button" class="btn btn-delete" onclick="fnDelete('${board.b_code}')">게시글 삭제</button>
+    </c:if>
+
+    <%-- 2. 관리자인 경우 (작성자가 아닐 때만): 삭제 버튼만 표시 --%>
+    <%-- sessionScope.m_role은 MemberController의 loginSuccess에서 저장한 이름을 사용하세요 --%>
+    <c:if test="${sessionScope.m_role eq 'ROLE_ADMIN' and sessionScope.m_id ne board.m_id}">
+        <button type="button" class="btn btn-delete" style="background-color: #e76f51;" onclick="fnDelete('${board.b_code}')">관리자 권한 삭제</button>
     </c:if>
 </div>
 </div>
