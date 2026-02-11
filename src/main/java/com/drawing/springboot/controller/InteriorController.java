@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -27,6 +28,7 @@ import com.drawing.springboot.dto.MemberDTO;
 import com.drawing.springboot.dto.ProductsDTO;
 
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpSession;
 
 @Controller
 public class InteriorController {
@@ -66,6 +68,19 @@ public class InteriorController {
     	}
     	
     	return "user/interior/interior_drawing";
+    }
+ // InteriorController (예시)
+    @GetMapping("/user/interior/atelier")
+    public String atelierList(HttpSession session, Model model) {
+        // 세션에서 로그인한 사용자의 m_code 확인
+        String m_code = (String) session.getAttribute("m_code");
+        
+        // 이 메서드가 실행될 때 DB에서 데이터를 제대로 가져오는지 로그를 찍어보세요
+        List<InteriorDTO> list = interiorDAO.selectDAOByMCode(m_code);
+        System.out.println("조회된 작품 개수: " + list.size()); // 0이 나오면 저장된 데이터가 없는 것임
+        
+        model.addAttribute("dto", list);
+        return "user/interior/atelier";
     }
     
     @RequestMapping("/user/interior/myDraw")
